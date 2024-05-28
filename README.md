@@ -1,4 +1,4 @@
-# Welcome to StackEdit!
+# Yoge - A Yoga Training Aid App
 
 Remastering `yogaposeestim-thesis` project  by turning it into a native application instead of a web app.
 
