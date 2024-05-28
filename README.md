@@ -8,7 +8,7 @@ Using a microservices architecture, the appliation will include two REST APIs th
 |Technology|Name|
 |--|--|
 | Pose Estimation | MediaPipe PoseLandmarker Solution (Python) |
-| Pose Estimation Service API | Flask (Python) |
+| Pose Estimation Service API | Websockets (Python) |
 | Scores Database | SQLite |
 | Scores API | ExpressJS |
 | Native App UI | .NET WPF |
