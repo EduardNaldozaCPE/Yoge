@@ -1,52 +1,35 @@
-# Written by Eduard Naldoza, Bachelor of Science in Computer Engineering
-# De La Salle University - Dasmariñas (2022)
-# https://github.com/EduardNaldozaCPE/yogaposeestim-Thesis
+import websockets
+import asyncio
+import threading
+from PoseEstimationService import PoseEstimationService
 
-from flask import Flask, json, redirect, request, url_for, Response, jsonify
-from flask_cors import CORS
-from VideoController import PoseEstimationService
-from multiprocessing import Pool
+IpAddress = '127.0.0.1'
+port = 8081
+DISCONNECT_STR = "!DISCONNECT"
 
-app1 = Flask(__name__)
-app1.secret_key = "passwordlmao"
-cors = CORS(app1)
-app1.config['CORS_HEADERS'] = 'Content-Type'
-app1.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
+async def echo(websocket, path):
+    async for message in websocket:
+        print(f"Received message: {message}")
+        if (message == DISCONNECT_STR):
+            break
+        await websocket.send(message)
+        print(f"Sent message: {message}")
 
+
+# TODO --   Read up on asyncio
+# TODO --   Get the frame data from PoseEstimationService.runVideo() method
+#           Follow Pipeline / Stack:
+#               Request -> SocketController -> PoseEstimationService -> SocketController -> Response
 poseEstimationService = PoseEstimationService()
-
-@app1.route("/", methods=['POST', 'GET'])
-def home_page():
-    try:
-        return jsonify({"message":"working"})
-    except:
-        return jsonify({"message":"error"})
+async def processVideo():
+    # frame_data = poseEstimationService.runVideo()
+    # await websocket.send(data)
+    pass
 
 
-@app1.route("/API/status", methods=['POST', 'GET'])
-def status():
-    if poseEstimationService.isRunning():
-        return jsonify({"status":"running VideoCapture"})
-    else:
-        return jsonify({"status":"not running VideoCapture"})
 
-
-@app1.route('/API/video')
-def video():
-    if poseEstimationService.hasConnection():
-        try:
-
-            # TODO -- Add multiprocessing here for run video
-            poseEstimationService.runVideo()
-            # Have runVideo run as
-            return jsonify({"message":f"running video websocket at {poseEstimationService.IpAddress}:{poseEstimationService.port}"})
-        except:
-            return jsonify({"message":"error"})
-        
-    else:
-        return jsonify({"message":f"no WebSocket connection is established. Please connect to {poseEstimationService.IpAddress}:{poseEstimationService.port}"})
-
-
-if __name__ == "__main__":
-    app1.run()
-    # pass
+start_server = websockets.serve(echo, IpAddress, port)
+# start_server = websockets.serve(processVideo, IpAddress, port)
+asyncio.get_event_loop().run_until_complete(start_server)
+print(f"WebSocket server started on ws://{IpAddress}:{port}")
+asyncio.get_event_loop().run_forever()

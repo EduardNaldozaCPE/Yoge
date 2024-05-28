@@ -2,7 +2,6 @@ import mediapipe as mp
 import cv2 as cv
 
 import pickle
-import socket
 import struct
 
 class PoseEstimationService:
@@ -24,28 +23,11 @@ class PoseEstimationService:
             running_mode=self.VisionRunningMode.LIVE_STREAM,
             result_callback=print_result)
         
-        # Initialise WebSocket
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.IpAddress = '0.0.0.0'
-        self.port = 8080
-        self.server_socket.bind ((self.IpAddress, self.port))
-        self.server_socket.listen(5)
-
-        self.connection = None
-        self.address = None
-
-
-    def startSocket(self):
-        print("WebSocket Server listening...")
-        self.connection, self.address = self.server_socket.accept()
-        print(f"Connection from {self.address} established!")
-
-
-    def runVideo(self):
-        # Don't run video if no connection is established
-        if not self.connection:
-            return
+        print("PoseEstimationService Object Created")
         
+
+    # Starts video feed and yields data to be sent via websocket
+    def runVideo(self):        
         self.feed = cv.VideoCapture(0)
         with self.PoseLandmarker.create_from_options(self.options) as landmarker:
             t = 0
@@ -67,28 +49,10 @@ class PoseEstimationService:
                 # Serialize the frame using pickle
                 data = pickle.dumps(frame)
                 message = struct.pack ("Q", len(data)) + data
-                self.connection.sendall(message)
+                yield message
 
                 if cv.waitKey(1) & 0xFF == 27: 
                     break
 
             cv.destroyAllWindows()
             self.feed.release()
-            
-
-    def isRunning(self):
-        if not self.feed:
-            return False
-        else:
-            return True
-        
-    def hasConnection(self):
-        if not self.connection:
-            return False
-        else:
-            return True
-
-
-if __name__ == "__main__":
-    poseService = PoseEstimationService()
-    poseService.runVideo()
