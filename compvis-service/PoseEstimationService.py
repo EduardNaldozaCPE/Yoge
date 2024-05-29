@@ -65,13 +65,13 @@ class PoseEstimationService:
                 t += 1
 
 
-                # Serialize the frame using pickle
+                # Encode the frame data then convert to numpy array then convert to bytes 
                 _, data = cv.imencode('.jpg', frame)
-                data_np = np.array(data)
-                data_bytes = data_np.tobytes()
-                self.frame_queue.put(data_bytes)
+                # data_np = np.array(data)
+                # data_bytes = data_np.tobytes()
+                self.frame_queue.put(data)
 
-
+                # # [FOR TESTING]
                 # cv.imshow('img', frame)
                 # if cv.waitKey(1) & 0xFF == 27:
                 #     print('Exit key pressed. Exiting...')
