@@ -35,7 +35,7 @@ async def processVideo(websocket):
     while counter < 10:
         frame_data = poseEstimationService.getFrameData()
         # print(f'ooga {counter} {frame_data}')
-        if frame_data:
+        if frame_data is not None:
             decoded_frame = str(len(frame_data))
             with open("./tests/byte-dump.txt", "w") as text_file:
                 print("writing byte dump")
