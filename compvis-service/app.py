@@ -5,27 +5,13 @@ import time
 from PoseEstimationService import PoseEstimationService
 import numpy as np
 
-IpAddress = '127.0.0.1'
-port = 8081
+ADDRESS = '127.0.0.1'
+PORT = 8081
 DISCONNECT_STR = "!DISCONNECT"
 
-async def echo(websocket, path):
-    async for message in websocket:
-        print(f"Received message: {message}")
-        if (message == DISCONNECT_STR):
-            break
-        await websocket.send(message)
-        print(f"Sent message: {message}")
-
-
-# TODO --   Use ZeroMQ for interprocess communication
-# TODO --   Get the frame data from PoseEstimationService.runVideo() method
-#           Follow Pipeline / Stack:
-#               Request -> SocketController -> PoseEstimationService -> SocketController -> Response
-
-# Initialise the service
-poseEstimationService = PoseEstimationService()
+# Initialise the service and 
 # Create it's own separate thread since it has an endless loop
+poseEstimationService = PoseEstimationService()
 video_thread = threading.Thread(target=poseEstimationService.runVideo)
 video_thread.start()
 
@@ -46,8 +32,7 @@ async def processVideo(websocket):
     poseEstimationService.stopVideo()
 
 
-# start_server = websockets.serve(echo, IpAddress, port)
-start_server = websockets.serve(processVideo, IpAddress, port)
+start_server = websockets.serve(processVideo, ADDRESS, PORT)
 asyncio.get_event_loop().run_until_complete(start_server)
-print(f"WebSocket server started on ws://{IpAddress}:{port}")
+print(f"WebSocket server started on ws://{ADDRESS}:{PORT}")
 asyncio.get_event_loop().run_forever()
