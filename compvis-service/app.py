@@ -16,7 +16,7 @@ async def echo(websocket, path):
         print(f"Sent message: {message}")
 
 
-# TODO --   Read up on asyncio
+# TODO --   Use ZeroMQ for interprocess communication
 # TODO --   Get the frame data from PoseEstimationService.runVideo() method
 #           Follow Pipeline / Stack:
 #               Request -> SocketController -> PoseEstimationService -> SocketController -> Response
