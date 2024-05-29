@@ -26,7 +26,7 @@ async def processVideo(websocket):
             with open("./tests/byte-dump.txt", "w") as text_file:
                 print("writing byte dump")
                 text_file.write(decoded_frame)
-        # await websocket.send(frame_data)
+        # TODO await websocket.send(frame_data)
         counter += 1
         time.sleep(1)
     poseEstimationService.stopVideo()
