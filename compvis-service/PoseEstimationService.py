@@ -71,7 +71,7 @@ class PoseEstimationService:
                 t += 1
 
 
-                # Encode the frame data then convert to numpy array then convert to bytes 
+                # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
                 _, data = cv.imencode('.jpg', frame)
                 data_np = np.array(data)
                 data_bytes = data_np.tobytes()
