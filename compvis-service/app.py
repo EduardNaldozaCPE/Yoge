@@ -18,11 +18,11 @@ async def processVideo(websocket):
     connected = True
     while connected:
         frame_data = poseEstimationService.getFrameData()
+        print(type(frame_data))
         if frame_data is not None:
             decoded_frame = str(len(frame_data))
-            await websocket.send(decoded_frame)
+            await websocket.send(frame_data)
             await asyncio.sleep(0.001)
-            print(f"Sent: {decoded_frame}")
             
         if not connected:
             break
