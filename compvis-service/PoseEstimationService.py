@@ -55,7 +55,7 @@ class PoseEstimationService:
                     break
 
                 success, frame = self.feed.read()
-                frame = cv.resize(frame, (854, 480))
+                frame = cv.resize(frame, (640, 480))
 
                 if not success:
                     print("There was a problem reading the video feed.")
