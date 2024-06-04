@@ -65,6 +65,7 @@ class PoseEstimationService:
         self.userId = userId
         self.sequenceId = sequenceId
         self.sessionId = sessionId
+        
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
         scoring_thread = threading.Thread(target=self.scoreQueue.processScores)
         scoring_thread.start()
@@ -79,6 +80,7 @@ class PoseEstimationService:
     def stopVideo(self):
         # print("[Method Called] stopVideo()")
         self.running = False
+        self.scoreQueue.stopProcessing()
 
 
     # Starts video feed and stores frame data in the queue to be sent via websocket

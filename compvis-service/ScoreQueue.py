@@ -10,6 +10,7 @@ class ScoreQueue:
         self.userId = userId
         self.sessionId = sessionId
         self.sequenceId = sequenceId
+        self.running = True
 
         self.scores = q.Queue()
         self.con = sqlite3.connect(DBPATH)
@@ -29,14 +30,17 @@ class ScoreQueue:
     # Processes the scores queue one-by-one
     def processScores(self):
         # Starts processing the scores if they're the queue is not empty
-        while True:
+        while self.running:
             if self.scores.empty(): continue
 
             lastScore = self.scores.get()
-            
+
             # TODO -- INSERT THIS SCORE DATA INTO THE DATABASE
-            print(len(lastScore))
+            print(len(str(lastScore)))
             # self.cur.execute(f"""
             #     INSERT INTO score VALUES 
             #                  ({})
             #     """)
+
+    def stopProcessing(self):
+        self.running = False
