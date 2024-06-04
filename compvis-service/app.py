@@ -9,10 +9,12 @@ PORT = 8081
 DISCONNECT_STR = "!DISCONNECT"
 
 # Initialise the service
+# TODO -- Take in userId, sequenceId, sessionId
 poseEstimationService = PoseEstimationService()
 
 
 async def processVideo(websocket):
+    poseEstimationService.setSessionData()
     connected = True 
     # Create a separate thread for runVideo since it has an endless loop
     video_thread = threading.Thread(target=poseEstimationService.runVideo)
