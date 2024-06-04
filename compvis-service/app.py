@@ -1,3 +1,4 @@
+import os
 import websockets
 import asyncio
 import threading
@@ -34,8 +35,7 @@ async def processVideo(websocket):
     poseEstimationService.stopVideo()
     video_thread.join()
 
-
-print("Running app.py")
+os.system("cls")
 start_server = websockets.serve(processVideo, ADDRESS, PORT)
 loop = asyncio.get_event_loop()
 loop.run_until_complete(start_server)
