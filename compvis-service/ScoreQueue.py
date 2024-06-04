@@ -20,6 +20,7 @@ class ScoreQueue:
         self.cur.execute(f"""
             INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
             """)
+        self.con.commit()
 
 
     # Puts a new score into the queue
