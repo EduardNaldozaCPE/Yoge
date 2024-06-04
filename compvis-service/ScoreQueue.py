@@ -42,6 +42,7 @@ class ScoreQueue:
             #     INSERT INTO score VALUES 
             #                  ({})
             #     """)
+        self.con.close()
 
     def stopProcessing(self):
         self.running = False
