@@ -1,9 +1,7 @@
 import os
-import time
 import threading
 from PoseEstimationService import PoseEstimationService
 import win32pipe, win32file, pywintypes
-import queue
 
 PIPE_NAME = r'\\.\pipe\frame_pipe'
 BUFFERSIZE = 1048576
@@ -30,34 +28,38 @@ def main():
 
     # Create a separate thread for runVideo since it has an endless loop
     video_thread = threading.Thread(target=poseEstimationService.runVideo)
-    video_thread.start()
 
+    # Wait for a connection to the named pipe
     win32pipe.ConnectNamedPipe(pipe, None)
+
+    video_thread.start()
     print("Client connected.")
+
+    # Collect the frame data every loop. Then write it to the pipe.
+    # The client must be running a loop
     try:
         while isRunning:
             frame_data = poseEstimationService.getFrameData()
+            if frame_data is None: continue
 
-            if frame_data is not None:
-                # Continue if the frame is too big. Log it too
-                frameSize = len(frame_data)
-                if frameSize > BUFFERSIZE: 
-                    print("Frame Size: ", frameSize, "/", BUFFERSIZE)
-                    print("frame data is too large. increase the buffer size. Skipping...")
-                    continue
-                
-                # Pad out the frame data to match the buffer size.
-                paddingLength = BUFFERSIZE - (frameSize % BUFFERSIZE)
-                padding = b'\x00' * paddingLength
-                currentFrame = frame_data + padding
+            # Skip if the frame is too big. Log when true.
+            frameSize = len(frame_data)
+            if frameSize > BUFFERSIZE: 
+                print("Frame Size: ", frameSize, "/", BUFFERSIZE)
+                print("frame data is too large. increase the buffer size. Skipping...")
+                continue
+            
+            # Pad out the frame data to match the buffer size.
+            paddingLength = BUFFERSIZE - (frameSize % BUFFERSIZE)
+            padding = b'\x00' * paddingLength
+            currentFrame = frame_data + padding
 
-                try:
-                    # Send currentFrame to pipe
-                    win32file.WriteFile(pipe, currentFrame)
-
-                except KeyboardInterrupt:
-                    print("Program Interrupted. Stopping Video Loop...")
-                    break
+            # Send currentFrame to the pipe
+            try:
+                win32file.WriteFile(pipe, currentFrame)
+            except KeyboardInterrupt:
+                print("Program Interrupted. Stopping Video Loop...")
+                break
 
             if not isRunning:
                 break
