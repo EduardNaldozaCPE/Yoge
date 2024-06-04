@@ -67,7 +67,7 @@ class PoseEstimationService:
         scoring_thread = threading.Thread(target=self.scoreQueue.recordScores)
         scoring_thread.start()
 
-        
+
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
         # print("[Method Called] getFrameData()")
@@ -104,9 +104,9 @@ class PoseEstimationService:
 
 
                 # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
-                _, data = cv.imencode('.jpg', frame)
-                data_np = np.array(data)
-                data_bytes = data_np.tobytes()
+                _, data = cv.imencode('.png', frame)
+                # data_np = np.array(data)
+                data_bytes = data.tobytes()
                 self.frame_queue.put(data_bytes)
 
                 # # [FOR TESTING] -- Show the video feed
