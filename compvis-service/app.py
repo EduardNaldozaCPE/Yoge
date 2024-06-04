@@ -7,27 +7,32 @@ ADDRESS = '127.0.0.1'
 PORT = 8081
 DISCONNECT_STR = "!DISCONNECT"
 
-# Initialise the service and 
-# Create it's own separate thread since it has an endless loop
+# Initialise the service
 poseEstimationService = PoseEstimationService()
-video_thread = threading.Thread(target=poseEstimationService.runVideo)
-video_thread.start()
 
 
 async def processVideo(websocket):
-    connected = True
+    connected = True 
+    # Create a separate thread for runVideo since it has an endless loop
+    video_thread = threading.Thread(target=poseEstimationService.runVideo)
+    video_thread.start()
+
     while connected:
         frame_data = poseEstimationService.getFrameData()
-        print(type(frame_data))
         if frame_data is not None:
-            decoded_frame = str(len(frame_data))
-            await websocket.send(frame_data)
-            await asyncio.sleep(0.001)
+            try:
+                await websocket.send(frame_data)
+            except:
+                print("Socket Disconnected. Stopping video loop")
+                connected = False
+            finally:
+                await asyncio.sleep(0.001)
             
         if not connected:
             break
 
     poseEstimationService.stopVideo()
+    video_thread.join()
 
 
 print("Running app.py")

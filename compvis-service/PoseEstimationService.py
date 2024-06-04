@@ -1,8 +1,6 @@
 import mediapipe as mp
 import cv2 as cv
 
-# import pickle
-# import struct
 import numpy as np
 import queue
 
@@ -32,20 +30,20 @@ class PoseEstimationService:
 
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
-        print("[Method Called] getFrameData()")
+        # print("[Method Called] getFrameData()")
         return self.frame_queue.get()
     
 
     # Stops the video feed loop in runVideo()
     def stopVideo(self):
-        print("[Method Called] stopVideo()")
+        # print("[Method Called] stopVideo()")
         self.running = False
 
 
     # Starts video feed and puts frame data in the queue to be sent via websocket
     # MUST RUN IN SEPERATE THREAD
     def runVideo(self):        
-        print('\n[Method Called] runVideo()')
+        # print('\n[Method Called] runVideo()')
         self.feed = cv.VideoCapture(0)
         self.running = True
         with self.PoseLandmarker.create_from_options(self.options) as landmarker:
