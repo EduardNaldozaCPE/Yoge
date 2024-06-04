@@ -15,8 +15,11 @@ class PoseEstimationService:
         self.feed = None
 
         def print_result(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-            # print('pose landmarker result: {}'.format(result))
-            pass
+            # Record result every 30ms
+            if timestamp_ms % 30 != 0: return
+            with open("./tests/result-dump.txt", "a") as file:
+                file.write('pose landmarker result @ {}ms : {}\n'.format(timestamp_ms, result))
+        
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path="./cv/pose_landmarker_lite.task"),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
