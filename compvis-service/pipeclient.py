@@ -4,16 +4,22 @@ import win32file, pywintypes
 import numpy as np
 import cv2 as cv
 
+import time
+
 PIPE_NAME = r'\\.\pipe\frame_pipe'
 BUFFERSIZE = 1048576
 
-def showImage(data_bytes:bytes):
+# Convert the buffer to np array, then to cv2 image using cv2.imdecode()
+def showImage(data_bytes:bytes, timeLeft):
     data_np = np.frombuffer(data_bytes, np.uint8)
     frame = cv.imdecode(data_np, cv.IMREAD_COLOR)
+    cv.putText(frame, timeLeft, (50, 50), cv.FONT_HERSHEY_COMPLEX_SMALL, 1, (255,255,255), 1, cv.LINE_AA)
     cv.imshow("Client", frame)
 
 
 def named_pipe_client():
+    # Run client for 10 seconds
+    stopTime = time.time() + 10.0
     try:
         # Connect to the named pipe
         handle = win32file.CreateFile(
@@ -24,12 +30,12 @@ def named_pipe_client():
 
         # Read the response from the server
         try:
-            while True:
+            while time.time() <= stopTime:
                 try:
                     result, response = win32file.ReadFile(handle, BUFFERSIZE)
                     unpadded_response = response.rstrip(b'\x00')
-                    print(f"Received response of Length: {len(response)} bytes.\nUnpadded to {len(unpadded_response)}")
-                    showImage(unpadded_response)
+                    # print(f"Received response of Length: {len(response)} bytes.\nUnpadded to {len(unpadded_response)}")
+                    showImage(unpadded_response, str(int(stopTime-time.time())))
                     if cv.waitKey(1) & 0xFF == 27:
                         cv.destroyAllWindows()
                         break
@@ -46,5 +52,4 @@ def named_pipe_client():
         print(f"Error: {e}")
 
 if __name__ == '__main__':
-    os.system('cls')
     named_pipe_client()
