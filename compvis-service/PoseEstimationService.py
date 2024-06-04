@@ -32,7 +32,7 @@ class PoseEstimationService:
         self.userId = None
         self.sequenceId = None
         self.sessionId = None
-        self.scoreQueue:ScoreQueue = None
+        self.scoreQueue : ScoreQueue = None
         self.frame_queue = queue.Queue(10)
         self.running = False
 
@@ -46,10 +46,7 @@ class PoseEstimationService:
 
         def print_result(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
             # Record result every 30ms
-            if timestamp_ms % 30 != 0: return
-            with open("./tests/result-dump.txt", "a") as file:
-                file.write('pose landmarker result @ {}ms : {}\n'.format(timestamp_ms, result))
-
+            if timestamp_ms % 2 != 0: return
             if self.scoreQueue is not None:
                 self.scoreQueue.addScore(result)
         
@@ -67,8 +64,12 @@ class PoseEstimationService:
         self.sessionId = sessionId
 
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
-        scoring_thread = threading.Thread(target=self.scoreQueue.processScores)
-        scoring_thread.start()
+        scoring_thread = threading.Thread(target=self.scoreQueue.recordScores)
+        try:
+            scoring_thread.start()
+        except:
+            self.scoreQueue.stopProcessing()
+            scoring_thread.join()
 
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
@@ -111,7 +112,7 @@ class PoseEstimationService:
                 data_bytes = data_np.tobytes()
                 self.frame_queue.put(data_bytes)
 
-                # # [FOR TESTING]
+                # # [FOR TESTING] -- Show the video feed
                 # cv.imshow('img', frame)
                 # if cv.waitKey(1) & 0xFF == 27:
                 #     print('Exit key pressed. Exiting...')
