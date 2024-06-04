@@ -27,7 +27,8 @@ class ScoreQueue:
         self.scores.put(score)
 
 
-    # Processes the scores queue one-by-one
+    # Processes the scores queue one-by-one.
+    # NOTE -- Run in a separate thread and stop by using ScoresQueue.stopProcessing()
     def processScores(self):
         # Starts processing the scores if they're the queue is not empty
         while self.running:

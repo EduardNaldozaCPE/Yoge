@@ -60,12 +60,12 @@ class PoseEstimationService:
 
         print("PoseEstimationService Object Created")
         
-    # Creates a new session and starts recording scores to yoge.score
+    # Creates a new session and starts recording score data to yoge.score
     def setSessionData(self, userId=0, sequenceId=0, sessionId=0):
         self.userId = userId
         self.sequenceId = sequenceId
         self.sessionId = sessionId
-        
+
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
         scoring_thread = threading.Thread(target=self.scoreQueue.processScores)
         scoring_thread.start()
@@ -74,17 +74,10 @@ class PoseEstimationService:
     def getFrameData(self) -> bytes:
         # print("[Method Called] getFrameData()")
         return self.frame_queue.get()
-    
-
-    # Stops the video feed loop in runVideo()
-    def stopVideo(self):
-        # print("[Method Called] stopVideo()")
-        self.running = False
-        self.scoreQueue.stopProcessing()
 
 
     # Starts video feed and stores frame data in the queue to be sent via websocket
-    # MUST RUN IN SEPERATE THREAD
+    # NOTE -- Run in a separate thread and stop by using PoseEstimationService.stopVideo()
     def runVideo(self):        
         # print('\n[Method Called] runVideo()')
         self.feed = cv.VideoCapture(0)
@@ -129,6 +122,12 @@ class PoseEstimationService:
             cv.destroyAllWindows()
             self.feed.release()
 
+
+    # Stops the video feed loop in runVideo() and stops scoreQueue from recording score data.
+    def stopVideo(self):
+        # print("[Method Called] stopVideo()")
+        self.running = False
+        self.scoreQueue.stopProcessing()
 
 if __name__ == "__main__":
     p = PoseEstimationService()
