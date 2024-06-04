@@ -44,18 +44,18 @@ class PoseEstimationService:
         self.VisionRunningMode = mp.tasks.vision.RunningMode
         self.feed = None
 
+        # Record result every 30ms
         def print_result(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-            # Record result every 30ms
-            if timestamp_ms % 2 != 0: return
+            if timestamp_ms % 20 != 0: return
             if self.scoreQueue is not None:
-                self.scoreQueue.addScore(result)
+                self.scoreQueue.addScore(result, timestamp_ms)
         
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path="./cv/pose_landmarker_lite.task"),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
             result_callback=print_result)
 
-        print("PoseEstimationService Object Created")
+        print("PoseEstimationService Object Created.\n")
         
     # Creates a new session and starts recording score data to yoge.score
     def setSessionData(self, userId=0, sequenceId=0, sessionId=0):
@@ -65,12 +65,9 @@ class PoseEstimationService:
 
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
         scoring_thread = threading.Thread(target=self.scoreQueue.recordScores)
-        try:
-            scoring_thread.start()
-        except:
-            self.scoreQueue.stopProcessing()
-            scoring_thread.join()
+        scoring_thread.start()
 
+        
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
         # print("[Method Called] getFrameData()")

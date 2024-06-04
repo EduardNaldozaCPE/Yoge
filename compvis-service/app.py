@@ -31,13 +31,13 @@ def main():
                 pass
             except KeyboardInterrupt:
                 print("Program Interrupted. Stopping Video Loop...")
-                isRunning = False
+                break
             
         if not isRunning:
             break
 
     poseEstimationService.stopVideo()
-    video_thread.join()
+    video_thread.join(1)
 
 
 if __name__ == "__main__":
