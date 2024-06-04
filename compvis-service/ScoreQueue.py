@@ -1,7 +1,5 @@
 import queue as q
-import sqlite3
-
-DBPATH = "../score-data/yoge.db"
+from SqliteController import SqliteController as Db
 
 # Processes the PoseLandmarkerResult Queue to insert into the database   
 class ScoreQueue:
@@ -11,16 +9,7 @@ class ScoreQueue:
         self.sessionId = sessionId
         self.sequenceId = sequenceId
         self.running = True
-
         self.scores = q.Queue()
-        self.con = sqlite3.connect(DBPATH)
-        self.cur = self.con.cursor()
-        
-        # Create a new row in the session table once ScoreQueue object is created
-        self.cur.execute(f"""
-            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
-            """)
-        self.con.commit()
 
 
     # Puts a new score into the queue
@@ -30,20 +19,36 @@ class ScoreQueue:
 
     # Processes the scores queue one-by-one.
     # NOTE -- Run in a separate thread and stop by using ScoresQueue.stopProcessing()
-    def processScores(self):
-        # Starts processing the scores if they're the queue is not empty
-        while self.running:
-            if self.scores.empty(): continue
+    def recordScores(self):
+        # Create a new row in the session table once ScoreQueue object is created
+        try:
+            self.db = Db()
+            self.db.runInsert(f"""
+                INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+                """)
+        except:
+            print("Encountered an error while connecting to Sqlite Db.")
+            return
 
-            lastScore = self.scores.get()
+        # Starts processing the scores if the queue is not empty
+        try:
+            while self.running:
+                if self.scores.empty(): continue
+                lastScore = self.scores.get()
 
-            # TODO -- INSERT THIS SCORE DATA INTO THE DATABASE
-            print(len(str(lastScore)))
-            # self.cur.execute(f"""
-            #     INSERT INTO score VALUES 
-            #                  ({})
-            #     """)
-        self.con.close()
+                # TODO -- INSERT THIS SCORE DATA INTO THE DATABASE
+                print("Score: ", len(str(lastScore)))
+
+                # self.cur.execute(f"""
+                #     INSERT INTO score VALUES 
+                #                  ({})
+                #     """)
+        except KeyboardInterrupt:
+            print("Stopped by KeyboardInterrupt")
+            self.running = False
+
+        print("Closing Db Connection...")
+        self.db.closeConnection()
 
     def stopProcessing(self):
         self.running = False
