@@ -1,13 +1,10 @@
 import os
+import sys
 import threading
 from PoseEstimationService import PoseEstimationService
 
 # TODO -- Rewrite code to use MMAPs
 import mmap
-
-BUFFERSIZE = 1048576
-SHM_FILE = './shared/test'
-
 
 def padBuffer(buffer:bytes, maxSize:int) -> bytes:
     # Pad out the frame data to match the buffer size.
@@ -20,7 +17,7 @@ def padBuffer(buffer:bytes, maxSize:int) -> bytes:
 def main():
     # Initialise the pose estimation service
     # TODO -- Take in userId, sequenceId, sessionId
-    poseEstimationService = PoseEstimationService()
+    poseEstimationService = PoseEstimationService(MODEL_PATH)
     poseEstimationService.setSessionData()
 
     # Create a separate thread for runVideo since it has an endless loop
@@ -45,7 +42,13 @@ def main():
                 return
             
             while isRunning:
-                frame_data = poseEstimationService.getFrameData()
+                print('isRunning 1')
+                try:
+                    frame_data = poseEstimationService.getFrameData()
+                    print(frame_data[:10])
+                except:
+                    print('what')
+                print('isRunning 2')
                 if frame_data is None: continue
 
                 # Skip if the frame is too big. Log when true.
@@ -61,7 +64,6 @@ def main():
                 # Write the frame to mmap
                 try:
                     mm.seek(0)
-                    # print(mm[:50])
                     mm.write(paddedFrame)
                 except KeyboardInterrupt:
                     print("Program Interrupted. Stopping Video Loop...")
@@ -75,7 +77,7 @@ def main():
             mm.flush()
             mm.close()
             poseEstimationService.stopVideo()
-            video_thread.join()
+            # video_thread.join()
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt. Exiting.")
@@ -86,6 +88,18 @@ def main():
 
 if __name__ == "__main__":
     os.system("cls")
+
+    MODEL_PATH = "./cv/pose_landmarker_lite.task"
+    BUFFERSIZE = 1048576
+    SHM_FILE = './shared/frame'
+
+    model_path = None
+    try:
+        model_path = sys.argv[1]
+    except IndexError:
+        model_path = MODEL_PATH
+        print('ooga')
+        exit()
 
     # Initialise mmap file
     try:

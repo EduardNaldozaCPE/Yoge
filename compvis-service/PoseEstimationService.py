@@ -26,7 +26,7 @@ import threading
 #     frame_data = service.getFrameData()
 
 class PoseEstimationService:
-    def __init__(self):
+    def __init__(self, model_path:str):
         # Initialise Class States
         # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
         self.userId = None
@@ -51,12 +51,14 @@ class PoseEstimationService:
                 self.scoreQueue.addScore(result, timestamp_ms)
         
         self.options = self.PoseLandmarkerOptions(
-            base_options=self.BaseOptions(model_asset_path="./cv/pose_landmarker_lite.task"),
+            base_options=self.BaseOptions(model_asset_path=model_path),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
             result_callback=print_result)
 
         print("PoseEstimationService Object Created.\n")
         
+    
+
     # Creates a new session and starts recording score data to yoge.score
     def setSessionData(self, userId=0, sequenceId=0, sessionId=0):
         self.userId = userId
@@ -68,18 +70,23 @@ class PoseEstimationService:
         scoring_thread.start()
 
 
+
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
-        # print("[Method Called] getFrameData()")
         return self.frame_queue.get()
+
 
 
     # Starts video feed and stores frame data in the queue to be sent via websocket
     # NOTE -- Run in a separate thread and stop by using PoseEstimationService.stopVideo()
-    def runVideo(self):        
-        # print('\n[Method Called] runVideo()')
-        self.feed = cv.VideoCapture(0)
-        self.running = True
+    def runVideo(self):
+        try:
+            self.feed = cv.VideoCapture(0)
+            self.running = True
+        except:
+            print("Error running cv2.VideoCapture(). Stopping...")
+            return
+        
         with self.PoseLandmarker.create_from_options(self.options) as landmarker:
             t = 0
             while True:
@@ -87,10 +94,16 @@ class PoseEstimationService:
                     break
 
                 success, frame = self.feed.read()
-                frame = cv.resize(frame, (640, 480))
+                try:
+                    frame = cv.resize(frame, (640, 480))
+                except Exception as e:
+                    print(f"Error running cv2.resize(). Stopping...")
+                    self.stopVideo()
+                    break
 
                 if not success:
                     print("There was a problem reading the video feed.")
+                    self.stopVideo()
                     break
             
                 rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
@@ -105,25 +118,16 @@ class PoseEstimationService:
 
                 # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
                 _, data = cv.imencode('.png', frame)
-                # data_np = np.array(data)
                 data_bytes = data.tobytes()
                 self.frame_queue.put(data_bytes)
 
-                # # [FOR TESTING] -- Show the video feed
-                # cv.imshow('img', frame)
-                # if cv.waitKey(1) & 0xFF == 27:
-                #     print('Exit key pressed. Exiting...')
-                #     cv.destroyAllWindows()
-                #     self.feed.release()
-                #     break
-
-            cv.destroyAllWindows()
             self.feed.release()
+            cv.destroyAllWindows()
+        print("runVideo Loop Done.")
 
 
     # Stops the video feed loop in runVideo() and stops scoreQueue from recording score data.
     def stopVideo(self):
-        # print("[Method Called] stopVideo()")
         self.running = False
         self.scoreQueue.stopProcessing()
 

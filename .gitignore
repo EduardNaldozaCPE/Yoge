@@ -1,5 +1,5 @@
-cv-service/penv/
-cv-service/venv/
-cv-service/.vscode/
+__pycache__/
+penv/
+venv/
 
 score-service/node_modules/

@@ -79,9 +79,9 @@ class ScoreQueue:
                     """)
         
         self.running = False
-        print("Closing Db Connection...")
+        print("db Connection Closing...")
         self.db.closeConnection()
-        exit()
+        print("db Connection Closed.")
 
     def stopProcessing(self):
         self.running = False
