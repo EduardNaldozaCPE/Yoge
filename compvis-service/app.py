@@ -30,7 +30,7 @@ def main():
         with open(SHM_FILE, "r+b") as f:
             try:
                 mm = mmap.mmap(f.fileno(), 0)
-                mm.write(padBuffer(b'Hello World!\n', BUFFERSIZE))
+                mm.write(padBuffer(b'\x00', BUFFERSIZE))
                 print(mm[:50])
                 # mm.seek(0)
                 
@@ -60,6 +60,7 @@ def main():
                 try:
                     mm.seek(0)
                     mm.write(paddedFrame)
+                    mm.flush()
                 except KeyboardInterrupt:
                     print("Program Interrupted. Stopping Video Loop...")
                     break
@@ -68,8 +69,7 @@ def main():
 
                 if not isRunning:
                     break
-            
-            mm.flush()
+                
             mm.close()
             poseEstimationService.stopVideo()
             video_thread.join()
