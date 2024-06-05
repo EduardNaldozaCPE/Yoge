@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "./compvis-service/app.py",
             "console": "integratedTerminal",
-            "args": "./compvis-service/cv/pose_landmarker_lite.task"
+            "args": "./compvis-service/pose_landmarker_lite.task"
         }
     ]
 }

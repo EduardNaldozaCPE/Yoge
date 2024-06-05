@@ -1,4 +1,5 @@
 import os
+import json
 import sys
 import threading
 from PoseEstimationService import PoseEstimationService
@@ -89,17 +90,14 @@ def main():
 if __name__ == "__main__":
     os.system("cls")
 
-    MODEL_PATH = "./cv/pose_landmarker_lite.task"
-    BUFFERSIZE = 1048576
-    SHM_FILE = './shared/frame'
+    config = open('./compvis-service/config.json', 'r')
+    config_options = json.load(config)
 
-    model_path = None
-    try:
-        model_path = sys.argv[1]
-    except IndexError:
-        model_path = MODEL_PATH
-        print('ooga')
-        exit()
+    MODEL_PATH  = config_options["MODEL_PATH"]
+    SHM_FILE    = config_options["SHM_FILE"]
+    BUFFERSIZE  = config_options["BUFFERSIZE"]
+
+    config.close()
 
     # Initialise mmap file
     try:

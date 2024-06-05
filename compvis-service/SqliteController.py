@@ -1,11 +1,15 @@
 import sqlite3
+import json
 
-DBPATH = "../score-data/yoge.db"
 
 # Processes the PoseLandmarkerResult Queue to insert into the database   
 class SqliteController:
     # Initialise scores queue and sqlite connection
     def __init__(self):
+        config = open('./compvis-service/config.json', 'r')
+        config_options = json.load(config)
+        DBPATH = config_options["DBPATH"]
+        config.close()
         self.con = sqlite3.connect(DBPATH)
         self.cur = self.con.cursor()        
 
