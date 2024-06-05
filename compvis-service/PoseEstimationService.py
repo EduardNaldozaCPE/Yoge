@@ -54,8 +54,6 @@ class PoseEstimationService:
             base_options=self.BaseOptions(model_asset_path=model_path),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
             result_callback=print_result)
-
-        print("PoseEstimationService Object Created.\n")
         
     
 

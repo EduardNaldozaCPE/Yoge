@@ -1,4 +1,5 @@
 import os
+import sys
 import mmap
 import json
 import threading
@@ -17,8 +18,25 @@ def padBuffer(buffer:bytes, maxSize:int) -> bytes:
 
 def main():
     # Initialise the pose estimation service
-    poseService = PoseEstimationService(MODEL_PATH) 
-    poseService.setSessionData() # TODO -- Take in userId, sequenceId, sessionId
+    poseService = PoseEstimationService(MODEL_PATH)
+    print("Started MediaPipe Pose Landmark Detection Service.\n")
+    try:
+        userId = int(sys.argv[1])
+        sequenceId = int(sys.argv[2])
+        sessionId = int(sys.argv[3])     
+        print(f"Starting Session:") 
+        print(f"\tUser Id: {userId}") 
+        print(f"\tSequence Id: {sequenceId}") 
+        print(f"\tSession Id: {sessionId}")
+        print('\n')
+        poseService.setSessionData(
+            int(userId),
+            int(sequenceId),
+            int(sessionId)
+        )
+    except Exception as e:
+        print("Error setting session data:", e)
+        return
 
     # Create a separate thread for runVideo since it has an endless loop.
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
