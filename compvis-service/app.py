@@ -1,85 +1,97 @@
 import os
 import threading
 from PoseEstimationService import PoseEstimationService
-import win32pipe, win32file, pywintypes
 
-PIPE_NAME = r'\\.\pipe\frame_pipe'
+# TODO -- Rewrite code to use MMAPs
+import mmap
+
 BUFFERSIZE = 1048576
+SHM_FILE = './shared/test'
+
+
+def padBuffer(buffer:bytes, maxSize:int) -> bytes:
+    # Pad out the frame data to match the buffer size.
+    bufferSize = len(buffer)
+    paddingLength = maxSize - (bufferSize % maxSize)
+    padding = b'\x00' * paddingLength
+    return buffer + padding
+
 
 def main():
-    currentFrame = None
-
-    # Create a named pipe
-    pipe = win32pipe.CreateNamedPipe(
-        PIPE_NAME,
-        win32pipe.PIPE_ACCESS_DUPLEX,
-        win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_WAIT,
-        1, 12288, 12288,
-        0,
-        None
-    )
-    print("Waiting for client to connect...")
-
     # Initialise the pose estimation service
     # TODO -- Take in userId, sequenceId, sessionId
     poseEstimationService = PoseEstimationService()
     poseEstimationService.setSessionData()
-    isRunning = True
 
     # Create a separate thread for runVideo since it has an endless loop
-    video_thread = threading.Thread(target=poseEstimationService.runVideo)
-
-    # Wait for a connection to the named pipe
-    win32pipe.ConnectNamedPipe(pipe, None)
-
-    video_thread.start()
-    print("Client connected.")
+    video_thread = threading.Thread(target=poseEstimationService.runVideo, daemon=True)
 
     # Collect the frame data every loop. Then write it to the pipe.
-    # The client must be running a loop
+    # NOTE -- The client must be running a loop
     try:
-        while isRunning:
-            frame_data = poseEstimationService.getFrameData()
-            if frame_data is None: continue
-
-            # Skip if the frame is too big. Log when true.
-            frameSize = len(frame_data)
-            if frameSize > BUFFERSIZE: 
-                print("Frame Size: ", frameSize, "/", BUFFERSIZE)
-                print("frame data is too large. increase the buffer size. Skipping...")
-                continue
-            
-            # Pad out the frame data to match the buffer size.
-            paddingLength = BUFFERSIZE - (frameSize % BUFFERSIZE)
-            padding = b'\x00' * paddingLength
-            currentFrame = frame_data + padding
-
-            # Send currentFrame to the pipe
+        with open(SHM_FILE, "r+b") as f:
             try:
-                win32file.WriteFile(pipe, currentFrame)
-            except KeyboardInterrupt:
-                print("Program Interrupted. Stopping Video Loop...")
-                break
+                mm = mmap.mmap(f.fileno(), 0)
+                mm.write(padBuffer(b'Hello World!\n', BUFFERSIZE))
+                print(mm[:50])
+                # mm.seek(0)
+                
+                print("MMAP SIZE:", mm.size())
+                isRunning = True
+                video_thread.start()
 
-            if not isRunning:
-                break
+            except Exception as e:
+                print("Error while opening mmap:", e)
+                return
+            
+            while isRunning:
+                frame_data = poseEstimationService.getFrameData()
+                if frame_data is None: continue
 
-    except pywintypes.error as e:
-        print(f"Error: {e}")
+                # Skip if the frame is too big. Log when true.
+                frameSize = len(frame_data)
+                if frameSize > BUFFERSIZE: 
+                    print("Frame Size: ", frameSize, "/", BUFFERSIZE)
+                    print("frame data is too large. increase the buffer size. Skipping...")
+                    continue
+                
+                # Pad out the frame data to match the buffer size.
+                paddedFrame = padBuffer(frame_data, BUFFERSIZE)
+
+                # Write the frame to mmap
+                try:
+                    mm.seek(0)
+                    print(mm[:50])
+                    mm.write(paddedFrame)
+                except KeyboardInterrupt:
+                    print("Program Interrupted. Stopping Video Loop...")
+                    break
+                except Exception as e:
+                    print("Error while writing to mmap:", e)
+
+                if not isRunning:
+                    break
+            
+            mm.flush()
+            mm.close()
+            poseEstimationService.stopVideo()
+            video_thread.join()
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt. Exiting.")
-        
-    finally:
-        # Close the pipe
-        win32pipe.DisconnectNamedPipe(pipe)
-        win32file.CloseHandle(pipe)
-            
 
-    poseEstimationService.stopVideo()
-    video_thread.join(1)
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
     os.system("cls")
-    main()
+
+    # Initialise mmap file
+    try:
+        with open(SHM_FILE, "wb") as f:
+            f.write(padBuffer(b"Hello Python!\n", BUFFERSIZE))
+    except:
+        print("oopsies")
+    finally:
+        main()
