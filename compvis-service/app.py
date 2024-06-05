@@ -43,13 +43,7 @@ def main():
                 return
             
             while isRunning:
-                print('isRunning 1')
-                try:
-                    frame_data = poseEstimationService.getFrameData()
-                    print(frame_data[:10])
-                except:
-                    print('what')
-                print('isRunning 2')
+                frame_data = poseEstimationService.getFrameData()
                 if frame_data is None: continue
 
                 # Skip if the frame is too big. Log when true.
@@ -78,7 +72,7 @@ def main():
             mm.flush()
             mm.close()
             poseEstimationService.stopVideo()
-            # video_thread.join()
+            video_thread.join()
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt. Exiting.")

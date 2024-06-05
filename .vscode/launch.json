@@ -5,12 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run app.py",
+            "name": "Run compvis-service",
             "type": "debugpy",
             "request": "launch",
             "program": "./compvis-service/app.py",
             "console": "integratedTerminal",
-            "args": "./compvis-service/pose_landmarker_lite.task"
         }
     ]
 }
