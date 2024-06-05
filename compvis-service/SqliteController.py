@@ -19,6 +19,7 @@ class SqliteController:
         self.cur.execute(query)
         self.con.commit()
 
+
     def closeConnection(self):
         self.con.close()
         

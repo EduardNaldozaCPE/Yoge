@@ -1,49 +1,43 @@
 import os
+import mmap
 import json
-import sys
 import threading
 from PoseEstimationService import PoseEstimationService
 
-# TODO -- Rewrite code to use MMAPs
-import mmap
 
+
+# Pad out the frame data to match the buffer size.
 def padBuffer(buffer:bytes, maxSize:int) -> bytes:
-    # Pad out the frame data to match the buffer size.
     bufferSize = len(buffer)
     paddingLength = maxSize - (bufferSize % maxSize)
     padding = b'\x00' * paddingLength
     return buffer + padding
 
 
+
 def main():
     # Initialise the pose estimation service
-    # TODO -- Take in userId, sequenceId, sessionId
-    poseEstimationService = PoseEstimationService(MODEL_PATH)
-    poseEstimationService.setSessionData()
+    poseService = PoseEstimationService(MODEL_PATH) 
+    poseService.setSessionData() # TODO -- Take in userId, sequenceId, sessionId
 
-    # Create a separate thread for runVideo since it has an endless loop
-    video_thread = threading.Thread(target=poseEstimationService.runVideo, daemon=True)
+    # Create a separate thread for runVideo since it has an endless loop.
+    video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
 
-    # Collect the frame data every loop. Then write it to the pipe.
-    # NOTE -- The client must be running a loop
     try:
+        # Open the mmap. If it doesn't work, stop the main method.
         with open(SHM_FILE, "r+b") as f:
             try:
                 mm = mmap.mmap(f.fileno(), 0)
                 mm.write(padBuffer(b'\x00', BUFFERSIZE))
-                print(mm[:50])
-                # mm.seek(0)
-                
-                print("MMAP SIZE:", mm.size())
                 isRunning = True
                 video_thread.start()
-
             except Exception as e:
                 print("Error while opening mmap:", e)
                 return
             
+            # Collect the frame data every loop. Then write it to the mmap.
             while isRunning:
-                frame_data = poseEstimationService.getFrameData()
+                frame_data = poseService.getFrameData()
                 if frame_data is None: continue
 
                 # Skip if the frame is too big. Log when true.
@@ -71,7 +65,7 @@ def main():
                     break
                 
             mm.close()
-            poseEstimationService.stopVideo()
+            poseService.stopVideo()
             video_thread.join()
 
     except KeyboardInterrupt:
@@ -81,22 +75,24 @@ def main():
         print(f"Error: {e}")
 
 
+
 if __name__ == "__main__":
     os.system("cls")
 
+    # Initialise Constants from config.json
     config = open('./compvis-service/config.json', 'r')
     config_options = json.load(config)
-
     MODEL_PATH  = config_options["MODEL_PATH"]
     SHM_FILE    = config_options["SHM_FILE"]
     BUFFERSIZE  = config_options["BUFFERSIZE"]
-
     config.close()
 
-    # Initialise mmap file
+    # Initialise mmap file then run the main loop
     try:
-        with open(SHM_FILE, "wb") as f:
-            f.write(padBuffer(b"Hello Python!\n", BUFFERSIZE))
+        mmap_file = open(SHM_FILE, "wb")
+        mmap_file.write(padBuffer(b"Hello Python!\n", BUFFERSIZE))
+        mmap_file.close()
+        del mmap_file
     except:
         print("oopsies")
     finally:

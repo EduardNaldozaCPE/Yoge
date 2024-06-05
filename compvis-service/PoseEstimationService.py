@@ -81,6 +81,10 @@ class PoseEstimationService:
     # Starts video feed and stores frame data in the queue to be sent via websocket
     # NOTE -- Run in a separate thread and stop by using PoseEstimationService.stopVideo()
     def runVideo(self):
+        if self.scoreQueue is None:
+            print("Session Data has not been set. Use setSessionData() before calling runVideo()")
+            return
+        
         try:
             self.feed = cv.VideoCapture(0)
             self.running = True
@@ -124,6 +128,7 @@ class PoseEstimationService:
 
             self.feed.release()
             cv.destroyAllWindows()
+
         print("runVideo Loop Done.")
 
 
