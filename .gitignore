@@ -2,4 +2,7 @@ cv-service/penv/
 cv-service/venv/
 cv-service/.vscode/
 
+penv/
+__pycache__/
+
 score-service/node_modules/
