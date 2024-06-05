@@ -1,7 +1,17 @@
 import queue as q
-import sqlite3
+from SqliteController import SqliteController as Db
+import mediapipe as mp 
 
-DBPATH = "../score-data/yoge.db"
+JOINT_IDS = {
+    "leftShoulder"  : 11,
+    "rightShoulder" : 12,
+    "leftElbow"     : 13,
+    "rightElbow"    : 14,
+    "leftHip"       : 23,
+    "rightHip"      : 24,
+    "leftKnee"      : 25,
+    "rightKnee"     : 26,
+}
 
 # Processes the PoseLandmarkerResult Queue to insert into the database   
 class ScoreQueue:
@@ -10,40 +20,68 @@ class ScoreQueue:
         self.userId = userId
         self.sessionId = sessionId
         self.sequenceId = sequenceId
-        self.running = True
-
+        self.running = False
         self.scores = q.Queue()
-        self.con = sqlite3.connect(DBPATH)
-        self.cur = self.con.cursor()
-        
-        # Create a new row in the session table once ScoreQueue object is created
-        self.cur.execute(f"""
-            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
-            """)
-        self.con.commit()
+        self.filteredScores = q.Queue()
 
 
     # Puts a new score into the queue
-    def addScore(self, score):
-        self.scores.put(score)
+    def addScore(self, score, timestamp):
+        self.scores.put({"score":score, "timestamp":timestamp})
 
 
     # Processes the scores queue one-by-one.
     # NOTE -- Run in a separate thread and stop by using ScoresQueue.stopProcessing()
-    def processScores(self):
-        # Starts processing the scores if they're the queue is not empty
+    def recordScores(self):
+        # Create a new row in the session table once ScoreQueue object is created
+        try:
+            self.db = Db()
+        except:
+            print("Encountered an error while connecting to Sqlite Db.")
+            return
+        
+        self.db.runInsert(f"""
+            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+            """)
+        self.running = True
+
+        # Starts processing the scores if the queue is not empty
         while self.running:
             if self.scores.empty(): continue
 
-            lastScore = self.scores.get()
+            # TODO -- PROCESS THESE RAW COORDS TO SCORE. rn it is just recording the x-coordinates of each limb
+            lastRecord = self.scores.get()
+            lastScore = lastRecord["score"]
+            timestamp = lastRecord["timestamp"]
 
-            # TODO -- INSERT THIS SCORE DATA INTO THE DATABASE
-            print(len(str(lastScore)))
-            # self.cur.execute(f"""
-            #     INSERT INTO score VALUES 
-            #                  ({})
-            #     """)
-        self.con.close()
+            filteredScore:dict = {}
+            if type(lastScore) is mp.tasks.vision.PoseLandmarkerResult: 
+                for key in JOINT_IDS:
+                    filteredScore[key] = {}
+                    filteredScore[key]['x'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].x
+                    filteredScore[key]['y'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].y
+                    filteredScore[key]['z'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].z
+
+                self.db.runInsert(f"""
+                    INSERT INTO score (sessionId, timestamp, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
+                                  (
+                                  {self.sessionId}, 
+                                  {timestamp}, 
+                                  {filteredScore["leftElbow"]["x"]}, 
+                                  {filteredScore["rightElbow"]["x"]}, 
+                                  {filteredScore["leftKnee"]["x"]}, 
+                                  {filteredScore["rightKnee"]["x"]}, 
+                                  {filteredScore["leftShoulder"]["x"]}, 
+                                  {filteredScore["rightShoulder"]["x"]}, 
+                                  {filteredScore["leftHip"]["x"]}, 
+                                  {filteredScore["rightHip"]["x"]}
+                                  );
+                    """)
+        
+        self.running = False
+        print("db Connection Closing...")
+        self.db.closeConnection()
+        print("db Connection Closed.")
 
     def stopProcessing(self):
         self.running = False

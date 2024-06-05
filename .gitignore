@@ -1,6 +1,6 @@
-cv-service/penv/
-cv-service/venv/
-cv-service/.vscode/
+__pycache__/
+penv/
+venv/
 
 penv/
 __pycache__/
