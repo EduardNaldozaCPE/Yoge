@@ -64,7 +64,7 @@ class PoseEstimationService:
         self.sessionId = sessionId
 
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
-        scoring_thread = threading.Thread(target=self.scoreQueue.recordScores)
+        scoring_thread = threading.Thread(target=self.scoreQueue.recordScores, daemon=True)
         scoring_thread.start()
 
 

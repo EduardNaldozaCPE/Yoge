@@ -36,13 +36,14 @@ class ScoreQueue:
         # Create a new row in the session table once ScoreQueue object is created
         try:
             self.db = Db()
-            self.db.runInsert(f"""
-                INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
-                """)
-            self.running = True
         except:
             print("Encountered an error while connecting to Sqlite Db.")
             return
+        
+        self.db.runInsert(f"""
+            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+            """)
+        self.running = True
 
         # Starts processing the scores if the queue is not empty
         while self.running:
