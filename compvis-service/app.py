@@ -61,7 +61,7 @@ def main():
                 # Write the frame to mmap
                 try:
                     mm.seek(0)
-                    print(mm[:50])
+                    # print(mm[:50])
                     mm.write(paddedFrame)
                 except KeyboardInterrupt:
                     print("Program Interrupted. Stopping Video Loop...")

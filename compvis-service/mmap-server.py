@@ -9,14 +9,14 @@ def padBuffer(buffer:bytes, shm_size):
     return buffer + padding
 
 
-buffer = b'Hello Wordl!\n'
+# buffer = b'Hello Wordl!\n'
 shm_file = './shared/test'
 shm_size = 1024
 
-# Create the file.
-with open(shm_file, "wb") as f:
-    print(padBuffer(buffer, shm_size))
-    f.write(padBuffer(buffer, shm_size))
+# # Create the file.
+# with open(shm_file, "wb") as f:
+#     print(padBuffer(buffer, shm_size))
+#     f.write(padBuffer(buffer, shm_size))
 
 # Open the file and map it to memory.
 with open(shm_file, "r+b") as f:
