@@ -6,21 +6,30 @@ import queue
 import threading
 
 # USAGE:
+
 #   # 1. import modules
+# 
 #     import LandmarkerService
 #     import threading
 # 
+
 #   # 2. Instantiate the service
+# 
 #     service = LandmarkerService()
 #
+
 #   # 3. Set the session data at top level
 #   # (This creates a new record in yoge.session)
+# 
 #     service.setSessionData()
 #   
+
 #   # 4. Create a separate thread for runVideo loop
+# 
 #     video_thread = threading.Thread(target=poseEstimationService.runVideo)
 #     video_thread.start()
 # 
+
 #   # 5. Get the last frame data using LandmarkerService.getFrameData()
 #     frame_data = service.getFrameData()
 
