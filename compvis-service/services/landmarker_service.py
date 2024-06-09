@@ -1,10 +1,9 @@
 import mediapipe as mp
 import cv2 as cv
-from utils.score_queue import ScoreQueue
-
 import queue
 import threading
 
+from utils.score_queue import ScoreQueue
 # USAGE:
 
 #   # 1. import modules
@@ -34,9 +33,9 @@ import threading
 #     frame_data = service.getFrameData()
 
 class LandmarkerService:
+    # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
     def __init__(self, model_path:str):
         # Initialise Class States
-        # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
         self.userId = None
         self.sequenceId = None
         self.sessionId = None
