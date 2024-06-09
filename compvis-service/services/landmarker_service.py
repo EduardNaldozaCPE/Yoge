@@ -1,18 +1,17 @@
 import mediapipe as mp
 import cv2 as cv
-from ScoreQueue import ScoreQueue
+from utils.score_queue import ScoreQueue
 
-import numpy as np
 import queue
 import threading
 
 # USAGE:
 #   # 1. import modules
-#     import PoseEstimationService
+#     import LandmarkerService
 #     import threading
 # 
 #   # 2. Instantiate the service
-#     service = PoseEstimationService()
+#     service = LandmarkerService()
 #
 #   # 3. Set the session data at top level
 #   # (This creates a new record in yoge.session)
@@ -22,10 +21,10 @@ import threading
 #     video_thread = threading.Thread(target=poseEstimationService.runVideo)
 #     video_thread.start()
 # 
-#   # 5. Get the last frame data using PoseEstimationService.getFrameData()
+#   # 5. Get the last frame data using LandmarkerService.getFrameData()
 #     frame_data = service.getFrameData()
 
-class PoseEstimationService:
+class LandmarkerService:
     def __init__(self, model_path:str):
         # Initialise Class States
         # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
@@ -77,7 +76,7 @@ class PoseEstimationService:
 
 
     # Starts video feed and stores frame data in the queue to be sent via websocket
-    # NOTE -- Run in a separate thread and stop by using PoseEstimationService.stopVideo()
+    # NOTE -- Run in a separate thread and stop by using LandmarkerService.stopVideo()
     def runVideo(self):
         if self.scoreQueue is None:
             print("Session Data has not been set. Use setSessionData() before calling runVideo()")
@@ -136,5 +135,5 @@ class PoseEstimationService:
         self.scoreQueue.stopProcessing()
 
 if __name__ == "__main__":
-    p = PoseEstimationService()
+    p = LandmarkerService()
     p.runVideo()

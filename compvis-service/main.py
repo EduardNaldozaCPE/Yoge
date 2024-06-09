@@ -3,7 +3,7 @@ import sys
 import mmap
 import json
 import threading
-from PoseEstimationService import PoseEstimationService
+from services.landmarker_service import LandmarkerService
 
 
 
@@ -18,7 +18,7 @@ def padBuffer(buffer:bytes, maxSize:int) -> bytes:
 
 def main():
     # Initialise the pose estimation service
-    poseService = PoseEstimationService(MODEL_PATH)
+    poseService = LandmarkerService(MODEL_PATH)
     print("Started MediaPipe Pose Landmark Detection Service.\n")
     try:
         userId = int(sys.argv[1])

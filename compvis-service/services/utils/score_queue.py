@@ -1,5 +1,5 @@
 import queue as q
-from SqliteController import SqliteController as Db
+from sqlite_controller import SqliteController as Db
 import mediapipe as mp 
 
 JOINT_IDS = {
