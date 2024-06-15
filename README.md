@@ -15,6 +15,6 @@ Using a microservices architecture, the appliation will include two REST APIs th
 |--|--|
 | Pose Estimation | MediaPipe PoseLandmarker Solution (Python) |
 | Interprocess Communication | Shared Memory Mapping (mmap) |
-| Native App UI | Windows Presentation Foundation (.NET) |
+| Native App UI | QT (C++) ~Windows Presentation Foundation (.NET)~ |
 | Scores API | ExpressJS (NodeJS) |
 | Scores Database | SQLite |
