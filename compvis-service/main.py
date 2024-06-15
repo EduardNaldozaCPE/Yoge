@@ -1,4 +1,4 @@
-import os, sys, posix_ipc, mmap, time, json, threading
+import os, sys, mmap, time, json, threading
 from services.landmarker_service import LandmarkerService
 
 # Pad out the frame data to match the buffer size.

@@ -3,7 +3,7 @@ import cv2 as cv
 import queue
 import threading
 
-from utils.score_queue import ScoreQueue
+from .utils.score_queue import ScoreQueue
 # USAGE:
 
 #   # 1. import modules
@@ -83,7 +83,7 @@ class LandmarkerService:
 
 
 
-    # Starts video feed and stores frame data in the queue to be sent via websocket
+    # Starts video feed and stores frame data in the queue 
     # NOTE -- Run in a separate thread and stop by using LandmarkerService.stopVideo()
     def runVideo(self):
         if self.scoreQueue is None:

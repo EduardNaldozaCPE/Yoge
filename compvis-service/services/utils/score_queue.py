@@ -1,5 +1,5 @@
 import queue as q
-from sqlite_controller import SqliteController as Db
+from .sqlite_controller import SqliteController as Db
 import mediapipe as mp 
 
 JOINT_IDS = {
@@ -55,28 +55,31 @@ class ScoreQueue:
             timestamp = lastRecord["timestamp"]
 
             filteredScore:dict = {}
-            if type(lastScore) is mp.tasks.vision.PoseLandmarkerResult: 
-                for key in JOINT_IDS:
-                    filteredScore[key] = {}
-                    filteredScore[key]['x'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].x
-                    filteredScore[key]['y'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].y
-                    filteredScore[key]['z'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].z
+            if type(lastScore) is mp.tasks.vision.PoseLandmarkerResult:
+                try:
+                    for key in JOINT_IDS:
+                        filteredScore[key] = {}
+                        filteredScore[key]['x'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].x
+                        filteredScore[key]['y'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].y
+                        filteredScore[key]['z'] = lastScore.pose_landmarks[0][JOINT_IDS[key]].z
 
-                self.db.runInsert(f"""
-                    INSERT INTO score (sessionId, timestamp, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
-                                  (
-                                  {self.sessionId}, 
-                                  {timestamp}, 
-                                  {filteredScore["leftElbow"]["x"]}, 
-                                  {filteredScore["rightElbow"]["x"]}, 
-                                  {filteredScore["leftKnee"]["x"]}, 
-                                  {filteredScore["rightKnee"]["x"]}, 
-                                  {filteredScore["leftShoulder"]["x"]}, 
-                                  {filteredScore["rightShoulder"]["x"]}, 
-                                  {filteredScore["leftHip"]["x"]}, 
-                                  {filteredScore["rightHip"]["x"]}
-                                  );
-                    """)
+                    self.db.runInsert(f"""
+                        INSERT INTO score (sessionId, timestamp, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
+                                    (
+                                    {self.sessionId}, 
+                                    {timestamp}, 
+                                    {filteredScore["leftElbow"]["x"]}, 
+                                    {filteredScore["rightElbow"]["x"]}, 
+                                    {filteredScore["leftKnee"]["x"]}, 
+                                    {filteredScore["rightKnee"]["x"]}, 
+                                    {filteredScore["leftShoulder"]["x"]}, 
+                                    {filteredScore["rightShoulder"]["x"]}, 
+                                    {filteredScore["leftHip"]["x"]}, 
+                                    {filteredScore["rightHip"]["x"]}
+                                    );
+                        """)
+                except IndexError as e:
+                    print("Landmarks incomplete. Skipping.")
         
         self.running = False
         print("db Connection Closing...")
