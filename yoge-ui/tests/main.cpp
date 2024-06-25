@@ -6,10 +6,10 @@
 void routeOption(int * option);
 
 Dog dogs[10] = {
-        {1, "Stalin",   2,  "Brown, Small",             true},
-        {2, "Cotton",   5,  "White, Short Tail",        true},
-        {3, "Magnum",   6,  "Husky, Beeg",              true},
-        {4, "Davinky",  2,  "Pomeranian, Fluffy asf",   true},
+        {1, "Stalin",   2,  "Has mustache, might be dictator(?)",   true},
+        {2, "Cotton",   5,  "White, Short Tail",                    true},
+        {3, "Magnum",   6,  "Husky, Beeg",                          true},
+        {4, "Davinky",  2,  "Pomeranian, Fluffy asf",               true},
     };
 
 int main() {
@@ -36,6 +36,10 @@ void routeOption(int * option) {
     {
     case 1:
         showAllDogs(dogs);
+        break;
+
+    case 2:
+        addNewDog(dogs);
         break;
 
     case 9:
