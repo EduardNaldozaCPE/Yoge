@@ -2,6 +2,8 @@ import os, sys, mmap, time, json, threading
 from multiprocessing import shared_memory
 from services.landmarker_service import LandmarkerService
 
+SHMNAME = "psm_12345"
+
 # Pad out the frame data to match the buffer size.
 def padBuffer(buffer:bytes, maxSize:int) -> bytes:
     bufferSize = len(buffer)
@@ -17,7 +19,7 @@ def main():
     try:
         userId = int(sys.argv[1])
         sequenceId = int(sys.argv[2])
-        sessionId = int(sys.argv[3])     
+        sessionId = int(sys.argv[3])
         print(f"Starting Session:") 
         print(f"\tUser Id: {userId}") 
         print(f"\tSequence Id: {sequenceId}") 
@@ -82,7 +84,7 @@ def main():
     try:
         # Open the shared memory object
         try:
-            shm = shared_memory.SharedMemory(create=True, size=BUFFERSIZE, name="psm_12345")
+            shm = shared_memory.SharedMemory(create=True, size=BUFFERSIZE, name=SHMNAME)
             isRunning = True
             video_thread.start()
         except Exception as e:
