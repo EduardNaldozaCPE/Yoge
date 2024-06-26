@@ -1,6 +1,8 @@
-import os, sys, mmap, time, json, threading
+import os, sys, json, threading
 from multiprocessing import shared_memory
 from services.landmarker_service import LandmarkerService
+
+# TODO -- Use posix_ipc Shared Memory instead of multiprocessing.
 
 SHMNAME = "psm_12345"
 
