@@ -36,51 +36,6 @@ def main():
 
     # Create a separate thread for runVideo since it has an endless loop.
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
-
-    # try:
-    #     # Open the mmap. If it doesn't work, stop the main method.
-    #     with open(SHM_FILE, "r+b") as f:
-    #         try:
-    #             mm = mmap.mmap(f.fileno(), 0)
-    #             mm.write(padBuffer(b'\x00', BUFFERSIZE))
-    #             isRunning = True
-    #             video_thread.start()
-    #         except Exception as e:
-    #             print("Error while opening mmap:", e)
-    #             return
-            
-    #         # Collect the frame data every loop. Then write it to the mmap.
-    #         while isRunning:
-    #             frame_data = poseService.getFrameData()
-    #             if frame_data is None: continue
-
-    #             # Skip if the frame is too big. Log when true.
-    #             frameSize = len(frame_data)
-    #             if frameSize > BUFFERSIZE: 
-    #                 print("Frame Size: ", frameSize, "/", BUFFERSIZE)
-    #                 print("frame data is too large. increase the buffer size. Skipping...")
-    #                 continue
-                
-    #             # Pad out the frame data to match the buffer size.
-    #             paddedFrame = padBuffer(frame_data, BUFFERSIZE)
-
-    #             # Write the frame to mmap
-    #             try:
-    #                 mm.seek(0)
-    #                 mm.write(paddedFrame)
-    #                 mm.flush()
-    #             except KeyboardInterrupt:
-    #                 print("Program Interrupted. Stopping Video Loop...")
-    #                 break
-    #             except Exception as e:
-    #                 print("Error while writing to mmap:", e)
-
-    #             if not isRunning:
-    #                 break
-                
-    #         mm.close()
-    #         poseService.stopVideo()
-    #         video_thread.join()
     try:
         # Open the shared memory object
         try:
