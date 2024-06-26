@@ -1,6 +1,7 @@
 # Yoge - A Yoga Training Aid App
 
-Remastering `yogaposeestim-thesis` project  by turning it into a native application instead of a web app.
+A remastering of my university thesis paper on 'Yoga Training Aid via Pose Estimation' by turning it into a native application instead of a web app.
+This project also doubles as an exercise on The Producer - Consumer Problem and Inter-Process Communication between programmes written in different languages (Python & C++).
 
 # Objective
 We aim to create an application that is composed of different processes and services which are written in different languages.
