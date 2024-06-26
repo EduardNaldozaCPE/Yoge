@@ -1,6 +1,6 @@
 #include <iostream>
 
-// TODO -- Learn https://www.youtube.com/watch?v=a5kUr-u2UNo to find out how to compile this including boost
+// NOTE: Compile using -> g++ shmtest.cpp -o shmtest -I ./libs/boost_1_82_0
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
