@@ -6,5 +6,6 @@ penv/
 __pycache__/
 
 yoge-ui/libs
+yoge-ui/.vs
 
 score-service/node_modules/
