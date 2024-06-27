@@ -1,11 +1,7 @@
+.vs
+
 __pycache__/
 penv/
 venv/
-
-penv/
-__pycache__/
-
-yoge-ui/libs
-yoge-ui/.vs
 
 score-service/node_modules/
