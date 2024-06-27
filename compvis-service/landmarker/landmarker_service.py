@@ -4,35 +4,8 @@ import queue
 import threading
 
 from .utils.score_queue import ScoreQueue
-# USAGE:
 
-#   # 1. import modules
-# 
-#     import LandmarkerService
-#     import threading
-# 
-
-#   # 2. Instantiate the service
-# 
-#     service = LandmarkerService()
-#
-
-#   # 3. Set the session data at top level
-#   # (This creates a new record in yoge.session)
-# 
-#     service.setSessionData()
-#   
-
-#   # 4. Create a separate thread for runVideo loop
-# 
-#     video_thread = threading.Thread(target=poseEstimationService.runVideo)
-#     video_thread.start()
-# 
-
-#   # 5. Get the last frame data using LandmarkerService.getFrameData()
-#     frame_data = service.getFrameData()
-
-class LandmarkerService:
+class Landmarker:
     # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
     def __init__(self, model_path:str):
         # Initialise Class States
@@ -84,7 +57,7 @@ class LandmarkerService:
 
 
     # Starts video feed and stores frame data in the queue 
-    # NOTE -- Run in a separate thread and stop by using LandmarkerService.stopVideo()
+    # NOTE -- Run in a separate thread and stop by using Landmarker.stopVideo()
     def runVideo(self):
         if self.scoreQueue is None:
             print("Session Data has not been set. Use setSessionData() before calling runVideo()")
@@ -143,5 +116,5 @@ class LandmarkerService:
         self.scoreQueue.stopProcessing()
 
 if __name__ == "__main__":
-    p = LandmarkerService()
+    p = Landmarker()
     p.runVideo()

@@ -1,6 +1,7 @@
 import os, sys, json, threading
+import subprocess as sp
 from multiprocessing import shared_memory
-from services.landmarker_service import LandmarkerService
+from landmarker import Landmarker
 
 # TODO -- Use posix_ipc Shared Memory instead of multiprocessing.
 
@@ -16,7 +17,7 @@ def padBuffer(buffer:bytes, maxSize:int) -> bytes:
 
 def main():
     # Initialise the pose estimation service
-    poseService = LandmarkerService(MODEL_PATH)
+    poseService = Landmarker(MODEL_PATH)
     print("Started MediaPipe Pose Landmark Detection Service.\n")
     try:
         userId = int(sys.argv[1])
