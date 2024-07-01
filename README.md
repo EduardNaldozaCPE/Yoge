@@ -6,7 +6,7 @@ This project also doubles as an exercise on The Producer - Consumer Problem and 
 # Objective
 We aim to create an application that is composed of different processes and services which are written in different languages.
  - REST API - Create an interface to process (CRUD) user data in a database. 
- - Interprocess Communication - Using Shared Memory Mapping (mmap) to seamlessly integrate a Python process with the WPF front-end UI.
+ - Interprocess Communication - Using Named Pipes to seamlessly integrate a Python process with the front-end UI.
  - Native Application Development - Dip our toes in creating native Windows applications using the .NET framework 
 
 # Stack
@@ -15,7 +15,7 @@ Using a microservices architecture, the appliation will include two REST APIs th
 |Technology|Name|
 |--|--|
 | Pose Estimation | MediaPipe PoseLandmarker Solution (Python) |
-| Interprocess Communication | Shared Memory Mapping (mmap) |
+| Interprocess Communication | Named Pipes |
 | Native App UI | QT (C++) ~Windows Presentation Foundation (.NET)~ |
 | Scores API | ExpressJS (NodeJS) |
 | Scores Database | SQLite |
