@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/yoge-ui/libs/boost_1_82_0"
+                "C:\\Users\\jsmas\\repos\\boost_1_82_0"
             ],
             "defines": [
                 "_DEBUG",

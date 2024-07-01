@@ -25,4 +25,4 @@
 
 #   # 5. Get the last frame data using Landmarker.getFrameData()
 #     frame_data = service.getFrameData()
-from .landmarker_service import Landmarker
+from .Landmarker import Landmarker
