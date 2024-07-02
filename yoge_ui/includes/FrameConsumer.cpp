@@ -20,6 +20,7 @@ FrameConsumer::~FrameConsumer()
 }
 
 bool FrameConsumer::connect() {
+    std::cout << "Connecting to Named Pipe.\n";
     do {
         hPipe = CreateFile(
             pipeName,
@@ -30,9 +31,8 @@ bool FrameConsumer::connect() {
             0,
             NULL
         );
-
         if (hPipe == INVALID_HANDLE_VALUE) {
-            std::cerr << "Failed to open named pipe. Error: " << GetLastError() << std::endl;
+            //std::cerr << "Failed to open named pipe. Error: " << GetLastError() << std::endl;
             Sleep(1000);
         } else {
             std::cout << "Named pipe connected successfully.\n";
@@ -43,7 +43,7 @@ bool FrameConsumer::connect() {
     return true;
 }
 
-char* FrameConsumer::readFrame()
+void FrameConsumer::readFrame(char* outbuffer[])
 {
     // Read data from the pipe
     std::cout << "Reading from named pipe: \"" << PIPEDIR << "\"\n";
@@ -57,10 +57,8 @@ char* FrameConsumer::readFrame()
 
     if (!success || bytesRead == 0) {
         std::cerr << "Failed to read from named pipe. Error: " << GetLastError() << std::endl;
-        char retMsg[] = "None";
-        return retMsg;
     } else {
         buffer[bytesRead] = '\0'; // Null-terminate the string
-        return buffer;
+        *outbuffer = buffer;
     }
 }

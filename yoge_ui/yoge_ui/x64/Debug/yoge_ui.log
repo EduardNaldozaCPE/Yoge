@@ -1,3 +1,4 @@
 ﻿  FrameConsumer.cpp
-C:\Users\jsmas\repos\Yoge\yoge_ui\includes\FrameConsumer.cpp(61,1): warning C4172: returning address of local variable or temporary: retMsg
+  main.cpp
+  Generating Code...
   yoge_ui.vcxproj -> C:\Users\jsmas\repos\Yoge\yoge_ui\x64\Debug\yoge_ui.exe

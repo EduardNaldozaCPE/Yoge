@@ -40,7 +40,7 @@ int main() {
     if (!success || bytesRead == 0) {
         std::cerr << "Failed to read from named pipe. Error: " << GetLastError() << std::endl;
     } else {
-        buffer[bytesRead] = '\0'; // Null-terminate the string
+        //buffer[bytesRead] = '\0'; // Null-terminate the string
         std::cout << "Data read from pipe: " << buffer << std::endl;
     }
 

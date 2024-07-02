@@ -3,8 +3,6 @@ import subprocess as sp
 from multiprocessing import shared_memory
 from landmarker import Landmarker
 
-# TODO -- Use posix_ipc Shared Memory instead of multiprocessing.
-
 SHMNAME = "psm_12345"
 
 # Pad out the frame data to match the buffer size.
@@ -64,6 +62,9 @@ def main():
             # Pad out the frame data to match the buffer size.
             paddedFrame = padBuffer(frame_data, BUFFERSIZE)
 
+            with open('bytes', 'wb') as f:
+                f.write(paddedFrame)
+
             # Write the frame to mmap
             try:
                 shm.buf[0:BUFFERSIZE] = paddedFrame
@@ -78,7 +79,6 @@ def main():
             if not isRunning:
                 break
             
-        # mm.close()
         shm.close()
         shm.unlink()
         poseService.stopVideo()

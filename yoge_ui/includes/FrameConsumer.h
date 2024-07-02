@@ -5,11 +5,18 @@
 #include <Windows.h>
 #include <stdio.h>
 
+#define BUFFERSIZE 1048576
+
 class FrameConsumer
 {
 private:
     HANDLE hPipe;
-    char buffer[1024];
+
+    // TODO -- Use BYTE byteArray[BUFFERSIZE] instead of char*. Because char* is for messages.
+    //	Research on how to work with byte strings.
+    //BYTE buffer[BUFFERSIZE];
+    char* buffer = new char[BUFFERSIZE];
+
     DWORD bytesRead;
     LPCWSTR pipeName;
     bool isConnected = false;
@@ -32,7 +39,7 @@ public:
     /** Consume the bytestring written in the named pipe.
      * 
      */
-    char* readFrame();
+    void readFrame(char* outbuffer[]);
 };
 
 #endif
