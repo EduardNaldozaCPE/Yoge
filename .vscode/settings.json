@@ -106,5 +106,6 @@
         "valarray": "cpp",
         "variant": "cpp"
     },
-    "python.analysis.autoImportCompletions": true
+    "python.analysis.autoImportCompletions": true,
+    "C_Cpp.errorSquiggles": "disabled"
 }
