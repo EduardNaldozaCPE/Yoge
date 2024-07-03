@@ -2,27 +2,29 @@
 #include <string>
 #include "includes/FrameConsumer.h"
 
+const wchar_t* pipeDir = TEXT("\\\\.\\pipe\\framePipe");
 
 int main() {
 	// 1. Create the FrameConsumer Instance
-	FrameConsumer fc;
+	FrameConsumer fc(pipeDir);
 
 	// 2. Connect to the Named pipe. Retries if unsuccessful.
 	bool success = fc.connect();
 	if (!success)
 		return 1;
 
-	// 3. Take the latest data from the Named Pipe (TODO: Change to state).
-	char* buffer;
+	// 3. Take the latest data from the Named Pipe.
+	char* mainBuffer = new char[BUFFERSIZE];
+	const int siz_buffer = strlen(mainBuffer);
 	while (true) {
-		fc.readFrame(&buffer);
+		fc.readFrame(&mainBuffer);
 
 		// 4. Print out the data.
-
-		std::cout << "Data read from pipe: " << buffer << std::endl;
-		std::cin.get();
-		//Sleep(1000);
+		std::cout << "Size of Data: " << siz_buffer << "\n";
+		Sleep(50);
 	}
 
+	delete[] mainBuffer;
+	mainBuffer = nullptr;
 	return 0;
 }

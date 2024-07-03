@@ -7,25 +7,19 @@
 
 #define BUFFERSIZE 1048576
 
-class FrameConsumer
-{
+class FrameConsumer {
 private:
     HANDLE hPipe;
-
-    // TODO -- Use BYTE byteArray[BUFFERSIZE] instead of char*. Because char* is for messages.
-    //	Research on how to work with byte strings.
-    //BYTE buffer[BUFFERSIZE];
-    char* buffer = new char[BUFFERSIZE];
-
     DWORD bytesRead;
     LPCWSTR pipeName;
+    char* currentBuffer = new char[BUFFERSIZE];
     bool isConnected = false;
 
 public:
     /** FrameConsumer Module allows connection to the named pipe storing the frame data.
      * @param name Directory to the named pipe. Default: `R"(\\.\\pipe\\MyNamedPipe)"`
      */
-    FrameConsumer();
+    FrameConsumer(const wchar_t* arg_pipeDir);
 
     /** Close from named pipe and cleanup.
      */

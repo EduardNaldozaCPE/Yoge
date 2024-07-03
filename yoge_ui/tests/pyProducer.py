@@ -6,7 +6,8 @@ pipe_name = r'\\.\\pipe\\framePipe'
 fs = FrameSample() 
 frameSample = fs.bFrame
 
-BUFFERSIZE = 1048576
+BUFFERSIZE = len(frameSample)
+print("BUFFERSIZE:", BUFFERSIZE)
 
 # Create a named pipe
 pipe = win32pipe.CreateNamedPipe(
@@ -27,16 +28,15 @@ win32pipe.ConnectNamedPipe(pipe, None)
 counter = 0
 while counter < 1000:
     counter += 1
-
     try:
         win32file.WriteFile(pipe, frameSample)
+        print(f"Size written to pipe: {len(frameSample)}")
     except pywintypes.error: break
     except Exception as e:
         print(e)
         break
 
-    print(f"Size written to pipe: {len(frameSample)}")  
-    sleep(1)
+    # sleep(1)
 
 
 # Close the pipe

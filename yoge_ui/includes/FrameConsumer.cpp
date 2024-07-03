@@ -5,17 +5,11 @@
 #include <Windows.h>
 #include <stdio.h>
 
-#define PIPEDIR "\\\\.\\pipe\\framePipe"
-
-FrameConsumer::FrameConsumer()
-{
-    // Connect to the named pipe
-    pipeName = TEXT(PIPEDIR);
+FrameConsumer::FrameConsumer(const wchar_t* arg_pipeDir) {
+    pipeName = arg_pipeDir;
 }
 
-FrameConsumer::~FrameConsumer()
-{
-    // Close the pipe
+FrameConsumer::~FrameConsumer() {
     CloseHandle(hPipe);
 }
 
@@ -32,7 +26,6 @@ bool FrameConsumer::connect() {
             NULL
         );
         if (hPipe == INVALID_HANDLE_VALUE) {
-            //std::cerr << "Failed to open named pipe. Error: " << GetLastError() << std::endl;
             Sleep(1000);
         } else {
             std::cout << "Named pipe connected successfully.\n";
@@ -43,22 +36,21 @@ bool FrameConsumer::connect() {
     return true;
 }
 
-void FrameConsumer::readFrame(char* outbuffer[])
-{
+void FrameConsumer::readFrame(char* bufferOut[]) {
     // Read data from the pipe
-    std::cout << "Reading from named pipe: \"" << PIPEDIR << "\"\n";
     BOOL success = ReadFile(
         hPipe,
-        buffer,
-        sizeof(buffer) - 1,
+        currentBuffer,
+        BUFFERSIZE,
         &bytesRead,
         NULL
     );
 
-    if (!success || bytesRead == 0) {
+    if (!success) {
         std::cerr << "Failed to read from named pipe. Error: " << GetLastError() << std::endl;
-    } else {
-        buffer[bytesRead] = '\0'; // Null-terminate the string
-        *outbuffer = buffer;
+    }
+    else {
+        currentBuffer[bytesRead] = '\0'; // Null-terminate the string
+        *bufferOut = currentBuffer;
     }
 }
