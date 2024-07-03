@@ -4,4 +4,7 @@ __pycache__/
 penv/
 venv/
 
-score-service/node_modules/
+score-api/node_modules/
+
+yoge-fe/node_modules/
+landmarker-service/penv
