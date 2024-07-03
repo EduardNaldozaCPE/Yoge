@@ -19,9 +19,11 @@ int main() {
 	while (true) {
 		fc.readFrame(&mainBuffer);
 
-		// 4. Print out the data.
-		std::cout << "Size of Data: " << siz_buffer << "\n";
-		Sleep(50);
+		//// 4. Print out the data.
+		//std::cout << "Size of Data: " << siz_buffer << "\n";
+		
+		Sleep(50);		
+		// TODO -- Find a way to decode the bytes to a png format.
 	}
 
 	delete[] mainBuffer;
