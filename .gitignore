@@ -1,10 +1,2 @@
 .vs
-
 __pycache__/
-penv/
-venv/
-
-score-api/node_modules/
-
-yoge-fe/node_modules/
-landmarker-service/penv
