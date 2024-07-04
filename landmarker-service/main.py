@@ -3,8 +3,6 @@ import subprocess as sp
 from multiprocessing import shared_memory
 from landmarker import Landmarker
 
-SHMNAME = "psm_12345"
-
 # Pad out the frame data to match the buffer size.
 def padBuffer(buffer:bytes, maxSize:int) -> bytes:
     bufferSize = len(buffer)
@@ -17,10 +15,20 @@ def main():
     # Initialise the pose estimation service
     poseService = Landmarker(MODEL_PATH)
     print("Started MediaPipe Pose Landmark Detection Service.\n")
+    userId = None
+    sequenceId = None
+    sessionId = None
     try:
-        userId = int(sys.argv[1])
-        sequenceId = int(sys.argv[2])
-        sessionId = int(sys.argv[3])
+        for arg in sys.argv:
+            keyVal = arg.split('=')
+            if keyVal[0] == "-user":
+                userId = int(keyVal[1])
+            if keyVal[0] == "-sequence":
+                sequenceId = int(keyVal[1])
+            if keyVal[0] == "-session":
+                sessionId = int(keyVal[1])
+        if userId is None or sequenceId is None or sessionId is None:
+            return
         print(f"Starting Session:") 
         print(f"\tUser Id: {userId}") 
         print(f"\tSequence Id: {sequenceId}") 
@@ -31,6 +39,9 @@ def main():
             int(sequenceId),
             int(sessionId)
         )
+    except IndexError:
+        print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>")
+        return
     except Exception as e:
         print("Error setting session data:", e)
         return
@@ -40,7 +51,7 @@ def main():
     try:
         # Open the shared memory object
         try:
-            shm = shared_memory.SharedMemory(create=True, size=BUFFERSIZE, name=SHMNAME)
+            # shm = shared_memory.SharedMemory(create=True, size=BUFFERSIZE, name=SHMNAME)
             isRunning = True
             video_thread.start()
         except Exception as e:
@@ -67,7 +78,8 @@ def main():
 
             # Write the frame to mmap
             try:
-                shm.buf[0:BUFFERSIZE] = paddedFrame
+                # shm.buf[0:BUFFERSIZE] = paddedFrame
+                pass
             except KeyboardInterrupt:
                 print("Program Interrupted. Stopping Video Loop...")
                 break
@@ -79,8 +91,8 @@ def main():
             if not isRunning:
                 break
             
-        shm.close()
-        shm.unlink()
+        # shm.close()
+        # shm.unlink()
         poseService.stopVideo()
         video_thread.join()
 
@@ -97,20 +109,11 @@ if __name__ == "__main__":
     os.system("cls")
 
     # Initialise Constants from config.json
-    config = open('./compvis-service/config.json', 'r')
+    config = open('./config.json', 'r')
     config_options = json.load(config)
     MODEL_PATH  = config_options["MODEL_PATH"]
-    SHM_FILE    = config_options["SHM_FILE"]
     BUFFERSIZE  = config_options["BUFFERSIZE"]
     config.close()
 
     # Initialise mmap file then run the main loop
-    try:
-        mmap_file = open(SHM_FILE, "wb")
-        mmap_file.write(padBuffer(b"Hello Python!\n", BUFFERSIZE))
-        mmap_file.close()
-        del mmap_file
-    except:
-        print("oopsies")
-    finally:
-        main()
+    main()

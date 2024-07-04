@@ -1,5 +1,5 @@
 {
-    "MODEL_PATH"  : "./compvis-service/landmarker/pose_landmarker_lite.task",
+    "MODEL_PATH"  : "./landmarker/pose_landmarker_lite.task",
     "DBPATH"      : "./score-data/yoge.db",
     "SHM_FILE"    : "./shared/frame",
     "BUFFERSIZE"  : 1048576
