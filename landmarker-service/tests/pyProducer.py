@@ -1,6 +1,6 @@
 from time import sleep
 import win32pipe, win32file, pywintypes
-from includes.FrameSample import FrameSample
+from FrameSample import FrameSample
 
 pipe_name = r'\\.\\pipe\\framePipe'
 fs = FrameSample() 

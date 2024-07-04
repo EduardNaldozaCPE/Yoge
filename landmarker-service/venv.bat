@@ -1,1 +1,0 @@
-penv/Scripts/activate
