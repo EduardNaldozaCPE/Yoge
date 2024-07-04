@@ -69,6 +69,7 @@ def main():
     # 4. Collect the frame data every loop. Then write it to the mmap.
     try:
         while isRunning:
+            # Take current frame from poseService object state
             frame_data = poseService.getFrameData()
             if frame_data is None: continue
 
@@ -96,7 +97,7 @@ def main():
 
             if not isRunning:
                 break 
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: 
         print("KeyboardInterrupt. Exiting.")
     except Exception as e:
         print(f"Error: {e}")
