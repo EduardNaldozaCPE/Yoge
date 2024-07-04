@@ -1,53 +1,51 @@
 import os, sys, json, threading, win32pipe, win32file
-from landmarker import Landmarker
 
-# Pad out the frame data to match the buffer size.
-def padBuffer(buffer:bytes, maxSize:int) -> bytes:
-    bufferSize = len(buffer)
-    paddingLength = maxSize - (bufferSize % maxSize)
-    padding = b'\x00' * paddingLength
-    return buffer + padding
+from landmarker import Landmarker
+from utils import padBuffer
+
+def parseArgs() -> tuple:
+    for arg in sys.argv:
+        keyVal = arg.split('=')
+        if keyVal[0] == "-user":
+            usr = int(keyVal[1])
+        if keyVal[0] == "-sequence":
+            seq = int(keyVal[1])
+        if keyVal[0] == "-session":
+            ses = int(keyVal[1])
+
+    if (usr is None) or (seq is None) or (ses is None):
+        raise IndexError
+    else:
+        return (usr, seq, ses)
 
 
 def main():
-    # Initialise the pose estimation service
-    poseService = Landmarker(MODEL_PATH)
-    print("Started MediaPipe Pose Landmark Detection Service.\n")
+    # 1. Handle Session Arguments and Display
+    try: 
+        userId, sequenceId, sessionId = parseArgs()
+    except IndexError as e:
+        print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>")
 
-    # Handle Session Arguments
-    userId = None
-    sequenceId = None
-    sessionId = None
+    # 2. Initialise the pose estimation service and set the session data
     try:
-        for arg in sys.argv:
-            keyVal = arg.split('=')
-            if keyVal[0] == "-user":
-                userId = int(keyVal[1])
-            if keyVal[0] == "-sequence":
-                sequenceId = int(keyVal[1])
-            if keyVal[0] == "-session":
-                sessionId = int(keyVal[1])
-        if userId is None or sequenceId is None or sessionId is None:
-            return
-        print(f"Starting Session:") 
-        print(f"\tUser Id: {userId}") 
-        print(f"\tSequence Id: {sequenceId}") 
-        print(f"\tSession Id: {sessionId}")
-        print('\n')
+        print(f"""
+              New Session:
+                User Id: {userId}
+                Sequence Id: {sequenceId}
+                Session Id: {sessionId}
+        """)
+        poseService = Landmarker(MODEL_PATH)
+        print("Started MediaPipe Pose Landmark Detection Service.\n")
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
             int(sessionId)
         )
-    except IndexError:
-        print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>")
-        return
     except Exception as e:
         print("Error setting session data:", e)
         return
 
-    # Create the named pipe and wait for a connection
-    # Create a separate thread for runVideo since it has an endless loop.
+    # 3. Create the named pipe then wait for a connection & Create a separate thread for runVideo since it has an endless loop.
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
     try:
         pipe = win32pipe.CreateNamedPipe(
@@ -59,20 +57,17 @@ def main():
             None
         )
 
-        # Wait for a connection
         print("Waiting for consumer to connect...")
         win32pipe.ConnectNamedPipe(pipe, None)
 
         isRunning = True
-        video_thread.start()
-        
+        video_thread.start()  
     except Exception as e:
         print("Error while opening shared memory:", e)
         return
-    
 
+    # 4. Collect the frame data every loop. Then write it to the mmap.
     try:
-        # Collect the frame data every loop. Then write it to the mmap.
         while isRunning:
             frame_data = poseService.getFrameData()
             if frame_data is None: continue
@@ -100,14 +95,11 @@ def main():
                 print(BUFFERSIZE)
 
             if not isRunning:
-                break
-        
+                break 
     except KeyboardInterrupt:
         print("KeyboardInterrupt. Exiting.")
-
     except Exception as e:
         print(f"Error: {e}")
-            
     finally:
         print("Closing Pipe Handle")
         win32file.CloseHandle(pipe)
