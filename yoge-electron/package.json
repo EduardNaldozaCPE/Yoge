@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "testfc": "node ./src/session/session.js"
+    "testfc": "nodemon ./src/session/session.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
@@ -31,6 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
-    "net": "^1.0.2"
+    "net": "^1.0.2",
+    "nodemon": "^3.1.4"
   }
 }
