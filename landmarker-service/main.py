@@ -33,6 +33,7 @@ def main():
                 User Id: {userId}
                 Sequence Id: {sequenceId}
                 Session Id: {sessionId}
+                Pipe Name: {PIPE_DIR}
         """)
         poseService = Landmarker(MODEL_PATH)
         print("Started MediaPipe Pose Landmark Detection Service.\n")
