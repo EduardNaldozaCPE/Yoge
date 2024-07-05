@@ -1,4 +1,4 @@
-// const cv = require('../opencv/opencv.js');
+const cv = require('../opencv/opencv.js'); // DEVNOTE: Get opencv.js from https://github.com/opencv/opencv/releases
 const net = require('node:net');
 
 const BUFFERSIZE = 1048576;
