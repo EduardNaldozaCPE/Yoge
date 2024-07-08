@@ -1,5 +1,10 @@
-const { app, BrowserWindow } = require('electron');
+const { 
+  app, 
+  BrowserWindow,
+  ipcMain
+} = require('electron');
 const path = require('node:path');
+const net = require('node:net');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -18,6 +23,35 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  
+
+  const PIPEDIR = "\\\\.\\pipe\\framePipe";
+  var imgSrcString = "data:image/png;base64,\x01";
+
+  ipcMain.on("run-consumer", (event) => {
+    console.log(`Connecting to named pipe: ${PIPEDIR}`);
+    try {
+      
+      client = net.createConnection( `${PIPEDIR}`, ()=>console.log("Successfully Connected."));
+      event.sender.send('consumer-status',true);
+      
+      client.on('data', (data) => {
+        let buf_bodyAndPadding = data.toString('base64').split("BUFFEREND");
+        imgSrcString = `data:image/jpg;base64,${buf_bodyAndPadding[0]}`;
+        mainWindow.webContents.send('current-frame', imgSrcString);
+      });
+
+      client.on('end', () => {
+        console.log("Disconnecting from the named pipe.");
+      });
+
+    } catch (error) {
+
+      console.log(`Encountered an error while connecting: \n${error}`);
+      event.sender.send('consumer-status',false);
+
+    }
+  });
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -42,6 +76,8 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  delete client;
+  delete sessionEvent;
   if (process.platform !== 'darwin') {
     app.quit();
   }

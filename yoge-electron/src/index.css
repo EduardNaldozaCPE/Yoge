@@ -4,4 +4,6 @@ body {
   margin: auto;
   max-width: 38rem;
   padding: 2rem;
+  background-color: #202020;
+  color: #e5e5e5;
 }
