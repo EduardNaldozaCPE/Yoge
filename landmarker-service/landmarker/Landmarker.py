@@ -51,8 +51,8 @@ class Landmarker:
 
     # Gets the latest frame data in the queue
     def getFrameData(self) -> bytes:
-        if self.frame_queue.empty(): return None
-        return self.frame_queue.get()
+        try: return self.frame_queue.get()
+        except: return None
 
 
 

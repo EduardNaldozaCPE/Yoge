@@ -92,9 +92,8 @@ def main():
             # Write the frame to the named pipe
             try:
                 win32file.WriteFile(pipe, paddedFrame)
-                if (errCounter != 0):
+                if (errCounter != 0): 
                     errCounter = 0
-                pass
             except KeyboardInterrupt:
                 print("Program Interrupted. Stopping Video Loop...")
                 break
@@ -102,7 +101,6 @@ def main():
                 if (errCounter > 10):
                     break
                 errCounter = errCounter + 1
-                print("Error while writing to pipe:", e)
 
             if not isRunning:
                 break 

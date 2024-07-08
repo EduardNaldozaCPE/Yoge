@@ -2,5 +2,5 @@
     "PIPE_DIR"    : "\\\\.\\pipe\\framePipe",
     "MODEL_PATH"  : "./landmarker/pose_landmarker_lite.task",
     "DBPATH"      : "./score-data/yoge.db",
-    "BUFFERSIZE"  : 1048576
+    "BUFFERSIZE"  : 101205
 }
