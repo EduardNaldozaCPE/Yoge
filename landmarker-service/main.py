@@ -69,6 +69,7 @@ def main():
 
     # 4. Collect the frame data every loop. Then write it to the mmap.
     try:
+        errCounter = 0
         while isRunning:
             # Take current frame from poseService object state
             frame_data = poseService.getFrameData()
@@ -84,17 +85,24 @@ def main():
             # Pad out the frame data to match the buffer size.
             paddedFrame = padBuffer(frame_data, BUFFERSIZE)
 
+            # [TEST] Frame
+            # with open('bytes', 'bw') as bf:
+            #     bf.write(paddedFrame)
+
             # Write the frame to the named pipe
             try:
                 win32file.WriteFile(pipe, paddedFrame)
+                if (errCounter != 0):
+                    errCounter = 0
                 pass
             except KeyboardInterrupt:
                 print("Program Interrupted. Stopping Video Loop...")
                 break
             except Exception as e:
+                if (errCounter > 10):
+                    break
+                errCounter = errCounter + 1
                 print("Error while writing to pipe:", e)
-                print(len(paddedFrame))
-                print(BUFFERSIZE)
 
             if not isRunning:
                 break 
@@ -119,5 +127,4 @@ if __name__ == "__main__":
     BUFFERSIZE  = config_options["BUFFERSIZE"]
     PIPE_DIR  = config_options["PIPE_DIR"]
     config.close()
-    # Initialise mmap file then run the main loop
     main()
