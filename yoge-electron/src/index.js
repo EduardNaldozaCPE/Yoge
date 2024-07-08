@@ -6,16 +6,18 @@ const {
 const path = require('node:path');
 const net = require('node:net');
 
+const PIPEDIR = "\\\\.\\pipe\\framePipe";
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+// Create the browser window and Start the consumer script.
 const createWindow = () => {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: 800,
+    height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -23,22 +25,24 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-  
 
-  const PIPEDIR = "\\\\.\\pipe\\framePipe";
-  var imgSrcString = "data:image/png;base64,\x01";
-
-  ipcMain.on("run-consumer", (event) => {
+  /**
+   * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
+   * @param {IpcMainEvent} event 
+   */
+  function runConsumer(event) {
     console.log(`Connecting to named pipe: ${PIPEDIR}`);
     try {
-      
       client = net.createConnection( `${PIPEDIR}`, ()=>console.log("Successfully Connected."));
-      event.sender.send('consumer-status',true);
       
+      // Upon retrieval of new data, format the bytestring and 
       client.on('data', (data) => {
         let buf_bodyAndPadding = data.toString('base64').split("BUFFEREND");
-        imgSrcString = `data:image/jpg;base64,${buf_bodyAndPadding[0]}`;
-        mainWindow.webContents.send('current-frame', imgSrcString);
+        try {
+          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_bodyAndPadding[0]}`);
+        } catch (err) {
+          if (typeof(err) == TypeError) console.log("Error Caught: ", err);
+        }
       });
 
       client.on('end', () => {
@@ -46,12 +50,10 @@ const createWindow = () => {
       });
 
     } catch (error) {
-
       console.log(`Encountered an error while connecting: \n${error}`);
-      event.sender.send('consumer-status',false);
-
     }
-  });
+  }
+  ipcMain.on("run-consumer", (event)=>{runConsumer(event);});
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
