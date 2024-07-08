@@ -100,7 +100,7 @@ class Landmarker:
 
 
                 # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
-                _, data = cv.imencode('.png', frame)
+                _, data = cv.imencode('.jpg', frame)
                 data_bytes = data.tobytes()
                 self.frame_queue.put(data_bytes)
 

@@ -8,9 +8,9 @@
             "name": "Run w/ Args",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "main.py",
             "console": "integratedTerminal",
-            "args": "-user=0 -sequence=1 -session=2"
+            "args": "-user=0 -sequence=1 -session=2",
         }
     ]
 }
