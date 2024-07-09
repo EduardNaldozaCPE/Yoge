@@ -1,0 +1,54 @@
+:root {
+  --main-padding: 5px;
+  --main-bg-colour: #202020;
+  --container-colour: #2a2a2a;
+  --container-margin: 5px;
+  --container-border: #5d5d5d 1px solid;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+  Arial, sans-serif;
+}
+
+body {
+  margin: 0px;
+  padding: var(--main-padding);
+  background-color: var(--main-bg-colour);
+  color: #e5e5e5;
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+a {
+  color: #0ad
+}
+
+.top-bar {
+  background-color: #1a1a1a;
+  border-radius: 5px;
+  padding: 10px;
+  margin: var(--container-margin);
+  border: var(--container-border);
+}
+
+.top-bar-title {
+  margin: 0px
+}
+
+.container {
+  background-color: var(--container-colour);
+  margin: var(--container-margin);
+  border: var(--container-border);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#logo {
+  margin: 10px auto 10px auto;
+  text-align: center;
+}
+
+#main-content {
+  padding: 20px;
+}

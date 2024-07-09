@@ -1,0 +1,17 @@
+body {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 65px auto;
+    /* border: #0ad 2px solid; */
+    overflow: hidden;
+}
+
+#live-feed {
+    border-radius: 10px;
+}
+
+#main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
