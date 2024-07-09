@@ -14,11 +14,14 @@ Using a microservices architecture, the appliation will include two REST APIs th
 
 |Technology|Name|
 |--|--|
-| Pose Estimation | MediaPipe PoseLandmarker Solution (Python) |
+| Pose Landmarker | MediaPipe PoseLandmarker Solution (Python) |
 | Interprocess Communication Method | Named Pipes (Windows API) |
 | Native App UI | Electron ~Windows Presentation Foundation (.NET)~ |
 | Database Middleware | ExpressJS (NodeJS) |
 | Scores Database | SQLite |
+
+**Note:**
+I am aware that MediaPIpe has a (Pose Landmarker Solution for Web)[https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker/web_js] which would eliminate the need for the Python backend and IPC entirely, however I just planned to make this project as a sort of exercise in researching and applying IPC methods in applications. I am planning on refactoring the Python Pose Landmarker "module" to be written in C++ using the [MediaPipe Framework](https://ai.google.dev/edge/mediapipe/framework/getting_started/install) somewhere in the near future.
 
 ## Communication Between Python and Node
 ![image](./docs/archi.drawio.png)
