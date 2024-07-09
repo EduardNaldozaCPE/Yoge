@@ -9,3 +9,8 @@ body {
 #main-content {
   padding: 20px;
 }
+
+#start-btn {
+  text-align: center;
+  width: 200px;
+}

@@ -9,10 +9,18 @@
   <body>
     <section id="sidenav" class="container">
       <h1 id="logo">YOGE</h1>
+      <div id="sidenav-btns">
+        <button class="sidenav-btn">Dashboard</button>
+        <button class="sidenav-btn">Sequences</button>
+        <button class="sidenav-btn">Scores</button>
+        <button class="sidenav-btn">History</button>
+      </div>
     </section>
     <section id="main-content" class="container">
       <p>A yoga training aid powered by MediaPipe.</p>
-      <a href="./session/session.html">Start Session</a>
+      <form action="./session/session.html">
+        <input id="start-btn" class="menu-btn" type="submit" value="Start Session" />
+      </form>
     </section>
   </body>
 </html>
