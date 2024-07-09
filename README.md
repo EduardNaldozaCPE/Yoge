@@ -19,13 +19,13 @@ We aim to create an application that is composed of different processes and serv
 
 Using a microservices architectural pattern of sorts, the appliation will interface with a REST API for the Scores Database Module, and the Pose Estimation Module for the processing and calculation of scores.
 
-|Technology|Name|
-|--|--|
-| Pose Landmarker | MediaPipe PoseLandmarker Solution (Python) |
-| Interprocess Communication Method | Named Pipes (Windows API) |
-| Native App UI | Electron ~Windows Presentation Foundation (.NET)~ |
-| Database Middleware | ExpressJS (NodeJS) |
-| Scores Database | SQLite |
+|Technology|Name|Version|
+|--|--|--|
+| Pose Landmarker | MediaPipe PoseLandmarker Solution (Python) | `MediaPipe v0.10.14` `Python v3.12.3` |
+| Interprocess Communication Method | Named Pipes (Windows API) | `python:win32file` `node:net@1.0.2` |
+| Native App UI | Electron ~WPF (.NET)~ | `electron@31.1.0` `NodeJS v20.12.2` |
+| Database Middleware | ExpressJS (NodeJS) |  `NodeJS v20.12.2` |
+| Scores Database | SQLite | - |
 
 ## Architecture
 ### Top Level Architecture
