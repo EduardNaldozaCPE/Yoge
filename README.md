@@ -27,5 +27,18 @@ Using a microservices architectural pattern of sorts, the appliation will interf
 | Database Middleware | ExpressJS (NodeJS) |
 | Scores Database | SQLite |
 
-## Communication Between Python and Node
+## Architecture
+### Top Level Architecture
+The application has three main parts. The Electron App, the Pose Landmarker Module, and the Database REST API. The application should connect together like this:
+
+![top-level-archi](./docs/top-level-archi.png)
+
+In the application, once a session has been started we will need the Pose Landmarker Module to communicate with the Electron app to send the processed live feed. After researching different IPC methods i've narrowed it down to 3 options: `mmaps`, `Named Pipes`, and `Websockets`. 
+
+After looking into mmaps, i found a video discussing mmap usage in database management systems, and the cons/complaints they expressed really turned me off of the IPC method. Websockets are simple, using TCP to send packets of data from one process to another, however I've read that it isn't exactly good for large chunks of data because of the overhead, and using networking techniques for sending data within the same machine didn't really make sense to me. 
+
+I wrote off `Named Pipes` for a while because I couldn't find the right libraries/packages to use in Python, Node, and even C++. Many videos on the topic also only talk about coding in Unix machines. But after reading more into it, I finally found out about the `Win32 API`. This really changed the game for me, and after a bit of testing, I finally got to send bytes from a Python script to a NodeJS script. And so i chose to use Named Pipes as the best solution for this problem.
+
+### Communication Between Python and Node
+
 ![image](./docs/archi.drawio.png)
