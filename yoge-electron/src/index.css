@@ -6,6 +6,16 @@ body {
   overflow: hidden;
 }
 
+#sidenav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidenav-spacer {
+  flex-grow: 3;
+}
+
 #main-content {
   padding: 20px;
 }
