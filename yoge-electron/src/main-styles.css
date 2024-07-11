@@ -16,9 +16,8 @@
 }
 
 #app-title-bar {
-  -webkit-app-region: drag;
-  min-height: 20px;
-  max-height: 20px;
+  min-height: 21px;
+  max-height: 21px;
   min-width: 100dvw;
 
   position: fixed;
@@ -32,6 +31,11 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+#app-draggable {
+  -webkit-app-region: drag;
+  width: 100%;
 }
 
 #app-title-bar h5 {
@@ -60,7 +64,12 @@
   border-radius: 2px;
   margin-left: 2px;
 } 
+
 .app-trafficlight:hover {
+  background-color: #2f2f2f;
+}
+
+.app-trafficlight:active {
   background-color: #2f2f2f;
 }
   
@@ -82,7 +91,6 @@
   bottom: 0px;
   left: 0px;
   right: 0px;
-  -webkit-app-region: drag;
 }
 
 a {

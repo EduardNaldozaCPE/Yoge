@@ -10,15 +10,12 @@
     <section id="app-title-bar"></section>
     
     
-    <section id="app-content">
-      <!-- This is the main content -->
-      <section id="sidenav" class="container"></section>
-      <section id="main-content" class="container">
-        <p>A yoga training aid powered by MediaPipe.</p>
-        <form action="#">
-          <input id="start-btn" class="menu-btn" type="submit" value="Button! :D" />
-        </form>
-      </section>
+    <section id="app-content" style="display: flex; align-items: center; justify-content: center;">
+      <div id="index-logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="font-size:40px;margin: 0px;">Yoge</h1>
+        <p style="color: #666;">Powered by MediaPipe</p>
+        <!-- <div style="min-height: 75px;"></div> -->
+      </div>
     </section>
     
 
@@ -27,8 +24,11 @@
     <script>
       $(document).ready(function() {
           $(document).ready(()=>$('#app-title-bar').load('shared/apptitlebar.html'));
-          $('#sidenav').load('shared/sidenav.html');
       });
+
+      setTimeout(()=>{
+        location.href = "dashboard/index.html"
+      }, 1000);
     </script>
   </body>
 </html>

@@ -9,3 +9,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     checkConnection: (callback) => ipcRenderer.on('consumer-status', (_event, arg) => callback(arg)),
     currentFrame: (callback) => ipcRenderer.on('current-frame', (_event, imgStr)=> callback(imgStr)),
 })
+
+
+contextBridge.exposeInMainWorld('electronWindow', {
+    windowClose: () => ipcRenderer.send('window-close'),
+    windowMinimize: () => ipcRenderer.send('window-minimize'),
+    windowMaximize: () => ipcRenderer.send('window-maximize')
+})
