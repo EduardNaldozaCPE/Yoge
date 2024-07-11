@@ -1,9 +1,10 @@
 <h1 id="logo">Yoge</h1>
 <div class="sidenav-spacer"></div>
 <div id="sidenav-btns">
-    <form action="../dashboard/index.html">
+    <!-- <form action="../dashboard/index.html">
         <input type="submit" class="sidenav-btn" value="Dashboard" id="sidenav-btn-dashboard"></input>
-    </form>
+    </form> -->
+    <button type="submit" class="sidenav-btn" id="sidenav-btn-dashboard" onclick="electronAPI.transitionTo('../dashboard/index.html')">Dashboard</button>
     <form action="#"  id="sequences-form">
         <input type="submit" class="sidenav-btn" value="Sequences"></input>
     </form>

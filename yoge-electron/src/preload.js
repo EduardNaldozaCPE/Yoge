@@ -5,9 +5,15 @@ const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
     runConsumer: () => ipcRenderer.send('run-consumer'),
-    runTest: () => {console.log("RUNNING TEST");},
-    checkConnection: (callback) => ipcRenderer.on('consumer-status', (_event, arg) => callback(arg)),
     currentFrame: (callback) => ipcRenderer.on('current-frame', (_event, imgStr)=> callback(imgStr)),
+    transitionTo: (loc) => {
+        const appContent = document.getElementById("app-content").style;
+        appContent.animation = "opentransition 0.3s linear backwards";
+        setTimeout(()=>{
+            appContent.opacity = 0;
+        }, 10);
+        setTimeout(()=>{ location.href = loc; }, 300);
+    }
 })
 
 

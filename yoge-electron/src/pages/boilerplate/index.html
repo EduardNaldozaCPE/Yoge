@@ -4,8 +4,8 @@
     <head>
       <meta charset="UTF-8" />
       <title>Yoge - Dashboard</title>
-      <link rel="stylesheet" href="../../main-styles.css" />
-      <link rel="stylesheet" href="boiler-style.css" />
+      <link rel="stylesheet" href="../../styles-main.css" />
+      <link rel="stylesheet" href="styles-boiler.css" />
     </head>
     <body>
         <section id="app-title-bar"></section>
@@ -15,6 +15,7 @@
             // Include title bar and body via JQuery
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
             $(document).ready(()=>$('#app-content').load('./body.html'));
+            $(document).ready(()=>$('#app-content').css("opacity", 1));
         </script>
     </body>
 </html>
