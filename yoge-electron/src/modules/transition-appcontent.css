@@ -3,6 +3,11 @@
     transition: opacity linear 0.2s;
 }
 
+#main-content {
+    animation: opentransition 0.3s forwards;
+    transition: opacity linear 0.2s;
+}
+
 @keyframes opentransition {
     from {opacity: 0;}
     to {opacity: 1;}

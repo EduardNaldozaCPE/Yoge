@@ -9,12 +9,57 @@
     </head>
     <body>
         <section id="app-title-bar"></section>
-        <section id="app-content"></section>
+        <section id="app-content">
+            <section id="sidenav" class="container">
+                <h1 id="logo">Yoge</h1>
+                <div class="sidenav-spacer"></div>
+                <div id="sidenav-btns">
+                    <button type="submit" class="sidenav-btn" id="sidenav-btn-dashboard" onclick="transitionTo('dashboard')">Dashboard</button>
+                    <button type="submit" class="sidenav-btn" id="sidenav-btn-sequences" onclick="transitionTo('sequences')">Sequences</button>
+                    <button type="submit" class="sidenav-btn" id="sidenav-btn-scores" onclick="transitionTo('scores')">Scores</button>
+                    <button type="submit" class="sidenav-btn" id="sidenav-btn-history" onclick="transitionTo('history')">History</button>
+                </div>
+                <div class="sidenav-spacer"></div>
+                <div class="sidenav-spacer"></div></section>
+            <section id="main-content" class="container"></section>
+        </section>
         <script src="../../modules/jquery-3.7.1.min.js"></script>
+        <script src="sidenav.js"></script>
         <script>
             // Include title bar and body via JQuery
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
-            $(document).ready(()=>$('#app-content').load('./body.html'));
+            $("#main-content").ready(()=>{
+                $('#main-content').load('contents/dashboard.html');
+                updateNavBtns();
+            });
+
+            let params = new URLSearchParams(location.search);
+
+            function transitionTo(page) {
+                params.set("page", page);
+                updateNavBtns();
+                
+                const appContent = document.getElementById("main-content").style;
+                appContent.animation = "opentransition 0.2s linear backwards";
+
+                setTimeout(()=>{
+                    appContent.opacity = 0;
+                }, 10);
+
+                setTimeout(()=>{ 
+                    $("#main-content").html("");
+                    $('#main-content').load(`contents/${page}.html`);
+                    appContent.opacity = 1;
+                }, 200);
+            }
+            
+            // Highlight and disable the button of the current page 
+            function updateNavBtns() {
+                let page = params.get("page");
+                $('.sidenav-btn').attr('highlight', 'false');
+                $(`#sidenav-btn-${page}`).attr('highlight', 'true');
+            }
+            
         </script>
     </body>
 </html>
