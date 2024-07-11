@@ -1,5 +1,5 @@
 #app-content {
-    animation: opentransition 0.3s forwards;
+    animation: opentransition 0.2s forwards;
     transition: opacity linear 0.1s;
 }
 

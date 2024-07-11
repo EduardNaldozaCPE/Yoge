@@ -74,7 +74,7 @@
 }
   
 #logo {
-  font-weight: 400;
+  font-size: 40px;
 }
 
 #app-content {
@@ -141,6 +141,16 @@ a {
 @keyframes fadeIn {
   25% {--bg-opacity: 0.5}
   100% {--bg-opacity: 1}
+}
+
+#sidenav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidenav-spacer {
+  flex-grow: 3;
 }
 
 .sidenav-btn {

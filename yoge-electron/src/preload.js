@@ -8,11 +8,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     currentFrame: (callback) => ipcRenderer.on('current-frame', (_event, imgStr)=> callback(imgStr)),
     transitionTo: (loc) => {
         const appContent = document.getElementById("app-content").style;
-        appContent.animation = "opentransition 0.3s linear backwards";
+        appContent.animation = "opentransition 0.2s linear backwards";
         setTimeout(()=>{
             appContent.opacity = 0;
         }, 10);
-        setTimeout(()=>{ location.href = loc; }, 300);
+        setTimeout(()=>{ location.href = loc; }, 200);
     }
 })
 
