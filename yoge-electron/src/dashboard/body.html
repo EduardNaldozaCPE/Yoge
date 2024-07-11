@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <section id="sidenav" class="container"></section>
+
+    <!-- This is the main content -->
+    <section id="main-content" class="container">
+      <p>A yoga training aid powered by MediaPipe.</p>
+      <form action="/src/session">
+        <input id="start-btn" class="menu-btn" type="submit" value="Start Session" />
+      </form>
+    </section>
+
+    <script src="../modules/jquery-3.7.1.min.js"></script>
+    <script>
+      // Include HTML snippets via JQuery
+      $("#sidenav").ready(()=>$('#sidenav').load('../shared/sidenav.html'));
+    </script>
+  </body>
+</html>

@@ -2,28 +2,27 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Yoge</title>
-    <link rel="stylesheet" href="main.css" />
+    <title>Yoge - Home</title>
+    <link rel="stylesheet" href="main-styles.css" />
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <section id="sidenav" class="container">
-      <h1 id="logo">Yoge</h1>
-      <div class="sidenav-spacer"></div>
-      <div id="sidenav-btns">
-        <button class="sidenav-btn">Dashboard</button>
-        <button class="sidenav-btn">Sequences</button>
-        <button class="sidenav-btn">Scores</button>
-        <button class="sidenav-btn">History</button>
-      </div>
-      <div class="sidenav-spacer"></div>
-      <div class="sidenav-spacer"></div>
-    </section>
+    <section id="sidenav" class="container"></section>
+
+    <!-- This is the main content -->
     <section id="main-content" class="container">
       <p>A yoga training aid powered by MediaPipe.</p>
-      <form action="./session/session.html">
-        <input id="start-btn" class="menu-btn" type="submit" value="Start Session" />
+      <form action="#">
+        <input id="start-btn" class="menu-btn" type="submit" value="Button! :D" />
       </form>
     </section>
+
+    <!-- Include HTML snippets via JQuery -->
+    <script src="./modules/jquery-3.7.1.min.js"></script>
+    <script>
+      $(document).ready(function() {
+          $('#sidenav').load('shared/sidenav.html');
+      });
+    </script>
   </body>
 </html>

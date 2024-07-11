@@ -1,0 +1,36 @@
+<h1 id="logo">Yoge</h1>
+<div class="sidenav-spacer"></div>
+<div id="sidenav-btns">
+    <form action="/src/dashboard">
+        <input type="submit" class="sidenav-btn" value="Dashboard" id="sidenav-btn-dashboard"></input>
+    </form>
+    <form action="#"  id="sequences-form">
+        <input type="submit" class="sidenav-btn" value="Sequences"></input>
+    </form>
+    <form action="#"  id="scores-form">
+        <input type="submit" class="sidenav-btn" value="Scores"></input>
+    </form>
+    <form action="#"  id="history-form">
+        <input type="submit" class="sidenav-btn" value="History"></input>
+    </form>
+</div>
+<div class="sidenav-spacer"></div>
+<div class="sidenav-spacer"></div>
+<script>
+    // Get the last section of the pathname
+    var path = window.location.pathname;
+    const lastCharIndex=  path.length-1;
+    if (path.charAt(lastCharIndex) == '/')
+        path = path.substr(0, lastCharIndex);
+    const pathArray = path.split('/');
+
+    // Highlight and disable the button of the current page 
+    switch (pathArray[pathArray.length-1]) {
+        case 'dashboard':
+            $('#sidenav-btn-dashboard').attr('highlight', 'true');
+            break;
+
+        default:
+            break;
+    }
+</script>

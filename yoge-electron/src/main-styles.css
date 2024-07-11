@@ -6,7 +6,7 @@
 :root {
   --main-padding: 5px;
   --main-bg-colour: #1a1a1a;
-  --container-colour: #2a2a2a;
+  --container-colour: #232323;
   --container-margin: 5px;
   --container-border: #5d5d5d 1px solid;
   /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -109,6 +109,14 @@ a {
   transition: linear box-shadow 0.08s;
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
+}
+.sidenav-btn[highlight="true"] {
+	position:   relative;
+  animation:  0.3s fadeIn 1 forwards;
+  transition: linear box-shadow 0.08s;
+  background: rgba(122, 62, 135, var(--bg-opacity));
+  background: linear-gradient(90deg, rgba(122,62,135,0.33) 6%, rgba(138,35,56,0.33) 100%);
+  font-weight: 700;
 }
 
 
