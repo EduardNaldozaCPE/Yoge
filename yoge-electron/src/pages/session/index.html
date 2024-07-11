@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Yoge - Session</title>
+      <link rel="stylesheet" href="../../main-styles.css" />
+      <link rel="stylesheet" href="dashboard.css" />
+    </head>
+    <body>
+        <section id="app-title-bar"></section>
+        <section id="app-content"></section>
+        <script src="../../modules/jquery-3.7.1.min.js"></script>
+        <script>
+            $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
+            $(document).ready(()=>$('#app-content').load('./body.html'));
+        </script>
+    </body>
+</html>

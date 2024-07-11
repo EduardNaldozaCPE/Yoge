@@ -2,19 +2,7 @@
     <h5 id="app-title">Yoge</h5>
 </div>
 <div id="app-trafficlights">
-    <button class="app-trafficlight" id="btn-minimise" onclick="minimizeWindow()">&#128469;</button>
-    <button class="app-trafficlight" id="btn-maximise" onclick="maximizeWindow()">&#128470;</button>
-    <button class="app-trafficlight" id="btn-close" onclick="closeWindow()">&#10006;</button>
+    <button class="app-trafficlight" id="btn-minimise" onclick="electronWindow.windowMinimize()">&#128469;</button>
+    <button class="app-trafficlight" id="btn-maximise" onclick="electronWindow.windowMaximize()">&#128470;</button>
+    <button class="app-trafficlight" id="btn-close" onclick="electronWindow.windowClose()">&#10006;</button>
 </div>
-
-<script>
-    function minimizeWindow() {
-        electronWindow.windowMinimize();
-    }
-    function maximizeWindow() {
-        electronWindow.windowMaximize();
-    }
-    function closeWindow() {
-        electronWindow.windowClose();
-    }
-</script>

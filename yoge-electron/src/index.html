@@ -4,17 +4,15 @@
     <meta charset="UTF-8" />
     <title>Yoge - Home</title>
     <link rel="stylesheet" href="main-styles.css" />
-    <link rel="stylesheet" href="index.css" />
   </head>
   <body>
     <section id="app-title-bar"></section>
     
     
     <section id="app-content" style="display: flex; align-items: center; justify-content: center;">
-      <div id="index-logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div id="index-logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: linear opacity 0.33s;">
         <h1 style="font-size:40px;margin: 0px;">Yoge</h1>
         <p style="color: #666;">Powered by MediaPipe</p>
-        <!-- <div style="min-height: 75px;"></div> -->
       </div>
     </section>
     
@@ -24,11 +22,10 @@
     <script>
       $(document).ready(function() {
           $(document).ready(()=>$('#app-title-bar').load('shared/apptitlebar.html'));
+          $("#index-logo").css('opacity', 1);
       });
 
-      setTimeout(()=>{
-        location.href = "dashboard/index.html"
-      }, 1000);
+      setTimeout(()=>{location.href = "pages/dashboard/index.html";}, 1000);
     </script>
   </body>
 </html>
