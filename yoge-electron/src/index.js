@@ -36,7 +36,10 @@ const createWindow = () => {
         }
       });
 
-      client.on('end', () => {console.log("Disconnecting from the named pipe.")});
+      client.on('end', () => {
+        console.log("Disconnecting from the named pipe.")
+        client.close();
+      });
 
     } catch (error) {
       console.log(`Encountered an error while connecting: \n${error}`);
@@ -60,8 +63,6 @@ app.whenReady().then(() => {
 
 
 app.on('window-all-closed', () => {
-  delete client;
-  delete sessionEvent;
   if (process.platform !== 'darwin') {
     app.quit();
   }
