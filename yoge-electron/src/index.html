@@ -7,20 +7,26 @@
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <section id="sidenav" class="container"></section>
-
-    <!-- This is the main content -->
-    <section id="main-content" class="container">
-      <p>A yoga training aid powered by MediaPipe.</p>
-      <form action="#">
-        <input id="start-btn" class="menu-btn" type="submit" value="Button! :D" />
-      </form>
+    <section id="app-title-bar"></section>
+    
+    
+    <section id="app-content">
+      <!-- This is the main content -->
+      <section id="sidenav" class="container"></section>
+      <section id="main-content" class="container">
+        <p>A yoga training aid powered by MediaPipe.</p>
+        <form action="#">
+          <input id="start-btn" class="menu-btn" type="submit" value="Button! :D" />
+        </form>
+      </section>
     </section>
+    
 
     <!-- Include HTML snippets via JQuery -->
     <script src="./modules/jquery-3.7.1.min.js"></script>
     <script>
       $(document).ready(function() {
+          $(document).ready(()=>$('#app-title-bar').load('shared/apptitlebar.html'));
           $('#sidenav').load('shared/sidenav.html');
       });
     </script>

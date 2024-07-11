@@ -8,10 +8,13 @@
       <link rel="stylesheet" href="boiler-style.css" />
     </head>
     <body>
-        <!-- The body will only include the script to include the main html-->
+        <section id="app-title-bar"></section>
+        <section id="app-content"></section>
         <script src="../modules/jquery-3.7.1.min.js"></script>
         <script>
-            $(document).ready(()=>$('body').load('./body.html'))
+            // Include title bar and body via JQuery
+            $(document).ready(()=>$('#app-title-bar').load('../shared/apptitlebar.html'));
+            $(document).ready(()=>$('#app-content').load('./body.html'));
         </script>
     </body>
 </html>
