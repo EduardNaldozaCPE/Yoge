@@ -1,4 +1,4 @@
-const liveFeed = document.getElementById('live-feed');
-electronAPI.runConsumer();
+// const liveFeed = document.getElementById('live-feed');
+// electronAPI.runConsumer();
 
-electronAPI.currentFrame((imgStr)=>{liveFeed.src = imgStr;});
+// electronAPI.currentFrame((imgStr)=>{liveFeed.src = imgStr;});

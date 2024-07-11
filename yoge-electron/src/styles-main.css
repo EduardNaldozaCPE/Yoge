@@ -97,24 +97,6 @@ a {
   color: #0ad
 }
 
-.top-bar {
-  background-color: #1a1a1a;
-  border-radius: 5px;
-  padding: 10px;
-  margin: var(--container-margin);
-  border: var(--container-border);
-  background: linear-gradient(
-    90deg, 
-    #1a1a1a 10%, 
-    rgba(122,62,135,0.2) 60%, 
-    rgba(138,35,56,0.2) 100%
-    );
-}
-
-.top-bar-title {
-  margin: 0px;
-}
-
 .container {
   background-color: var(--container-colour);
   margin: var(--container-margin);
