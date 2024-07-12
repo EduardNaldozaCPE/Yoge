@@ -1,4 +1,4 @@
-sizesFile = open('./tests/buffersizes.txt', 'r')
+sizesFile = open('./tests/MAXBUFFERSIZEs.txt', 'r')
 
 maxSize = 0
 for size in sizesFile.readlines():

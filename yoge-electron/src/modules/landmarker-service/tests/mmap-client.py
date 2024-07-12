@@ -18,8 +18,8 @@ def displayCv2Image(frameBytes:bytes):
 
 def padBuffer(buffer:bytes, shm_size):
     # Pad out the frame data to match the buffer size.
-    bufferSize = len(buffer)
-    paddingLength = shm_size - (bufferSize % shm_size)
+    MAXBUFFERSIZE = len(buffer)
+    paddingLength = shm_size - (MAXBUFFERSIZE % shm_size)
     padding = b'\x00' * paddingLength
     return buffer + padding
 

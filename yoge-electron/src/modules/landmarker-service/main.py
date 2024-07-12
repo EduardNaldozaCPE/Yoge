@@ -54,8 +54,8 @@ def main():
 
             # Skip if the frame is too big.
             frameSize = len(frameBuffer)
-            if frameSize > BUFFERSIZE:
-                print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", BUFFERSIZE, file=sys.stderr)
+            if frameSize > MAXBUFFERSIZE:
+                print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", MAXBUFFERSIZE, file=sys.stderr)
                 continue
             
             # Pad out the frame data to match the buffer size.
@@ -95,6 +95,6 @@ if __name__ == "__main__":
     config = open('./src/modules/landmarker-service/config.json', 'r')
     config_options = json.load(config)
     MODEL_PATH  = config_options["MODEL_PATH"]
-    BUFFERSIZE  = config_options["BUFFERSIZE"]
+    MAXBUFFERSIZE  = config_options["MAXBUFFERSIZE"]
     config.close()
     main()

@@ -6,15 +6,15 @@ pipe_name = r'\\.\\pipe\\framePipe'
 fs = FrameSample() 
 frameSample = fs.bFrame
 
-BUFFERSIZE = len(frameSample)
-print("BUFFERSIZE:", BUFFERSIZE)
+MAXBUFFERSIZE = len(frameSample)
+print("MAXBUFFERSIZE:", MAXBUFFERSIZE)
 
 # Create a named pipe
 pipe = win32pipe.CreateNamedPipe(
     pipe_name,
     win32pipe.PIPE_ACCESS_OUTBOUND,
     win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_WAIT,
-    1, BUFFERSIZE, BUFFERSIZE,
+    1, MAXBUFFERSIZE, MAXBUFFERSIZE,
     0,
     None
 )
