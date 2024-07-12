@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { spawn } = require("child_process");
 const path = require('node:path');
-const net = require('node:net');
-const PIPEDIR = "\\\\.\\pipe\\framePipe";
 
 if (require('electron-squirrel-startup')) app.quit;
 
@@ -27,25 +26,26 @@ const createWindow = () => {
    * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
    */
   const runConsumer = () => {
-    console.log(`Connecting to named pipe: ${PIPEDIR}`);
     try {
-      client = net.createConnection( `${PIPEDIR}`, ()=>console.log("Successfully Connected."));
-      
-      // Upon retrieval of new data, format the bytestring and signal current-frame event in preload
-      client.on('data', (data) => {
-        let buf_bodyAndPadding = data.toString('base64').split("BUFFEREND");
-        try {
-          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_bodyAndPadding[0]}`);
-        } catch (err) {
-          if (typeof(err) == TypeError) console.log("Error Caught: ", err);
-        }
+      const producer = spawn('python', ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2']);
+
+      var outCount = 0;
+
+      producer.stdout.on('data', (data)=>{
+        outCount++;
+        strData = data.toString().substring(0, 15);
+        console.log(`[${outCount}] out: ${strData}`);
+        // mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_bodyAndPadding[0]}`);
+      });
+    
+      producer.stderr.on('data', (data)=>{
+        console.log(`${data}`);
       });
 
-      client.on('end', () => {
-        console.log("Disconnecting from the named pipe.")
-        client.close();
+      producer.on('close', (code, signal)=>{
+        if (code) console.log(`Producer exited with code: ${code}`);
+        if (signal) console.log(`Producer exited with code: ${signal}`);
       });
-
     } catch (error) {
       console.log(`Encountered an error while connecting: \n${error}`);
     }

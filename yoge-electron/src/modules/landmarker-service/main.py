@@ -1,4 +1,6 @@
-import os, sys, json, threading, win32pipe, win32file
+import os, sys, json, threading
+
+from click import echo
 
 from landmarker import Landmarker
 from utils import padBuffer
@@ -33,10 +35,8 @@ def main():
                 User Id: {userId}
                 Sequence Id: {sequenceId}
                 Session Id: {sessionId}
-                Pipe Name: {PIPE_DIR}
         """)
         poseService = Landmarker(MODEL_PATH)
-        print("Started MediaPipe Pose Landmark Detection Service.\n")
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
@@ -46,21 +46,8 @@ def main():
         print("Error setting session data:", e)
         return
 
-    # 3. Create the named pipe then wait for a connection & Create a separate thread for runVideo since it has an endless loop.
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
     try:
-        pipe = win32pipe.CreateNamedPipe(
-            PIPE_DIR,
-            win32pipe.PIPE_ACCESS_OUTBOUND,
-            win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_WAIT,
-            1, BUFFERSIZE, BUFFERSIZE,
-            0,
-            None
-        )
-
-        print("Waiting for consumer to connect...")
-        win32pipe.ConnectNamedPipe(pipe, None)
-
         isRunning = True
         video_thread.start()  
     except Exception as e:
@@ -68,6 +55,7 @@ def main():
         return
 
     # 4. Collect the frame data every loop. Then write it to the mmap.
+    os.system('cls')
     try:
         errCounter = 0
         while isRunning:
@@ -79,11 +67,13 @@ def main():
             frameSize = len(frame_data)
             if frameSize > BUFFERSIZE: 
                 print("Frame Size: ", frameSize, "/", BUFFERSIZE)
-                print("frame data is too large. increase the buffer size. Skipping...")
+                print("Frame data is too large. increase the buffer size. Skipping...")
                 continue
             
             # Pad out the frame data to match the buffer size.
             paddedFrame = padBuffer(frame_data, BUFFERSIZE)
+            print(paddedFrame)
+            # print()
 
             # [TEST] Frame
             # with open('bytes', 'bw') as bf:
@@ -91,7 +81,6 @@ def main():
 
             # Write the frame to the named pipe
             try:
-                win32file.WriteFile(pipe, paddedFrame)
                 if (errCounter != 0): 
                     errCounter = 0
             except KeyboardInterrupt:
@@ -109,8 +98,6 @@ def main():
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        print("Closing Pipe Handle")
-        win32file.CloseHandle(pipe)
         poseService.stopVideo()
         video_thread.join()
 
@@ -119,10 +106,9 @@ if __name__ == "__main__":
     os.system("cls")
 
     # Initialise Constants from config.json
-    config = open('./config.json', 'r')
+    config = open('./landmarker-service/config.json', 'r')
     config_options = json.load(config)
     MODEL_PATH  = config_options["MODEL_PATH"]
     BUFFERSIZE  = config_options["BUFFERSIZE"]
-    PIPE_DIR  = config_options["PIPE_DIR"]
     config.close()
     main()
