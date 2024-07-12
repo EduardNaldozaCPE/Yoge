@@ -5,6 +5,7 @@ const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
     runConsumer: () => ipcRenderer.send('run-consumer'),
+    stopConsumer: () => ipcRenderer.send('stop-consumer'),
     currentFrame: (callback) => ipcRenderer.on('current-frame', (_event, imgStr)=> callback(imgStr)),
     transitionTo: (loc) => {
         const appContent = document.getElementById("app-content").style;
