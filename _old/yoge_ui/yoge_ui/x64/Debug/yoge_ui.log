@@ -1,4 +1,0 @@
-﻿  main.cpp
-C:\Users\jsmas\repos\Yoge\_old\yoge_ui\main.cpp(18,31): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\jsmas\repos\Yoge\_old\yoge_ui\main.cpp(18,23): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
-  yoge_ui.vcxproj -> C:\Users\jsmas\repos\Yoge\_old\yoge_ui\x64\Debug\yoge_ui.exe
