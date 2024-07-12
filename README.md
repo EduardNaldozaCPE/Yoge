@@ -27,4 +27,4 @@ Using a microservices architectural pattern of sorts, the appliation will interf
 | Scores Database | SQLite | - |
 
 # Dev Log
-Dumping all my thoughts and stuff in [Notion](https://www.notion.so/Yoge-c66f695b780848189fe7de07ef7c1bdf?pvs=4).
+Dumping all my thoughts and stuff in [Notion]([https://www.notion.so/Yoge-c66f695b780848189fe7de07ef7c1bdf?pvs=4](https://power-magpie-0b3.notion.site/Yoge-c66f695b780848189fe7de07ef7c1bdf?pvs=4)).
