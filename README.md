@@ -1,13 +1,13 @@
 # Yoge - A Yoga Training Aid App
 
 A remastering of my university thesis paper on 'Yoga Training Aid via Pose Estimation' by turning it into a native application instead of a web app.
-This project also doubles as an exercise on The Producer - Consumer Problem and Inter-Process Communication between programmes written in different languages (Python & NodeJS).
 
 # Objective
 We aim to create an application that is composed of different processes and services which are written in different languages.
- - REST API - Create an interface to process (CRUD) user data in a database. 
+ - Image Processing - Encoding and decoding bytes in different encoding formats. And knowing when to do so and for what purpose. 
  - Interprocess Communication - Using Named Pipes to seamlessly integrate a Python process with the front-end UI.
- - Native Application Development - Dip our toes in creating native Windows applications using the .NET framework 
+ - REST API - Create an interface to process (CRUD) user data in a database.
+ - Native Application Development - Dip our toes in creating native Windows applications. 
 
 # Stack
 
