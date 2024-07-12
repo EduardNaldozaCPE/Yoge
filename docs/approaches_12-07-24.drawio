@@ -1,0 +1,181 @@
+<mxfile host="Electron" modified="2024-07-12T15:59:36.668Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.1 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="mNz_IDJzc5n1wM0vitAK" version="24.6.1" type="device">
+  <diagram name="Page-1" id="eXMu176rDgCveuQT5k3q">
+    <mxGraphModel dx="1615" dy="955" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dEGMa7f8i27xMLq21QbF-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-1" target="dEGMa7f8i27xMLq21QbF-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-24" value="Update &lt;i&gt;image.src&lt;/i&gt;&amp;nbsp;&lt;div&gt;string every read&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-23">
+          <mxGeometry x="0.1406" y="-1" relative="1" as="geometry">
+            <mxPoint x="1" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-1" value="Electron Main&lt;div&gt;&lt;i&gt;&lt;font color=&quot;#999999&quot;&gt;NodeJS:Electron&lt;/font&gt;&lt;/i&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="62" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-2" value="Approach 1: &lt;b&gt;Named Pipes&lt;/b&gt; - Reading, Writing, and Concurrency" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="35" y="40" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-3" value="Approach 2: &lt;b&gt;stdout &lt;/b&gt;- Capturing child-process&#39; &lt;font face=&quot;Courier New&quot;&gt;stdout&amp;nbsp;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="42" y="360" width="320" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-4" target="dEGMa7f8i27xMLq21QbF-6">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="382" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-20" value="Write to&lt;div&gt;Named Pipe&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-11">
+          <mxGeometry x="-0.034" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="526.6" y="160" as="sourcePoint" />
+            <mxPoint x="527" y="220" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="527" y="200" />
+              <mxPoint x="527" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-4" value="Pose Landmarker&lt;div&gt;&lt;font color=&quot;#999999&quot;&gt;&lt;i&gt;Python:MediaPipe&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="462" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-6" target="dEGMa7f8i27xMLq21QbF-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-21" value="Read from&amp;nbsp;&lt;div&gt;Named Pipe&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-12">
+          <mxGeometry x="-0.0886" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-6" value="Named Pipe" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="292" y="80" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.458;exitY=-0.015;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-13">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="517" y="210" as="sourcePoint" />
+            <mxPoint x="517.0114942528736" y="150" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-13" value="Pose Landmarker&lt;div&gt;&lt;font color=&quot;#999999&quot;&gt;&lt;i&gt;Python:MediaPipe&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="462" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-13" target="dEGMa7f8i27xMLq21QbF-13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="612" y="270" />
+              <mxPoint x="612" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-15" value="Process camera feed&amp;nbsp;&lt;div&gt;&amp;amp; store image in state&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-14">
+          <mxGeometry x="0.3566" y="1" relative="1" as="geometry">
+            <mxPoint x="41" y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-19" value="Take processed&amp;nbsp;&lt;div&gt;image from state&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="522" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-22" value="Electron Renderer&lt;div&gt;&lt;i&gt;&lt;font color=&quot;#999999&quot;&gt;NodeJS:Electron&lt;/font&gt;&lt;/i&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="62" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-28" target="dEGMa7f8i27xMLq21QbF-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-27" value="Update &lt;i&gt;image.src&lt;/i&gt;&amp;nbsp;&lt;div&gt;string every read&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-26">
+          <mxGeometry x="0.1406" y="-1" relative="1" as="geometry">
+            <mxPoint x="-13" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="dEGMa7f8i27xMLq21QbF-32">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="90" y="460" as="sourcePoint" />
+            <mxPoint x="90" y="550" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="90" y="550" />
+              <mxPoint x="90" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-39" value="Run as child" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-38">
+          <mxGeometry x="-0.2622" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-42" target="dEGMa7f8i27xMLq21QbF-28">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="242" y="480" />
+              <mxPoint x="160" y="480" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-46" value="Read stdouts" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-45">
+          <mxGeometry x="0.239" relative="1" as="geometry">
+            <mxPoint x="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-28" value="Electron Main&lt;div&gt;&lt;i&gt;&lt;font color=&quot;#999999&quot;&gt;NodeJS:Electron&lt;/font&gt;&lt;/i&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="62" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-29" value="Electron Renderer&lt;div&gt;&lt;i&gt;&lt;font color=&quot;#999999&quot;&gt;NodeJS:Electron&lt;/font&gt;&lt;/i&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="362" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-32">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="126.60000000000002" y="650" as="sourcePoint" />
+            <mxPoint x="127" y="710" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="127" y="690" />
+              <mxPoint x="127" y="690" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-32" target="dEGMa7f8i27xMLq21QbF-42">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-32" value="Pose Landmarker&lt;div&gt;&lt;font color=&quot;#999999&quot;&gt;&lt;i&gt;Python:MediaPipe&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="62" y="580" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.458;exitY=-0.015;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-34">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="117" y="700" as="sourcePoint" />
+            <mxPoint x="117.0114942528736" y="640" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-34" value="Pose Landmarker&lt;div&gt;&lt;font color=&quot;#999999&quot;&gt;&lt;i&gt;Python:MediaPipe&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="62" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dEGMa7f8i27xMLq21QbF-34" target="dEGMa7f8i27xMLq21QbF-34">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="212" y="760" />
+              <mxPoint x="212" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-36" value="Process camera feed&amp;nbsp;&lt;div&gt;&amp;amp; store image in state&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dEGMa7f8i27xMLq21QbF-35">
+          <mxGeometry x="0.3566" y="1" relative="1" as="geometry">
+            <mxPoint x="41" y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-37" value="Take processed&amp;nbsp;&lt;div&gt;image from state&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="122" y="675" as="geometry" />
+        </mxCell>
+        <mxCell id="dEGMa7f8i27xMLq21QbF-42" value="Print b&lt;span style=&quot;background-color: initial;&quot;&gt;ase64-encoded&lt;/span&gt;&lt;div&gt;Image to stdout&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="155" y="500" width="175" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

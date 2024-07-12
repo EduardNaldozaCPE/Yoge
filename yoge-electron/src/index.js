@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { spawn } = require("child_process");
 const path = require('node:path');
-const net = require('node:net');
-const PIPEDIR = "\\\\.\\pipe\\framePipe";
 
 if (require('electron-squirrel-startup')) app.quit;
 
@@ -27,25 +26,34 @@ const createWindow = () => {
    * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
    */
   const runConsumer = () => {
-    console.log(`Connecting to named pipe: ${PIPEDIR}`);
+    let buf, buf_instart, buf_inend, buf_final, fin, byteslen;
     try {
-      client = net.createConnection( `${PIPEDIR}`, ()=>console.log("Successfully Connected."));
-      
-      // Upon retrieval of new data, format the bytestring and signal current-frame event in preload
-      client.on('data', (data) => {
-        let buf_bodyAndPadding = data.toString('base64').split("BUFFEREND");
+      const producer = spawn('python', ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2']);
+
+      producer.stdout.on('data', (data)=>{
         try {
-          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_bodyAndPadding[0]}`);
+          buf = `${data}`;
+          buf_instart = buf.split("BUFFERSTART");
+          buf_inend = buf_instart[1].split("BUFFEREND");
+          buf_final = buf_inend[0];
         } catch (err) {
-          if (typeof(err) == TypeError) console.log("Error Caught: ", err);
+          console.error(err);
+        }
+        try { 
+          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_final}`);
+        } catch (err) {
+          console.log("Error Caught:", err);
         }
       });
-
-      client.on('end', () => {
-        console.log("Disconnecting from the named pipe.")
-        client.close();
+    
+      producer.stderr.on('data', (data)=>{
+        console.log(`${data}`);
       });
 
+      producer.on('close', (code, signal)=>{
+        if (code) console.log(`Producer exited with code: ${code}`);
+        if (signal) console.log(`Producer exited with code: ${signal}`);
+      });
     } catch (error) {
       console.log(`Encountered an error while connecting: \n${error}`);
     }

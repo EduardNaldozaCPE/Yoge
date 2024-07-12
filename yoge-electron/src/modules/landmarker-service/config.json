@@ -1,0 +1,5 @@
+{
+    "MODEL_PATH"  : "./src/modules/landmarker-service/landmarker/pose_landmarker_lite.task",
+    "DBPATH"      : "./src/modules/landmarker-service/score-data/yoge.db",
+    "BUFFERSIZE"  : 101205
+}
