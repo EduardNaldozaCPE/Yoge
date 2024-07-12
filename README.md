@@ -22,7 +22,6 @@ Using a microservices architectural pattern of sorts, the appliation will interf
 |Technology|Name|Version|
 |--|--|--|
 | Pose Landmarker | MediaPipe PoseLandmarker Solution (Python) | `MediaPipe v0.10.14` |
-| Interprocess Communication Method | Named Pipes (Windows API) | `python:win32file` `node:net@1.0.2` |
 | Native App UI | Electron ~WPF (.NET)~ | `electron@31.1.0` |
 | Database Middleware | ExpressJS (NodeJS) |  `NodeJS v20.12.2` |
 | Scores Database | SQLite | - |
