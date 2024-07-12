@@ -26,16 +26,24 @@ const createWindow = () => {
    * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
    */
   const runConsumer = () => {
+    let buf, buf_instart, buf_inend, buf_final, fin, byteslen;
     try {
       const producer = spawn('python', ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2']);
 
-      var outCount = 0;
-
       producer.stdout.on('data', (data)=>{
-        outCount++;
-        strData = data.toString().substring(0, 15);
-        console.log(`[${outCount}] out: ${strData}`);
-        // mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_bodyAndPadding[0]}`);
+        try {
+          buf = `${data}`;
+          buf_instart = buf.split("BUFFERSTART");
+          buf_inend = buf_instart[1].split("BUFFEREND");
+          buf_final = buf_inend[0];
+        } catch (err) {
+          console.error(err);
+        }
+        try { 
+          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_final}`);
+        } catch (err) {
+          console.log("Error Caught:", err);
+        }
       });
     
       producer.stderr.on('data', (data)=>{

@@ -1,9 +1,7 @@
-import os, sys, json, threading
-
-from click import echo
+import sys, json, threading
+import base64 as b64
 
 from landmarker import Landmarker
-from utils import padBuffer
 
 def parseArgs() -> tuple:
     for arg in sys.argv:
@@ -23,19 +21,11 @@ def parseArgs() -> tuple:
 
 def main():
     # 1. Handle Session Arguments and Display
-    try: 
-        userId, sequenceId, sessionId = parseArgs()
-    except IndexError as e:
-        print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>")
+    try:  userId, sequenceId, sessionId = parseArgs()
+    except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>", file=sys.stderr)
 
     # 2. Initialise the pose estimation service and set the session data
     try:
-        print(f"""
-              New Session:
-                User Id: {userId}
-                Sequence Id: {sequenceId}
-                Session Id: {sessionId}
-        """)
         poseService = Landmarker(MODEL_PATH)
         poseService.setSessionData(
             int(userId),
@@ -49,64 +39,60 @@ def main():
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
     try:
         isRunning = True
-        video_thread.start()  
+        video_thread.start()
     except Exception as e:
-        print("Error while opening shared memory:", e)
+        print("Error while opening shared memory:", e, file=sys.stderr)
         return
 
-    # 4. Collect the frame data every loop. Then write it to the mmap.
-    os.system('cls')
+    # 4. Collect the frame data every loop.
     try:
         errCounter = 0
         while isRunning:
             # Take current frame from poseService object state
-            frame_data = poseService.getFrameData()
-            if frame_data is None: continue
+            frameBuffer = poseService.getFrame()
+            if frameBuffer is None: continue
 
             # Skip if the frame is too big.
-            frameSize = len(frame_data)
-            if frameSize > BUFFERSIZE: 
-                print("Frame Size: ", frameSize, "/", BUFFERSIZE)
-                print("Frame data is too large. increase the buffer size. Skipping...")
+            frameSize = len(frameBuffer)
+            if frameSize > BUFFERSIZE:
+                print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", BUFFERSIZE, file=sys.stderr)
                 continue
             
             # Pad out the frame data to match the buffer size.
-            paddedFrame = padBuffer(frame_data, BUFFERSIZE)
-            print(paddedFrame)
-            # print()
+            try:
+                # Convert the buffer to base64 and Wrap it
+                b64img = b64.b64encode(frameBuffer) 
+                paddedFrame = b'BUFFERSTART' + b64img + b'BUFFEREND'
+            except Exception as e: print(e, file=sys.stderr)
+
+            # Write the frame to stdout
+            try:
+                print(paddedFrame)
+                if (errCounter != 0): errCounter = 0
+            except KeyboardInterrupt:
+                print("Program Interrupted. Stopping Video Loop...", file=sys.stderr)
+                break
+            except Exception as e:
+                print(e, file=sys.stderr)
+                if (errCounter > 10): break
+                errCounter = errCounter + 1
 
             # [TEST] Frame
             # with open('bytes', 'bw') as bf:
-            #     bf.write(paddedFrame)
+                # bf.write(paddedFrame)
 
-            # Write the frame to the named pipe
-            try:
-                if (errCounter != 0): 
-                    errCounter = 0
-            except KeyboardInterrupt:
-                print("Program Interrupted. Stopping Video Loop...")
-                break
-            except Exception as e:
-                if (errCounter > 10):
-                    break
-                errCounter = errCounter + 1
+            if not isRunning: break 
 
-            if not isRunning:
-                break 
-    except KeyboardInterrupt: 
-        print("KeyboardInterrupt. Exiting.")
-    except Exception as e:
-        print(f"Error: {e}")
+    except KeyboardInterrupt: print("KeyboardInterrupt. Exiting.", file=sys.stderr)
+    except Exception as e: print(f"Error: {e}", file=sys.stderr)
     finally:
         poseService.stopVideo()
         video_thread.join()
 
 
 if __name__ == "__main__":
-    os.system("cls")
-
     # Initialise Constants from config.json
-    config = open('./landmarker-service/config.json', 'r')
+    config = open('./src/modules/landmarker-service/config.json', 'r')
     config_options = json.load(config)
     MODEL_PATH  = config_options["MODEL_PATH"]
     BUFFERSIZE  = config_options["BUFFERSIZE"]

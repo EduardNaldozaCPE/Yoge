@@ -1,4 +1,5 @@
 import queue as q
+import sys
 from .sqlite_controller import SqliteController as Db
 import mediapipe as mp 
 
@@ -37,7 +38,7 @@ class ScoreQueue:
         try:
             self.db = Db()
         except:
-            print("Encountered an error while connecting to Sqlite Db.")
+            print("Encountered an error while connecting to Sqlite Db.", file=sys.stderr)
             return
         
         self.db.runInsert(f"""
@@ -79,12 +80,12 @@ class ScoreQueue:
                                     );
                         """)
                 except IndexError as e:
-                    print("Landmarks incomplete. Skipping.")
+                    print("Landmarks incomplete. Skipping.", file=sys.stderr)
         
         self.running = False
-        print("db Connection Closing...")
+        print("db Connection Closing...", file=sys.stderr)
         self.db.closeConnection()
-        print("db Connection Closed.")
+        print("db Connection Closed.", file=sys.stderr)
 
     def stopProcessing(self):
         self.running = False

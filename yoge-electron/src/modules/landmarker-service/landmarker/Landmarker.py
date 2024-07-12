@@ -1,7 +1,6 @@
+import queue, threading, sys
 import mediapipe as mp
 import cv2 as cv
-import queue
-import threading
 
 from .utils.score_queue import ScoreQueue
 
@@ -25,7 +24,7 @@ class Landmarker:
         self.feed = None
 
         # Record result every 30ms
-        def print_result(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+        def record_score(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
             if timestamp_ms % 20 != 0: return
             if self.scoreQueue is not None:
                 self.scoreQueue.addScore(result, timestamp_ms)
@@ -33,7 +32,7 @@ class Landmarker:
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path=model_path),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
-            result_callback=print_result)
+            result_callback=record_score)
         
     
 
@@ -50,7 +49,7 @@ class Landmarker:
 
 
     # Gets the latest frame data in the queue
-    def getFrameData(self) -> bytes:
+    def getFrame(self) -> bytes:
         try: return self.frame_queue.get()
         except: return None
 
@@ -60,14 +59,14 @@ class Landmarker:
     # NOTE -- Run in a separate thread and stop by using Landmarker.stopVideo()
     def runVideo(self):
         if self.scoreQueue is None:
-            print("Session Data has not been set. Use setSessionData() before calling runVideo()")
+            print("Session Data has not been set. Use setSessionData() before calling runVideo()", file=sys.stderr)
             return
         
         try:
             self.feed = cv.VideoCapture(0)
             self.running = True
         except:
-            print("Error running cv2.VideoCapture(). Stopping...")
+            print("Error running cv2.VideoCapture(). Stopping...", file=sys.stderr)
             return
         
         with self.PoseLandmarker.create_from_options(self.options) as landmarker:
@@ -80,19 +79,19 @@ class Landmarker:
                 try:
                     frame = cv.resize(frame, (640, 480))
                 except Exception as e:
-                    print(f"Error running cv2.resize(). Stopping...")
+                    print(f"Error running cv2.resize(). Stopping...", file=sys.stderr)
                     self.stopVideo()
                     break
 
                 if not success:
-                    print("There was a problem reading the video feed.")
+                    print("There was a problem reading the video feed.", file=sys.stderr)
                     self.stopVideo()
                     break
             
                 rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
                 if not mp_image:
-                    print("could not read image") 
+                    print("could not read image", file=sys.stderr) 
                     continue
                 
                 landmarker.detect_async(mp_image, t)
@@ -100,14 +99,12 @@ class Landmarker:
 
 
                 # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
-                _, data = cv.imencode('.jpg', frame)
+                _, data = cv.imencode('.jpeg', frame)
                 data_bytes = data.tobytes()
                 self.frame_queue.put(data_bytes)
 
             self.feed.release()
             cv.destroyAllWindows()
-
-        print("runVideo Loop Done.")
 
 
     # Stops the video feed loop in runVideo() and stops scoreQueue from recording score data.
