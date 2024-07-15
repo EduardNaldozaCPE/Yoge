@@ -10,6 +10,7 @@
     <body>
         <section id="app-title-bar"></section>
         <section id="app-content">
+
             <section id="sidenav" class="container">
                 <h1 id="logo">Yoge</h1>
                 <div class="sidenav-spacer"></div>
@@ -20,7 +21,19 @@
                     <button type="submit" class="sidenav-btn" id="sidenav-btn-history" onclick="transitionTo('history')">History</button>
                 </div>
                 <div class="sidenav-spacer"></div>
-                <div class="sidenav-spacer"></div></section>
+                <div id="sidenav-bottom">
+                    <div id="sidenav-bottom-accountbtn">
+                        <img id="accountbtn-img" src="../../media/pfp.png" alt="">
+                        <p id="accountbtn-name">John Doe</p>
+                    </div>
+                    <hr>
+                    <div id="sidenav-bottom-btns">
+                        <button type="submit" class="sidenav-btn" id="sidenav-btn-dashboard" onclick="transitionTo('dashboard')">Settings</button>
+                        <button type="submit" class="sidenav-btn" id="sidenav-btn-dashboard" onclick="transitionTo('dashboard')">About</button>
+                    </div>
+                </div>
+            </section>
+
             <section id="main-content" class="container"></section>
         </section>
         <script src="../../modules/jquery-3.7.1.min.js"></script>

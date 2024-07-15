@@ -14,6 +14,12 @@
   font-family: 'WorkSans';
   user-select: none;
 }
+h1 {
+  margin: 0px;
+}
+p {
+  margin: 0;
+}
 
 #app-title-bar {
   min-height: 21px;
@@ -125,27 +131,52 @@ a {
   max-width: 200px;
 }
 
+#sidenav-btns > *{
+  margin: 5px 0px 5px 0px;
+}
+
+#sidenav-bottom > *{
+  margin: 10px 0px 10px 0px;
+
+}
+#sidenav-bottom-btns > * {
+  margin: 2px 0px 2px 0px;
+}
+
+#sidenav-bottom-accountbtn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px 12px 0px 12px;
+  
+  *{
+    margin-right: 10px;
+  };
+}
+
 .sidenav-spacer {
   flex-grow: 3;
 }
 
 .sidenav-btn {
   width: 100%;
-	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
+	padding:12px 40px;
+
 	background: transparent;
 	display: inline-block;
 	cursor: pointer;
 	color: #ffffff;
+	
 	font-family: Arial;
 	font-size:15px;
-	padding:12px 40px;
-	text-decoration:none;
-	text-shadow:0px 1px 0px #263666;
   text-align: left;
+	text-shadow:0px 1px 0px #263666;
+  
   border: 0px solid;
   border-radius: 10px;
   background: rgba(122,62,135,var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
+  box-shadow: inset 0px 0px 0px 0px #7a3e8700;
   transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
 }
 .sidenav-btn:hover {
@@ -155,48 +186,41 @@ a {
 	position:   relative;
   animation:  0.3s fadeIn 1 forwards;
   transition: linear box-shadow 0.08s;
+
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
 }
 .sidenav-btn[highlight="true"] {
 	position:   relative;
+  font-weight: 700;
+
   animation:  0.3s fadeIn 1 forwards;
   transition: linear box-shadow 0.08s;
+  
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,0.33) 6%, rgba(138,35,56,0.33) 100%);
-  font-weight: 700;
   border: #333 1px solid 
 }
 
-
-@property --bg-opacity {
-  syntax: '<number>';
-  initial-value: 0;
-  inherits: false;
-}
-
-@keyframes fadeIn {
-  25% {--bg-opacity: 0.5}
-  100% {--bg-opacity: 1}
-}
-
 .menu-btn {
-  width: 100%;
-	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
-	background: transparent;
 	display: inline-block;
-	cursor: pointer;
-	color: #ffffff;
-	font-family: Arial;
-	font-size:15px;
+  width: 100%;
 	padding:12px 40px;
+	cursor: pointer;
+	
+	color: #ffffff;
+  font-family: Arial;
+	font-size:15px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #263666;
   text-align: left;
+
   border: #555 1px solid;
   border-radius: 10px;
-  background: linear-gradient(90deg, rgba(122,62,135,0.2) 6%, rgba(138,35,56,0.2) 100%);
+
+	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
   transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
+  background: linear-gradient(90deg, rgba(122,62,135,0.2) 6%, rgba(138,35,56,0.2) 100%);
 }
 .menu-btn:hover {
 	box-shadow: inset 50px 0px 80px -50px #7a3e87;

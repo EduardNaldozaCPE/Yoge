@@ -6,11 +6,24 @@ body {
 }
 
 #main-content {
-  padding: 20px;
+  padding: 40px;
   width: 100%;
 }
 
 #start-btn {
   text-align: center;
   width: 200px;
+}
+
+.colour-accent {
+  color: #888888;
+}
+
+#header {
+  font-weight: bold;
+  font-size: 48px;
+}
+
+#dash-header > * {
+  margin-bottom: 10px;
 }
