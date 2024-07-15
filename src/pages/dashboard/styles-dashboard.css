@@ -20,6 +20,8 @@ body {
   overflow: clip;
 }
 
+/* Stats Section */
+
 #menu-stats {
   display: flex;
   flex-direction: column;
@@ -67,17 +69,21 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: auto;
-  overflow-y: auto;
 
   thead {
+    height: 30px;
     color: var(--accent-colour);
   }
+  tbody {
+    height: 120px;
+    overflow-y: auto;
+  };
   tr[alt="true"] {
     background: #aaa1aa12;
   }
 }
 
+/* Profile Section */
 
 #menu-profile {
   width: 250px;

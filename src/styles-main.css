@@ -39,6 +39,12 @@ p {
   background: #555;
 }
 
+.tableFixHead          { overflow: auto; height: 180px }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
+table  { border-collapse: collapse; width: 100%; }
+th, td { padding: 8px 16px; }
+th     { background: var(--main-bg-colour); }
+
 #app-title-bar {
   min-height: 21px;
   max-height: 21px;
