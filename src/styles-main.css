@@ -7,8 +7,8 @@
   --main-padding: 5px;
   --main-bg-colour: #161616ff;
   --container-colour: radial-gradient(circle at 0% 100%, #311E3603 0%, #311E3602 13%, rgba(22, 22, 22, 1) 75%);;
-  --container-margin: 5px;
   --container-border: #444 1px solid;
+  --accent-colour: #888;
   color: #e5e5e5;
   background: var(--main-bg-colour);
   font-family: 'WorkSans';
@@ -18,6 +18,7 @@ h1 {
   margin: 0px;
 }
 p {
+  font-size: 12px;
   margin: 0;
 }
 
@@ -82,6 +83,7 @@ p {
 #app-content {
   display: flex;
   flex-direction: row;
+  gap: 5px;
   overflow: hidden;
 
   margin: 0px;
@@ -100,7 +102,6 @@ a {
 
 .container {
   background: var(--container-colour);
-  margin: var(--container-margin);
   border: var(--container-border);
   padding: 10px;
   border-radius: 10px;
@@ -131,16 +132,26 @@ a {
   max-width: 200px;
 }
 
-#sidenav-btns > *{
-  margin: 5px 0px 5px 0px;
+#sidenav-btns{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-#sidenav-bottom > *{
-  margin: 10px 0px 10px 0px;
+#sidenav-bottom{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
+  hr {
+    width: 100%;
+  }
 }
-#sidenav-bottom-btns > * {
-  margin: 2px 0px 2px 0px;
+
+#sidenav-bottom-btns{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 #sidenav-bottom-accountbtn {
@@ -148,10 +159,7 @@ a {
   flex-direction: row;
   align-items: center;
   padding: 0px 12px 0px 12px;
-  
-  *{
-    margin-right: 10px;
-  };
+  gap: 10px;
 }
 
 .sidenav-spacer {
