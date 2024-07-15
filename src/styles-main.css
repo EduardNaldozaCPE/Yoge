@@ -5,12 +5,12 @@
 
 :root {
   --main-padding: 5px;
-  --main-bg-colour: #1a1a1a;
-  --container-colour: #232323;
+  --main-bg-colour: #161616ff;
+  --container-colour: radial-gradient(circle at 0% 100%, #311E3603 0%, #311E3602 13%, rgba(22, 22, 22, 1) 75%);;
   --container-margin: 5px;
-  --container-border: #5d5d5d 1px solid;
+  --container-border: #444 1px solid;
   color: #e5e5e5;
-  background-color: var(--main-bg-colour);
+  background: var(--main-bg-colour);
   font-family: 'WorkSans';
   user-select: none;
 }
@@ -25,7 +25,7 @@
   top: 0px;
   left: 0px;
   right: 0px;
-  background-color: #232323;
+  background: #232323;
 
   display: flex;
   flex-direction: row;
@@ -56,7 +56,7 @@
   min-height: inherit;
   max-height: inherit;
   min-width: 30px;
-  background-color: #1a1a1a;
+  background: #1a1a1a;
   color: #555;
   font-size: 8px;
   font-weight: bold;
@@ -66,26 +66,21 @@
 } 
 
 .app-trafficlight:hover {
-  background-color: #2f2f2f;
+  background: #2f2f2f;
 }
 
 .app-trafficlight:active {
-  background-color: #2f2f2f;
-}
-  
-#logo {
-  font-size: 40px;
+  background: #2f2f2f;
 }
 
 #app-content {
-  display: grid;
-  grid-template-columns: 200px auto;
-  grid-template-rows: 1fr;
+  display: flex;
+  flex-direction: row;
   overflow: hidden;
 
   margin: 0px;
   padding: var(--main-padding);
-  background-color: var(--main-bg-colour);
+  background: var(--main-bg-colour);
   position: fixed;
   top: 21px;
   bottom: 0px;
@@ -98,20 +93,18 @@ a {
 }
 
 .container {
-  background-color: var(--container-colour);
+  background: var(--container-colour);
   margin: var(--container-margin);
   border: var(--container-border);
   padding: 10px;
   border-radius: 10px;
+  box-shadow: rgba(49, 32, 54, 0.15) 0em 0em 3em inset;
 }
 
 #logo {
+  font-size: 40px;
   margin: 10px auto 10px auto;
   text-align: center;
-}
-
-#main-content {
-  padding: 20px;
 }
 
 @property --bg-opacity {
@@ -129,6 +122,7 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  max-width: 200px;
 }
 
 .sidenav-spacer {
@@ -138,7 +132,7 @@ a {
 .sidenav-btn {
   width: 100%;
 	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
-	background-color: transparent;
+	background: transparent;
 	display: inline-block;
 	cursor: pointer;
 	color: #ffffff;
@@ -152,10 +146,10 @@ a {
   border-radius: 10px;
   background: rgba(122,62,135,var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
+  transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
 }
 .sidenav-btn:hover {
-  transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
-	box-shadow: inset 70px 0px 50px -50px #7a3e87ff;
+	box-shadow: inset 30px 0px 80px -50px #7a3e87dd;
 }
 .sidenav-btn:active {
 	position:   relative;
@@ -171,6 +165,7 @@ a {
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,0.33) 6%, rgba(138,35,56,0.33) 100%);
   font-weight: 700;
+  border: #333 1px solid 
 }
 
 
@@ -188,7 +183,7 @@ a {
 .menu-btn {
   width: 100%;
 	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
-	background-color: transparent;
+	background: transparent;
 	display: inline-block;
 	cursor: pointer;
 	color: #ffffff;
@@ -200,12 +195,11 @@ a {
   text-align: left;
   border: #555 1px solid;
   border-radius: 10px;
-  background: rgba(122,62,135,var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,0.2) 6%, rgba(138,35,56,0.2) 100%);
+  transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
 }
 .menu-btn:hover {
-  transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
-	box-shadow: inset 70px 0px 50px -50px #7a3e87ff;
+	box-shadow: inset 50px 0px 80px -50px #7a3e87;
 }
 .menu-btn:active {
 	position:   relative;

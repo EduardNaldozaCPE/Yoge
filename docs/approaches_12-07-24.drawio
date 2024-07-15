@@ -172,7 +172,7 @@
         <mxCell id="dEGMa7f8i27xMLq21QbF-37" value="Take processed&amp;nbsp;&lt;div&gt;image from state&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1">
           <mxGeometry x="122" y="675" as="geometry" />
         </mxCell>
-        <mxCell id="dEGMa7f8i27xMLq21QbF-42" value="Print b&lt;span style=&quot;background-color: initial;&quot;&gt;ase64-encoded&lt;/span&gt;&lt;div&gt;Image to stdout&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+        <mxCell id="dEGMa7f8i27xMLq21QbF-42" value="Print b&lt;span style=&quot;background: initial;&quot;&gt;ase64-encoded&lt;/span&gt;&lt;div&gt;Image to stdout&lt;/div&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
           <mxGeometry x="155" y="500" width="175" height="50" as="geometry" />
         </mxCell>
       </root>

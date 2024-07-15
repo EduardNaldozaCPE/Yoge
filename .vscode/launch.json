@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Test landmarker",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/modules/landmarker-service/main.py",
+            "console": "integratedTerminal",
+            "args": "-user=0 -sequence=1 -session=2"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug 'session'",
@@ -30,7 +38,10 @@
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             },
-            "args": [".", "--remote-debugging-port=9222"],
+            "args": [
+                ".",
+                "--remote-debugging-port=9222"
+            ],
             "outputCapture": "std",
             "console": "integratedTerminal"
         }

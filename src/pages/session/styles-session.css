@@ -6,20 +6,20 @@
 }
 
 #back-btn {
-    background-color: #222;
+    background: #222;
     color: #cacaca;
     margin-right: 20px;
     height: 30px;
     border: 1px #666 solid;
     border-radius: 5px;
-    transition: linear 0.1s background-color;
+    transition: linear 0.1s background;
     cursor: pointer;
 }
 #back-btn:hover {
-    background-color: #333;
+    background: #333;
 }
 #back-btn:active {
-    background-color: #444;
+    background: #444;
 }
 
 .top-bar {

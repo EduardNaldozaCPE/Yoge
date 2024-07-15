@@ -53,10 +53,10 @@ def main():
             if frameBuffer is None: continue
 
             # Skip if the frame is too big.
-            frameSize = len(frameBuffer)
-            if frameSize > MAXBUFFERSIZE:
-                print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", MAXBUFFERSIZE, file=sys.stderr)
-                continue
+            # frameSize = len(frameBuffer)
+            # if frameSize > MAXBUFFERSIZE:
+            #     print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", MAXBUFFERSIZE, file=sys.stderr)
+            #     continue
             
             # Pad out the frame data to match the buffer size.
             try:
@@ -65,9 +65,9 @@ def main():
                 paddedFrame = b'BUFFERSTART' + b64img + b'BUFFEREND'
             except Exception as e: print(e, file=sys.stderr)
 
-            # Write the frame to stdout
+            # Print the frame to stdout
             try:
-                print(paddedFrame)
+                print(paddedFrame, file=sys.stdout)
                 if (errCounter != 0): errCounter = 0
             except KeyboardInterrupt:
                 print("Program Interrupted. Stopping Video Loop...", file=sys.stderr)
@@ -76,10 +76,6 @@ def main():
                 print(e, file=sys.stderr)
                 if (errCounter > 10): break
                 errCounter = errCounter + 1
-
-            # [TEST] Frame
-            # with open('bytes', 'bw') as bf:
-                # bf.write(paddedFrame)
 
             if not isRunning: break 
 

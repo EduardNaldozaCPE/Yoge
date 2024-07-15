@@ -5,7 +5,6 @@ import cv2 as cv
 from .utils.score_queue import ScoreQueue
 
 class Landmarker:
-    # NOTE -- Leave the business logic @ top level. So leave the userId and sessionId as arguments 
     def __init__(self, model_path:str):
         # Initialise Class States
         self.userId = None
@@ -13,6 +12,7 @@ class Landmarker:
         self.sessionId = None
         self.scoreQueue : ScoreQueue = None
         self.frame_queue = queue.Queue(10)
+        self.landmark_queue = queue.Queue(10)
         self.running = False
 
         # Initialise MediaPipe Pose Landmarker
@@ -21,7 +21,7 @@ class Landmarker:
         self.PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
         self.PoseLandmarkerResult = mp.tasks.vision.PoseLandmarkerResult
         self.VisionRunningMode = mp.tasks.vision.RunningMode
-        self.feed = None
+
 
         # Record result every 30ms
         def record_score(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
@@ -47,15 +47,13 @@ class Landmarker:
         scoring_thread.start()
 
 
-
     # Gets the latest frame data in the queue
     def getFrame(self) -> bytes:
         try: return self.frame_queue.get()
         except: return None
 
 
-
-    # Starts video feed and stores frame data in the queue 
+    # Starts video feed and stores frame data in the queue
     # NOTE -- Run in a separate thread and stop by using Landmarker.stopVideo()
     def runVideo(self):
         if self.scoreQueue is None:
@@ -77,8 +75,8 @@ class Landmarker:
 
                 success, frame = self.feed.read()
                 try:
-                    frame = cv.resize(frame, (640, 480))
-                except Exception as e:
+                    frame = cv.resize(frame, (800, 600))
+                except:
                     print(f"Error running cv2.resize(). Stopping...", file=sys.stderr)
                     self.stopVideo()
                     break
@@ -97,6 +95,9 @@ class Landmarker:
                 landmarker.detect_async(mp_image, t)
                 t += 1
 
+                # TODO -- Use cv2 to draw the landmarks into the frame taken from the queue
+                # nextLandmarks = landmark_queue.get()
+                # markedFrame = drawLandmarks(mp_image, nextLandmarks)
 
                 # Encode the frame data to jpeg, then convert to numpy array, then convert to bytes
                 _, data = cv.imencode('.jpeg', frame)
