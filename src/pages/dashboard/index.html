@@ -39,13 +39,30 @@
         <script src="../../modules/jquery-3.7.1.min.js"></script>
         <script>
             // Include title bar and body via JQuery
+            let params = new URLSearchParams(location.search);
+
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
             $("#main-content").ready(()=>{
-                $('#main-content').load('contents/dashboard.html');
+                switch (params.get('page').toLowerCase()) {
+                    case 'dashboard':
+                        $('#main-content').load('contents/dashboard.html');
+                        break;
+                    case 'sequences':
+                        $('#main-content').load('contents/sequences.html');
+                        break;
+                    case 'scores':
+                        $('#main-content').load('contents/scores.html');
+                        break;
+                    case 'history':
+                        $('#main-content').load('contents/history.html');
+                        break;
+                
+                    default:
+                        break;
+                }
                 updateNavBtns();
             });
 
-            let params = new URLSearchParams(location.search);
 
             function transitionTo(page) {
                 params.set("page", page);

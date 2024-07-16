@@ -16,6 +16,7 @@ body {
 #menu-wrapper {
   display: flex; 
   align-items: stretch;
+  flex: 1;
   gap: 25px;
   overflow: clip;
 }
@@ -54,6 +55,9 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  h1 {
+    font-weight: normal;
+  }
 }
 
 #widget-contents {

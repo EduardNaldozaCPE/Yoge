@@ -14,30 +14,23 @@
   font-family: 'WorkSans';
   user-select: none;
 }
-h1 {
-  margin: 0px;
-}
+h1 { margin: 0px; }
 p {
   font-size: 12px;
   margin: 0;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-}
+::-webkit-scrollbar { width: 10px; }
 
-::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
+::-webkit-scrollbar-track { background: #1a1a1a; }
+
+::-webkit-scrollbar-thumb:hover { background: #555; }
 
 ::-webkit-scrollbar-thumb {
   background: #8884;
   border-radius: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
 
 .tableFixHead          { overflow: auto; height: 180px }
 .tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
@@ -153,6 +146,8 @@ a {
   flex-direction: column;
   justify-content: space-between;
   max-width: 200px;
+  min-width: 160px;
+  width: 160px;
 }
 
 #sidenav-btns{
