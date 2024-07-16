@@ -43,6 +43,7 @@
 
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
             $("#main-content").ready(()=>{
+                // Handle page parameter
                 switch (params.get('page').toLowerCase()) {
                     case 'dashboard':
                         $('#main-content').load('contents/dashboard.html');
@@ -62,6 +63,7 @@
                 }
                 updateNavBtns();
             });
+
 
 
             function transitionTo(page) {

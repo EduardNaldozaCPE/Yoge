@@ -15,6 +15,7 @@
   user-select: none;
 }
 h1 { margin: 0px; }
+hr { border: var(--container-border); }
 p {
   font-size: 12px;
   margin: 0;

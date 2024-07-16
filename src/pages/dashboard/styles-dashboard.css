@@ -146,3 +146,75 @@ body {
 #dash-header > * {
   margin-bottom: 10px;
 }
+
+
+#menu-seq-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#sequence-list {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 10px;
+  row-gap: 10px;
+  /* justify-content: space-around; */
+  align-items: baseline;
+}
+
+#menu-seq-info {
+  width: 300px;
+}
+
+.sequence-card {
+  width: 200px;
+  height: 300px;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--container-colour);
+  box-shadow: #3333 0px 2px 8px;
+  p {
+    font-size: 14px;
+  }
+}
+
+.sequence-thumb {
+  background-color: #0003;
+  border-radius: 10px;
+}
+
+.proficiency-indicator {
+  height: 20px;
+  width: auto;
+  color: var(--main-colour);
+  border-radius: 10px;
+  padding: 0px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+}
+.proficiency-indicator[proficiency="beginner"] {
+  background-color: green;
+}
+.proficiency-indicator[proficiency="intermediate"] {
+  background-color: orange;
+}
+.proficiency-indicator[proficiency="advanced"] {
+  background-color: orangered;
+}
+
+#info-header {
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  gap: 8px;
+  h3 {
+    margin: 0px;
+  }
+}

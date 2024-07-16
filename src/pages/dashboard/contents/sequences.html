@@ -1,9 +1,53 @@
 <div id="menu-wrapper">
     <div id="menu-seq-left">
-    <div id="dash-header">
-        <h1 id="header">Sequences</h1>
-        <p class="colour-accent">Let's get started!</p>
+        <div id="dash-header">
+            <h1 id="header">Sequences</h1>
+            <p class="colour-accent">Let's get started!</p>
+        </div>
+        <div id="sequence-list">
+            <div class="sequence-card">
+                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <div class="sequence-card-title">
+                    <p>General Fitness Sequence (Sun Salutation A)</p>
+                    <p class="colour-accent">Downward Dog</p>
+                </div>
+                <div class="proficiency-indicator" proficiency="beginner"></div>
+            </div>
+            <div class="sequence-card">
+                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <div class="sequence-card-title">
+                    <p>General Fitness Sequence (Sun Salutation A)</p>
+                    <p class="colour-accent">Downward Dog</p>
+                </div>
+                <div class="proficiency-indicator" proficiency="beginner"></div>
+            </div>
+            <div class="sequence-card">
+                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <div class="sequence-card-title">
+                    <p>General Fitness Sequence (Sun Salutation A)</p>
+                    <p class="colour-accent">Downward Dog</p>
+                </div>
+                <div class="proficiency-indicator" proficiency="beginner"></div>
+            </div>
+        </div>
     </div>
+    <hr>
+    <div id="menu-seq-info">
+        <div id="info-header">
+            <h3>General Fitness Sequence (Sun Salutation A)</h3>
+            <p class="colour-accent">12 Poses (See Guide Videos)</p>
+            <div class="proficiency-indicator" proficiency="beginner"></div>
+        </div>
+        <div id="info-recommendations">
+        </div>
+        <div id="info-latest-best"></div>
+        <div id="info-scores"></div>
+        <div id="info-startbtn"></div>
     </div>
-    <div id="menu-seq-info"></div>
 </div>
+<script>
+    // Handle proficiency-indicator
+    $(".proficiency-indicator").each((i, obj)=>{
+        $(obj).load('../../shared/proficiency-indicator.html');
+    });
+</script>
