@@ -40,7 +40,6 @@
         <script>
             // Include title bar and body via JQuery
             let params = new URLSearchParams(location.search);
-
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
             $("#main-content").ready(()=>{
                 // Handle page parameter
@@ -65,7 +64,9 @@
             });
 
 
-
+            /**
+             * Show the new contents depending on the page 
+             */
             function transitionTo(page) {
                 params.set("page", page);
                 updateNavBtns();

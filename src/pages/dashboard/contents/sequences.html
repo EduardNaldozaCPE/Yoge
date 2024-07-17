@@ -6,7 +6,7 @@
         </div>
         <div id="sequence-list">
             <div class="sequence-card">
-                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <img src="../../media/guides/1_02_UpwardSolute.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p>General Fitness Sequence (Sun Salutation A)</p>
                     <p class="colour-accent">Downward Dog</p>
@@ -14,20 +14,28 @@
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </div>
             <div class="sequence-card">
-                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <img src="../../media/guides/4_07_IntenseLegStretchPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
-                    <p>General Fitness Sequence (Sun Salutation A)</p>
-                    <p class="colour-accent">Downward Dog</p>
+                    <p>Core Strength Sequence</p>
+                    <p class="colour-accent">Boat Pose</p>
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </div>
             <div class="sequence-card">
-                <img src="../../media/thumb_gfs.png" alt="thumb" class="sequence-thumb">
+                <img src="../../media/guides/2_16_BoatPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
-                    <p>General Fitness Sequence (Sun Salutation A)</p>
-                    <p class="colour-accent">Downward Dog</p>
+                    <p>Weight Loss Sequence</p>
+                    <p class="colour-accent">Peak Pose</p>
                 </div>
-                <div class="proficiency-indicator" proficiency="beginner"></div>
+                <div class="proficiency-indicator" proficiency="intermediate"></div>
+            </div>
+            <div class="sequence-card">
+                <img src="../../media/guides/3_07_EasyPoseVariationSideBend.png" alt="thumb" class="sequence-thumb">
+                <div class="sequence-card-title">
+                    <p>Flexibility Sequence</p>
+                    <p class="colour-accent">Easy Pose Variation Side Bend</p>
+                </div>
+                <div class="proficiency-indicator" proficiency="advanced"></div>
             </div>
         </div>
     </div>
@@ -39,15 +47,99 @@
             <div class="proficiency-indicator" proficiency="beginner"></div>
         </div>
         <div id="info-recommendations">
+            <div class="stat-title">
+                <img src="../../media/titleblock.svg">
+                <p>Recommendations</p>
+            </div>
+            <p>Tag 1, Tag 2, Tag 3</p>
         </div>
-        <div id="info-latest-best"></div>
-        <div id="info-scores"></div>
-        <div id="info-startbtn"></div>
+        <div id="info-latest-best">
+            <div id="latest-score">
+                <p>Latest Score</p>
+                <h3>61</h3>
+            </div>
+            <div id="best-score">
+                <p>Best Score</p>
+                <h3>80</h3>
+            </div>
+        </div>
+        <div id="info-scores">
+            <div class="stat-title">
+                <img src="../../media/titleblock.svg">
+                <p>Score Per Pose</p>
+            </div>
+            <div class="tableFixHead">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Sequence Name</th>
+                        <th>Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>82.23%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>93.29%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>93.29%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>82.23%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>93.29%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>93.29%</td>
+                      </tr>
+                      <tr alt="true">
+                        <td>pose-name</td>
+                        <td>74.28%</td>
+                      </tr>
+                      <tr>
+                        <td>pose-name</td>
+                        <td>93.29%</td>
+                      </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button id="info-startbtn">Start</button>
     </div>
 </div>
 <script>
-    // Handle proficiency-indicator
-    $(".proficiency-indicator").each((i, obj)=>{
-        $(obj).load('../../shared/proficiency-indicator.html');
-    });
+    // Include text for proficiency indicator
+    $(".proficiency-indicator").each((i,e)=>{
+        let proficiencyText = $(e).attr("proficiency");
+        $(e).html(`<p>${proficiencyText.charAt(0).toUpperCase()}${proficiencyText.substring(1,proficiencyText.length)}</p>`);
+    })
 </script>

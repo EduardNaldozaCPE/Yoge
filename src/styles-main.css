@@ -38,6 +38,10 @@ p {
 table  { border-collapse: collapse; width: 100%; }
 th, td { padding: 8px 16px; }
 th     { background: var(--main-bg-colour); }
+tbody tr:nth-child(odd) {
+  background-color: #4441;
+  color: #fff;
+}
 
 #app-title-bar {
   min-height: 21px;
