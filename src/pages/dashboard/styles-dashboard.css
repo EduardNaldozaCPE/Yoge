@@ -34,12 +34,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: center;
 }
 
 .stat-title {
   display: flex;
   flex-direction: row;
   gap: 5px;
+  width: 100%;
 }
 
 #latest-widget {
@@ -47,6 +49,7 @@ body {
   border-radius: 15px;
   padding: 20px 40px;
   gap: 30px;
+  width: 500px;
   display: flex;
   flex-direction: column;
 }
@@ -161,7 +164,7 @@ body {
 }
 
 .sequence-card {
-  cursor: pointer;
+cursor: pointer;
   min-width: 200px;
   width: 200px;
   min-height: 200px;
@@ -178,6 +181,9 @@ body {
     font-size: 14px;
   }
 }
+/* TODO */
+.sequence-card:hover {}
+.sequence-card:active {}
 
 .sequence-thumb {
   background-color: #0003;
@@ -210,6 +216,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  align-items: center;
 }
 
 #info-header {
