@@ -156,21 +156,24 @@ body {
   flex: 1;
   flex-wrap: wrap;
   gap: 10px;
-  row-gap: 10px;
+  overflow-y: scroll;
   /* justify-content: space-around; */
 }
 
 .sequence-card {
+  cursor: pointer;
+  min-width: 200px;
   width: 200px;
+  min-height: 200px;
   height: 300px;
-  padding: 8px;
+  padding: 15px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 15px;
   background-color: var(--container-colour);
-  box-shadow: #3333 0px 2px 8px;
+  box-shadow: #3333 0px 2px 15px;
   p {
     font-size: 14px;
   }
@@ -178,7 +181,7 @@ body {
 
 .sequence-thumb {
   background-color: #0003;
-  border-radius: 10px;
+  border-radius: 10px;  
 }
 
 .proficiency-indicator {
@@ -207,7 +210,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: center;
 }
 
 #info-header {
