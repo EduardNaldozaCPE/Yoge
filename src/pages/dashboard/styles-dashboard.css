@@ -7,7 +7,6 @@ body {
 
 #main-content {
   display: flex;
-  flex-direction: column;
   padding: 40px;
   width: 100%;
   gap: 10px;
@@ -28,6 +27,7 @@ body {
   flex-direction: column;
   gap: 25px;
   flex: 1;
+  justify-content: space-evenly;
 }
 
 #stats-latest {
@@ -160,7 +160,6 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   overflow-y: scroll;
-  /* justify-content: space-around; */
 }
 
 .sequence-card {
@@ -173,7 +172,7 @@ cursor: pointer;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
   gap: 15px;
   background-color: var(--container-colour);
   box-shadow: #3333 0px 2px 15px;
