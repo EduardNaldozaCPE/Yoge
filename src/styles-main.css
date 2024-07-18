@@ -233,7 +233,7 @@ a {
   border: #333 1px solid 
 }
 
-.menu-btn {
+/* .menu-btn {
 	display: inline-block;
   width: 100%;
 	padding:12px 40px;
@@ -262,4 +262,22 @@ a {
   transition: linear box-shadow 0.08s;
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
+} */
+
+.menu-btn {
+  width: 180px;
+  border-radius: 10px;
+  border: 0px;
+  background-color: #171717;
+  box-shadow: #8D8D8D12 0px 0px 10px;
+  transition: background-color 0.3s linear;
+  color: var(--main-colour);
+  font-size: 15px;
+  padding: 12px 40px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.menu-btn:hover {
+  background-color: #1a1a1a;
 }

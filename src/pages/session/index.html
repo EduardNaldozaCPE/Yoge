@@ -10,12 +10,18 @@
     <body>
         <section id="app-title-bar"></section>
         <section id="app-content">
-            <section class="top-bar">
-                <button id="back-btn" onclick="returnToDashboard()">Back</button>
-                <h1 class="top-bar-title">Session</h1>
-            </section>
-            <section id="main-content" class="container">
+            <section id="feed-section" class="container">
                 <img id="live-feed" src="../../media/loading.png" width="640" height="480">
+            </section>
+            <section id="state-section" class="container">
+                <button id="back-btn" onclick="returnToDashboard()">Back</button>
+                <div id=""></div>
+                <div id=""></div>
+                <form method="get" action="../dashboard/index.html?page=scores">
+                    <input name="page" value="scores" hidden/>
+                    <input name="sequence" value="general-fitness" hidden/>
+                    <input type="submit" class="menu-btn" value="Finish" />
+                </form>
             </section>
         <script src="session.js"></script>
         <script src="../../modules/jquery-3.7.1.min.js"></script>
@@ -24,3 +30,4 @@
         </script>
     </body>
 </html>
+

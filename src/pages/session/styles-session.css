@@ -1,8 +1,14 @@
 #app-content {
-    display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: auto 1fr;
-    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+}
+
+#feed-section {
+    flex: 1;
+}
+
+#state-section {
+    width: 380px;
 }
 
 #back-btn {
@@ -22,32 +28,6 @@
     background: #444;
 }
 
-.top-bar {
-  border-radius: 5px;
-  padding: 10px;
-  margin: var(--container-margin);
-  border: var(--container-border);
-  background: linear-gradient(
-    90deg, 
-    #1a1a1a 10%, 
-    rgba(122,62,135,0.2) 60%, 
-    rgba(138,35,56,0.2) 100%
-    );
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.top-bar-title {
-  margin: 0px;
-}
-
 #live-feed {
     border-radius: 10px;
-}
-
-#main-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
