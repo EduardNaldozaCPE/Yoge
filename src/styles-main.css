@@ -233,36 +233,26 @@ a {
   border: #333 1px solid 
 }
 
-/* .menu-btn {
-	display: inline-block;
-  width: 100%;
-	padding:12px 40px;
-	cursor: pointer;
-	
-	color: #ffffff;
-  font-family: Arial;
-	font-size:15px;
-	text-decoration:none;
-	text-shadow:0px 1px 0px #263666;
-  text-align: left;
-
-  border: #555 1px solid;
+.proficiency-indicator {
+  height: 20px;
+  width: auto;
+  color: var(--main-colour);
   border-radius: 10px;
-
-	box-shadow: inset 0px 0px 0px 0px #7a3e8700;
-  transition: cubic-bezier(0, 0.8, 1, 1) box-shadow 1s;
-  background: linear-gradient(90deg, rgba(122,62,135,0.2) 6%, rgba(138,35,56,0.2) 100%);
+  padding: 0px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
 }
-.menu-btn:hover {
-	box-shadow: inset 50px 0px 80px -50px #7a3e87;
+.proficiency-indicator[proficiency="beginner"] {
+  background-color: green;
 }
-.menu-btn:active {
-	position:   relative;
-  animation:  0.3s fadeIn 1 forwards;
-  transition: linear box-shadow 0.08s;
-  background: rgba(122, 62, 135, var(--bg-opacity));
-  background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
-} */
+.proficiency-indicator[proficiency="intermediate"] {
+  background-color: orange;
+}
+.proficiency-indicator[proficiency="advanced"] {
+  background-color: orangered;
+}
 
 .menu-btn {
   width: 180px;
