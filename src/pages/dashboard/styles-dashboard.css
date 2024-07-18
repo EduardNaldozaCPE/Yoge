@@ -17,7 +17,6 @@ body {
   align-items: stretch;
   flex: 1;
   gap: 25px;
-  overflow: clip;
 }
 
 /* Stats Section */
@@ -134,6 +133,10 @@ body {
   width: 200px;
 }
 
+.colour-main {
+  color: #ddd;
+}
+
 .colour-accent {
   color: #888888;
 }
@@ -163,12 +166,13 @@ body {
 }
 
 .sequence-card {
-cursor: pointer;
+  cursor: pointer;
   min-width: 200px;
   width: 200px;
   min-height: 200px;
   height: 300px;
   padding: 15px;
+  border: 0px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -176,17 +180,26 @@ cursor: pointer;
   gap: 15px;
   background-color: var(--container-colour);
   box-shadow: #3333 0px 2px 15px;
+  transition: background-color 0.15s ease-in;
+  text-align: left;
   p {
     font-size: 14px;
   }
 }
+
 /* TODO */
-.sequence-card:hover {}
-.sequence-card:active {}
+.sequence-card:hover {
+  background: #3332;
+}
+.sequence-card:active {
+  background-color: #1118;
+  box-shadow: inset #ab9f8a55 0px 0px 10px;
+}
 
 .sequence-thumb {
   background-color: #0003;
-  border-radius: 10px;  
+  border-radius: 10px;
+  width: -webkit-fill-available;
 }
 
 .proficiency-indicator {

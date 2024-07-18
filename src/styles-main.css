@@ -5,6 +5,7 @@
 
 :root {
   --main-padding: 5px;
+  --main-color: #ddd;
   --main-bg-colour: #161616ff;
   --container-colour: radial-gradient(circle at 0% 100%, #311E3603 0%, #311E3602 13%, rgba(22, 22, 22, 1) 75%);;
   --container-border: #444 1px solid;
@@ -105,7 +106,6 @@ tbody tr:nth-child(odd) {
   display: flex;
   flex-direction: row;
   gap: 5px;
-  overflow: hidden;
 
   margin: 0px;
   padding: var(--main-padding);
