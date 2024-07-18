@@ -191,7 +191,7 @@ body {
 .sequence-card:hover {
   background: #3332;
 }
-.sequence-card:active {
+.sequence-card[select="true"] {
   background-color: #1118;
   box-shadow: inset #ab9f8a55 0px 0px 10px;
 }
@@ -255,7 +255,6 @@ body {
   justify-content: space-around;
   height: 100px;
   width: 100%;
-  /* border: 1px solid #aaa; */
   border-radius: 20px;
   background: linear-gradient(106deg,#4443 0%, #4441 100%);
   text-align: center;
@@ -290,7 +289,9 @@ body {
   font-size: 15px;
   padding: 12px 40px;
   cursor: pointer;
+  text-align: center;
 }
+
 #info-startbtn:hover {
   background-color: #1a1a1a;
 }

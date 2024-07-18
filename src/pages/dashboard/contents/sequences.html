@@ -5,7 +5,7 @@
             <p class="colour-accent">Let's get started!</p>
         </div>
         <div id="sequence-list">
-            <button class="sequence-card">
+            <button class="sequence-card" sequence="general-fitness" onclick="updateSelect(this)">
                 <img src="../../media/guides/1_02_UpwardSolute.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">General Fitness Sequence (Sun Salutation A)</p>
@@ -13,7 +13,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </button>
-            <button class="sequence-card">
+            <button class="sequence-card" sequence="core-strength" onclick="updateSelect(this)">
                 <img src="../../media/guides/4_07_IntenseLegStretchPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Core Strength Sequence</p>
@@ -21,7 +21,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </button>
-            <button class="sequence-card">
+            <button class="sequence-card" sequence="weight-loss" onclick="updateSelect(this)">
                 <img src="../../media/guides/2_16_BoatPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Weight Loss Sequence</p>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="intermediate"></div>
             </button>
-            <button class="sequence-card">
+            <button class="sequence-card" sequence="flexibility" onclick="updateSelect(this)">
                 <img src="../../media/guides/3_07_EasyPoseVariationSideBend.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Flexibility Sequence</p>
@@ -133,13 +133,41 @@
                 </table>
             </div>
         </div>
-        <button id="info-startbtn">Start</button>
+        <form action="../session/index.html">
+            <input type="submit" id="info-startbtn" value="Start" />
+        </form>
     </div>
 </div>
 <script>
+    // Select the sequence card in URL parameters on load
+    _updateSequenceCards()
+
     // Include text for proficiency indicator
     $(".proficiency-indicator").each((i,e)=>{
         let proficiencyText = $(e).attr("proficiency");
         $(e).html(`<p>${proficiencyText.charAt(0).toUpperCase()}${proficiencyText.substring(1,proficiencyText.length)}</p>`);
     })
+
+    /** 
+     * Update the "sequence" parameter, then calls _updateSequenceCards
+    */
+    function updateSelect(elem) {
+        params.set("sequence", $(elem).attr("sequence"));
+        _updateSequenceCards()
+    }
+
+    /** 
+     * Unselect the previously selected btn, and select the new one.
+    */
+    function _updateSequenceCards() {
+        if (selectedSequence === undefined) var selectedSequence;
+        selectedSequence = params.get("sequence");
+        $(".sequence-card").each((i, e)=>{
+            if (selectedSequence != $(e).attr("sequence")) {
+                $(e).removeAttr("select");
+            } else {
+                $(e).attr("select", "true");
+            }
+        });
+    }
 </script>
