@@ -1,7 +1,6 @@
 import queue, sys
 import mediapipe as mp
 import cv2 as cv
-from threading import Thread
 
 from .utils import SqliteController as db
 from .utils import formatResult
