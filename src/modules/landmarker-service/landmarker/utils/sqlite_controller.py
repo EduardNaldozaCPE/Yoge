@@ -6,7 +6,7 @@ import json
 class SqliteController:
     # Initialise scores queue and sqlite connection
     def __init__(self):
-        config = open('./config.json', 'r')
+        config = open('./landmarker-config.json', 'r')
         config_options = json.load(config)
         DBPATH = config_options["DBPATH"]
         config.close()
