@@ -133,14 +133,6 @@ body {
   width: 200px;
 }
 
-.colour-main {
-  color: #ddd;
-}
-
-.colour-accent {
-  color: #888888;
-}
-
 #header {
   font-weight: bold;
   font-size: 48px;
@@ -251,9 +243,6 @@ body {
   width: 100%;
   thead {
     color: var(--accent-colour);
-  }
-  th {
-    text-align: left;
   }
 }
 

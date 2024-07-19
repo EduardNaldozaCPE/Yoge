@@ -11,23 +11,26 @@
         <section id="app-title-bar"></section>
         <section id="app-content">
             <section id="feed-section" class="container">
-                <img id="live-feed" src="../../media/loading.png" width="640" height="480">
+                <img id="live-guide" src="../../media/guides/1_02_UpwardSolute.png" alt="guide" width="250px">
+                <img id="live-feed" src="../../media/loading.png" width="100%">
             </section>
             <section id="state-section" class="container">
                 <div id="state-header">
-                    <button id="back-btn" class="menu-btn" onclick="returnToDashboard()">< Back</button>
-                    <h1>General Fitness Sequence (Sun Salutation A)</h1>
-                    <div class="proficiency-indicator" proficiency="beginner"></div>
+                    <button id="back-btn" class="menu-btn" onclick="returnToDashboard()">Back</button>
+                    <div id="state-header-text">
+                        <h1>General Fitness Sequence (Sun Salutation A)</h1>
+                        <div class="proficiency-indicator" proficiency="beginner"></div>
+                    </div>
                 </div>
                 <div id="control-widget">
+                    <img id="pause-btn" src="../../media/svg/pause.svg" width="40px">
                     <h1>97.50%</h1>
                     <div id="control-info">
                         <p id="pose-name">Upward Salute</p>
-                        <p id="breaths">1 Breath/s</p>
+                        <p id="breaths" class="colour-accent">1 Breath/s</p>
                     </div>
-                    <img id="pause-btn" src="" alt="">
                 </div>
-                <div class="tableFixHead">
+                <div class="tableFixHead" id="pose-table">
                     <table>
                         <thead>
                             <tr>
@@ -56,7 +59,7 @@
                 <form method="get" action="../dashboard/index.html?page=scores">
                     <input name="page" value="scores" hidden/>
                     <input name="sequence" value="general-fitness" hidden/>
-                    <input type="submit" class="menu-btn" value="Finish" />
+                    <input type="submit" class="menu-btn" value="Finish" onclick="electronAPI.stopConsumer()"/>
                 </form>
             </section>
         <script src="session.js"></script>

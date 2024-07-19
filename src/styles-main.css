@@ -15,11 +15,22 @@
   font-family: 'WorkSans';
   user-select: none;
 }
+
 h1 { margin: 0px; }
+
 hr { border: var(--container-border); }
+
 p {
   font-size: 12px;
   margin: 0;
+}
+
+.colour-main {
+  color: #ddd;
+}
+
+.colour-accent {
+  color: #888888;
 }
 
 ::-webkit-scrollbar { width: 10px; }
@@ -35,7 +46,7 @@ p {
 
 
 .tableFixHead          { overflow: auto; height: 180px }
-.tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; text-align: left; color: var(--accent-colour);}
 table  { border-collapse: collapse; width: 100%; }
 th, td { padding: 8px 16px; }
 th     { background: var(--main-bg-colour); }
