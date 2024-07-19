@@ -3,7 +3,8 @@ import mediapipe as mp
 import cv2 as cv
 from threading import Thread
 
-from .utils.score_queue import ScoreQueue
+from .utils import SqliteController as db
+from .utils import formatResult
 
 class Landmarker:
     def __init__(self, model_path:str, options={"width": 640, "height":480}):
@@ -15,8 +16,9 @@ class Landmarker:
         self.sequenceId = None
         self.sessionId = None
         self.running = False
+        self.isSessionSet = False
+        self.queries = queue.Queue(10)
         # Queues
-        self.scoreQueue : ScoreQueue = None
         self.frame_queue = queue.Queue(10)
         self.landmark_queue = queue.Queue(10)
         # MediaPipe Pose Landmarker Options
@@ -25,32 +27,33 @@ class Landmarker:
         self.PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
         self.PoseLandmarkerResult = mp.tasks.vision.PoseLandmarkerResult
         self.VisionRunningMode = mp.tasks.vision.RunningMode
-        # Threads
-        self.scoring_thread:Thread = None
 
         # Record result every 30ms
         def record_score(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-            pass
-            # if timestamp_ms % 20 != 0: return
-            # if self.scoreQueue is not None:
-            #     self.scoreQueue.addScore(result, timestamp_ms)
+            if timestamp_ms % 20 != 0 and timestamp_ms != 0: return
+            if self.isSessionSet:
+                scoreQuery = formatResult(self.sessionId, result, timestamp_ms)
+                if scoreQuery != "": 
+                    self.queries.put(scoreQuery)
+                
         
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path=model_path),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
-            result_callback=record_score)
-        
-    
+            result_callback=record_score
+            )
 
-    # Creates a new session and starts recording score data to yoge.score
+
+    def __del__(self):
+        pass
+
+
+    # Records a new session in the database
     def setSessionData(self, userId=0, sequenceId=0, sessionId=0):
         self.userId = userId
         self.sequenceId = sequenceId
         self.sessionId = sessionId
-
-        self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
-        # self.scoring_thread = Thread(target=self.scoreQueue.recordScores, daemon=True)
-        # self.scoring_thread.start()
+        self.isSessionSet = True
 
 
     # Gets the latest frame data in the queue
@@ -62,9 +65,15 @@ class Landmarker:
     # Starts video feed and stores frame data in the queue
     # NOTE -- Run in a separate thread and stop by using Landmarker.stopVideo()
     def runVideo(self):
-        if self.scoreQueue is None:
+        if not self.isSessionSet:
             print("Session Data has not been set. Use setSessionData() before calling runVideo()", file=sys.stderr)
             return
+        
+        # Create a new row in the session table
+        self.db = db()
+        self.db.runInsert(f""" 
+            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+        """)
         
         try:
             self.feed = cv.VideoCapture(0)
@@ -76,8 +85,7 @@ class Landmarker:
         with self.PoseLandmarker.create_from_options(self.options) as landmarker:
             t = 0
             while True:
-                if not self.running:
-                    break
+                if not self.running: break
 
                 success, frame = self.feed.read()
                 try:
@@ -110,15 +118,17 @@ class Landmarker:
                 data_bytes = data.tobytes()
                 self.frame_queue.put(data_bytes)
 
+                # Record scores every 2 seconds
+                if t%20 == 0:
+                    if not self.queries.empty(): self.db.runInsert(self.queries.get())
+
             self.feed.release()
             cv.destroyAllWindows()
 
 
-    # Stops the video feed loop in runVideo() and stops scoreQueue from recording score data.
+    # Stops the video feed loop in runVideo().
     def stopVideo(self):
         self.running = False
-        # self.scoring_thread.join()
-        self.scoreQueue.stopProcessing()
 
 if __name__ == "__main__":
     p = Landmarker()

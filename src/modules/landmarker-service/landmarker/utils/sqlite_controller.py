@@ -17,8 +17,11 @@ class SqliteController:
 
     def runInsert(self, query:str):
         # Create a new row in the session table once ScoreQueue object is created
-        self.cur.execute(query)
-        self.con.commit()
+        try: 
+            self.cur.execute(query)
+            self.con.commit()
+        except Exception as e: 
+            print(e)
 
 
     def closeConnection(self):

@@ -7,14 +7,10 @@ def parseArgs() -> tuple:
     lenOnly = False
     for arg in sys.argv:
         keyVal = arg.split('=')
-        if keyVal[0] == "-user":
-            usr = int(keyVal[1])
-        if keyVal[0] == "-sequence":
-            seq = int(keyVal[1])
-        if keyVal[0] == "-session":
-            ses = int(keyVal[1])
-        if keyVal[0] == "-lenOnly":
-            lenOnly = True
+        if keyVal[0] == "-user":     usr = int(keyVal[1])
+        if keyVal[0] == "-sequence": seq = int(keyVal[1])
+        if keyVal[0] == "-session":  ses = int(keyVal[1])
+        if keyVal[0] == "-lenOnly":  lenOnly = True
 
     if (usr is None) or (seq is None) or (ses is None):
         raise IndexError
@@ -29,7 +25,7 @@ def main():
 
     # 2. Initialise the pose estimation service and set the session data
     try:
-        poseService = Landmarker(MODEL_PATH, {"width":FRAMEWIDTH, "height":FRAMEHEIGHT})
+        poseService = Landmarker(MODEL_PATH, options={"width":FRAMEWIDTH, "height":FRAMEHEIGHT})
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
