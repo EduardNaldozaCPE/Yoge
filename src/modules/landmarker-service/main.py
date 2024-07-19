@@ -4,6 +4,7 @@ import base64 as b64
 from landmarker import Landmarker
 
 def parseArgs() -> tuple:
+    lenOnly = False
     for arg in sys.argv:
         keyVal = arg.split('=')
         if keyVal[0] == "-user":
@@ -12,28 +13,30 @@ def parseArgs() -> tuple:
             seq = int(keyVal[1])
         if keyVal[0] == "-session":
             ses = int(keyVal[1])
+        if keyVal[0] == "-lenOnly":
+            lenOnly = True
 
     if (usr is None) or (seq is None) or (ses is None):
         raise IndexError
     else:
-        return (usr, seq, ses)
+        return (usr, seq, ses, lenOnly)
 
 
 def main():
     # 1. Handle Session Arguments and Display
-    try:  userId, sequenceId, sessionId = parseArgs()
+    try:  userId, sequenceId, sessionId, lenOnly = parseArgs()
     except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>", file=sys.stderr)
 
     # 2. Initialise the pose estimation service and set the session data
     try:
-        poseService = Landmarker(MODEL_PATH)
+        poseService = Landmarker(MODEL_PATH, {"width":FRAMEWIDTH, "height":FRAMEHEIGHT})
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
             int(sessionId)
         )
     except Exception as e:
-        print("Error setting session data:", e)
+        print("Error setting session data:", e, file=sys.stderr)
         return
 
     video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
@@ -41,7 +44,7 @@ def main():
         isRunning = True
         video_thread.start()
     except Exception as e:
-        print("Error while opening shared memory:", e, file=sys.stderr)
+        print("Error while creating new thread:", e, file=sys.stderr)
         return
 
     # 4. Collect the frame data every loop.
@@ -51,27 +54,20 @@ def main():
             # Take current frame from poseService object state
             frameBuffer = poseService.getFrame()
             if frameBuffer is None: continue
-
-            # Skip if the frame is too big.
-            # frameSize = len(frameBuffer)
-            # if frameSize > MAXBUFFERSIZE:
-            #     print("Frame data is too large. increase the buffer size. Skipping...\nFrame Size: ", frameSize, "/", MAXBUFFERSIZE, file=sys.stderr)
-            #     continue
             
             # Pad out the frame data to match the buffer size.
             try:
                 # Convert the buffer to base64 and Wrap it
-                b64img = b64.b64encode(frameBuffer) 
-                paddedFrame = b'BUFFERSTART' + b64img + b'BUFFEREND'
+                b64img = b64.b64encode(frameBuffer)
             except Exception as e: print(e, file=sys.stderr)
 
             # Print the frame to stdout
             try:
-                print(paddedFrame, file=sys.stdout)
+                if lenOnly:
+                    print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout)
+                else:
+                    print(b64img, file=sys.stdout, end="")
                 if (errCounter != 0): errCounter = 0
-            except KeyboardInterrupt:
-                print("Program Interrupted. Stopping Video Loop...", file=sys.stderr)
-                break
             except Exception as e:
                 print(e, file=sys.stderr)
                 if (errCounter > 10): break
@@ -92,5 +88,7 @@ if __name__ == "__main__":
     config_options = json.load(config)
     MODEL_PATH  = config_options["MODEL_PATH"]
     MAXBUFFERSIZE  = config_options["MAXBUFFERSIZE"]
+    FRAMEWIDTH = config_options["FRAMEWIDTH"]
+    FRAMEHEIGHT = config_options["FRAMEHEIGHT"]
     config.close()
     main()

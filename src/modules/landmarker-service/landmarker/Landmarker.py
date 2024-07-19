@@ -1,33 +1,39 @@
-import queue, threading, sys
+import queue, sys
 import mediapipe as mp
 import cv2 as cv
+from threading import Thread
 
 from .utils.score_queue import ScoreQueue
 
 class Landmarker:
-    def __init__(self, model_path:str):
-        # Initialise Class States
+    def __init__(self, model_path:str, options={"width": 640, "height":480}):
+        # Options
+        self.frameWidth = options["width"]
+        self.frameheight = options["height"]
+        # State
         self.userId = None
         self.sequenceId = None
         self.sessionId = None
+        self.running = False
+        # Queues
         self.scoreQueue : ScoreQueue = None
         self.frame_queue = queue.Queue(10)
         self.landmark_queue = queue.Queue(10)
-        self.running = False
-
-        # Initialise MediaPipe Pose Landmarker
+        # MediaPipe Pose Landmarker Options
         self.BaseOptions = mp.tasks.BaseOptions
         self.PoseLandmarker = mp.tasks.vision.PoseLandmarker
         self.PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
         self.PoseLandmarkerResult = mp.tasks.vision.PoseLandmarkerResult
         self.VisionRunningMode = mp.tasks.vision.RunningMode
-
+        # Threads
+        self.scoring_thread:Thread = None
 
         # Record result every 30ms
         def record_score(result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-            if timestamp_ms % 20 != 0: return
-            if self.scoreQueue is not None:
-                self.scoreQueue.addScore(result, timestamp_ms)
+            pass
+            # if timestamp_ms % 20 != 0: return
+            # if self.scoreQueue is not None:
+            #     self.scoreQueue.addScore(result, timestamp_ms)
         
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path=model_path),
@@ -43,8 +49,8 @@ class Landmarker:
         self.sessionId = sessionId
 
         self.scoreQueue = ScoreQueue(self.userId, self.sequenceId, self.sessionId)
-        scoring_thread = threading.Thread(target=self.scoreQueue.recordScores, daemon=True)
-        scoring_thread.start()
+        # self.scoring_thread = Thread(target=self.scoreQueue.recordScores, daemon=True)
+        # self.scoring_thread.start()
 
 
     # Gets the latest frame data in the queue
@@ -75,7 +81,7 @@ class Landmarker:
 
                 success, frame = self.feed.read()
                 try:
-                    frame = cv.resize(frame, (800, 600))
+                    frame = cv.resize(frame, (self.frameWidth, self.frameheight))
                 except:
                     print(f"Error running cv2.resize(). Stopping...", file=sys.stderr)
                     self.stopVideo()
@@ -111,6 +117,7 @@ class Landmarker:
     # Stops the video feed loop in runVideo() and stops scoreQueue from recording score data.
     def stopVideo(self):
         self.running = False
+        # self.scoring_thread.join()
         self.scoreQueue.stopProcessing()
 
 if __name__ == "__main__":

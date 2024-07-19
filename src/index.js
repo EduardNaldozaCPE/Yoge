@@ -17,36 +17,29 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-
-  var producer = undefined;
-
+  
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   mainWindow.setMenu(null);
+  
+  var producer = undefined;
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   /**
    * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
    */
   ipcMain.on("run-consumer", () => {
-    let buf, buf_instart, buf_inend, buf_final;
+    var strBuffer;
     try {
       producer = spawn('python', ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2']);
       producer.stdout.on('data', (data)=>{
         try {
-          buf = `${data}`;
-          buf_instart = buf.split("BUFFERSTART");
-          buf_inend = buf_instart[1].split("BUFFEREND");
-          buf_final = buf_inend[0];
-        }
-        catch (err) { 
-          if (err !== TypeError)
-            console.log("Error Caught:", err);
-        }
+          strBuffer = data.toString().split("'")[1];
+        } catch (err) { console.log("Error Caught:", err); }
 
         try { 
-          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${buf_final}`);
+          mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${strBuffer}`);
         } catch (err) { console.log("Error Caught:", err); }
       });
     

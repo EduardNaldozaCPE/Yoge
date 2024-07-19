@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Test landmarker",
+            "name": "Landmarker (len-only)",
             "type": "debugpy",
             "request": "launch",
             "program": "src/modules/landmarker-service/main.py",
             "console": "integratedTerminal",
-            "args": "-user=0 -sequence=1 -session=2"
+            "args": "-user=0 -sequence=1 -session=2 -lenOnly"
         },
         {
             "type": "node",
