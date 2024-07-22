@@ -83,7 +83,6 @@ if __name__ == "__main__":
     config = open('./landmarker-config.json', 'r')
     config_options = json.load(config)
     MODEL_PATH      = config_options["MODEL_PATH"]
-    MAXBUFFERSIZE   = config_options["MAXBUFFERSIZE"]
     FRAMEWIDTH      = config_options["FRAMEWIDTH"]
     FRAMEHEIGHT     = config_options["FRAMEHEIGHT"]
     config.close()

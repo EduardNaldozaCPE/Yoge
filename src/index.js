@@ -4,6 +4,11 @@ const path = require('node:path');
 
 if (require('electron-squirrel-startup')) app.quit;
 
+// NOTE: TURN OFF WHEN BUILDING 
+const DEBUG = false;
+const spawnoption = DEBUG ? "python" : "landmarker/landmarker.exe";
+const spawnargs = DEBUG ? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
+
 // Create the browser window and start the consumer script.
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -32,7 +37,7 @@ const createWindow = () => {
   ipcMain.on("run-consumer", () => {
     var strBuffer;
     try {
-      producer = spawn('python', ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2']);
+      producer = spawn(spawnoption, spawnargs);
       producer.stdout.on('data', (data)=>{
         try {
           strBuffer = data.toString().split("'")[1];
@@ -69,13 +74,13 @@ const createWindow = () => {
     }
     mainWindow.close()
   });
-
-  ipcMain.on("window-minimize", ()=>mainWindow.minimize());
   
   ipcMain.on("window-maximize", ()=>{
     if (mainWindow.isMaximized()) mainWindow.unmaximize();
     else mainWindow.maximize();
   });
+
+  ipcMain.on("window-minimize", ()=>mainWindow.minimize());
 };
 
 
