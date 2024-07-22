@@ -18,9 +18,10 @@ class Landmarker:
         self.noCV = False
         self.running = False
         self.isSessionSet = False
+        self.flagExit = False
         self.queries = queue.Queue(10)
         # Queues
-        self.frame_queue = queue.Queue(10)
+        self.currentFrame = None
         self.lastLandmarks:mp.tasks.vision.PoseLandmarkerResult
         # MediaPipe Pose Landmarker Options
         self.BaseOptions = mp.tasks.BaseOptions
@@ -44,7 +45,7 @@ class Landmarker:
 
         # Use cv2 to draw the landmarks into the frame taken from the queue
         cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
-        
+
         if not self.noCV:
             try:
                 nextLandmarks = {
@@ -66,7 +67,7 @@ class Landmarker:
         # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
         _, data = cv.imencode('.jpeg', cvimg)
         data_bytes = data.tobytes()
-        self.frame_queue.put(data_bytes)
+        self.currentFrame = data_bytes
 
         # Run every 300ms
         if timestamp_ms % 20 != 0 and timestamp_ms != 0: return
@@ -89,7 +90,7 @@ class Landmarker:
 
     # Gets the latest frame data in the queue
     def getFrame(self) -> bytes:
-        try: return self.frame_queue.get()
+        try: return self.currentFrame
         except: return None
 
 
@@ -107,40 +108,36 @@ class Landmarker:
         """)
         
         # Start video capture
-        try:
-            self.feed = cv.VideoCapture(self.deviceId)
-            self.running = True
-        except:
-            print("Error running cv2.VideoCapture(). Stopping...", file=sys.stderr)
-            return
+        self.feed = cv.VideoCapture(self.deviceId)
+        self.running = True
         
         # Read the current frame in the live video, detect asynchronously
-        with self.PoseLandmarker.create_from_options(self.options) as landmarker:
-            t = 0
-            while self.running:
-                success, frame = self.feed.read()
-                if not success:
-                    print("There was a problem reading the video feed.", file=sys.stderr)
-                    self.stopVideo()
-                    break
+        landmarker = self.PoseLandmarker.create_from_options(self.options)
+        t = 0
+        while self.running:
+            success, frame = self.feed.read()
+            if not success:
+                self.stopVideo()
+                break
 
-                frame = cv.resize(frame, (self.frameWidth, self.frameHeight))
-                rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                
-                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
-                if not mp_image:
-                    print("could not read image", file=sys.stderr) 
-                    continue
-                
-                landmarker.detect_async(mp_image, t)
-                t += 1
+            frame = cv.resize(frame, (self.frameWidth, self.frameHeight))
+            rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+            if not mp_image:
+                print("could not read image", file=sys.stderr) 
+                continue
+            
+            landmarker.detect_async(mp_image, t)
+            t += 1
 
-                # Record scores every 2 seconds
-                if (t%20 == 0) and not self.queries.empty():
-                    self.db.runInsert(self.queries.get())
+            # Record scores every 2 seconds
+            if (t%20 == 0) and not self.queries.empty():
+                self.db.runInsert(self.queries.get())
 
-            self.feed.release()
-            cv.destroyAllWindows()
+        self.feed.release()
+        landmarker.close()
+        self.flagExit = True
 
 
     # Stops the video feed loop in runVideo().

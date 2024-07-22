@@ -48,21 +48,27 @@ def main():
         print("Error setting session data:", e, file=sys.stderr)
         return
 
-    video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
     try:
-        isRunning = True
+        video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
         video_thread.start()
     except Exception as e:
         print("Error while creating new thread:", e, file=sys.stderr)
         return
+    
+    isRunning = True
 
     # 4. Collect the frame data every loop.
     try:
         errCounter = 0
         while isRunning:
+            if poseService.flagExit: 
+                break
             # Take current frame from poseService object state
-            frameBuffer = poseService.getFrame()
-            if frameBuffer is None: continue
+            try:
+                frameBuffer = poseService.getFrame()
+                if frameBuffer is None: continue
+            except Exception as e:
+                print(e, file=sys.stderr)
             
             # Pad out the frame data to match the buffer size.
             try:
@@ -88,7 +94,7 @@ def main():
     except Exception as e: print(f"Error: {e}", file=sys.stderr)
     finally:
         poseService.stopVideo()
-        video_thread.join()
+        video_thread.join(10)
 
 
 if __name__ == "__main__":
@@ -100,3 +106,4 @@ if __name__ == "__main__":
     FRAMEHEIGHT     = config_options["FRAMEHEIGHT"]
     config.close()
     main()
+    print("Exiting Landmarker.", file=sys.stderr)

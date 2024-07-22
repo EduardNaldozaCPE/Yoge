@@ -13,6 +13,14 @@
             "args": "-user=0 -sequence=1 -session=2 -device=0 -lenOnly"
         },
         {
+            "name": "Landmarker (DeviceID, len-only)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "src/modules/landmarker-service/main.py",
+            "console": "integratedTerminal",
+            "args": "-user=0 -sequence=1 -session=2 -device=${command:pickArgs} -lenOnly"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug 'session'",
