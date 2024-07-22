@@ -1,4 +1,5 @@
 import sys
+import cv2 as cv 
 import mediapipe as mp 
 
 JOINT_IDS = {
@@ -44,3 +45,17 @@ def formatResult(sessionId, result, timestamp) -> str:
         print("Landmarks incomplete. Skipping.", file=sys.stderr)
     except Exception as e:
         print("Error Occurred while recording score:", e , file=sys.stderr)
+
+# Draw landmarks into cv image from landmarks 
+def drawLandmarks(cv_frame, img_size:tuple, landmarks:dict):
+    next_frame = cv_frame
+    for key in landmarks:
+        try:
+            next_frame = cv.circle( 
+                cv_frame,
+                ( int(landmarks[key].x * img_size[0] * 2), int(landmarks[key].y * img_size[1] * 2) ),
+                12, (200, 50, 200), 1, 1, 1 )
+        except IndexError:
+            print(f"Landmark \"{key}\" Not in array. Skipping.", file=sys.stderr)
+            continue
+    return next_frame
