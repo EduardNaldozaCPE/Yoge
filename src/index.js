@@ -4,8 +4,9 @@ const path = require('node:path');
 
 if (require('electron-squirrel-startup')) app.quit;
 
-// NOTE: TURN OFF WHEN BUILDING 
-const DEBUG = false;
+// NOTE: Turn OFF when running "npm run make"
+//  - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/landmarker/"
+const DEBUG = true;
 const spawnoption = DEBUG ? "python" : "landmarker/landmarker.exe";
 const spawnargs = DEBUG ? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
 
