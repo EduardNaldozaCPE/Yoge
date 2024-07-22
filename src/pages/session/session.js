@@ -5,7 +5,11 @@ let showFeed = false;
 
 // Run the landmarker, enable restart, and handle connection statuses
 landmarkerAPI.run(device=currentDevice);
-landmarkerAPI.enableRestart();
+
+landmarkerAPI.enableRestart(()=>{
+    console.log("Rerunning landmarker...");
+});
+
 landmarkerAPI.onStatus(
     // Landmarker ran successfully. Show the feed.
     successCallback = ()=>{
