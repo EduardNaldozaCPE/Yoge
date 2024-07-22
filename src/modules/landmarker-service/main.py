@@ -5,22 +5,33 @@ from landmarker import Landmarker
 
 def parseArgs() -> tuple:
     lenOnly = False
+    noCV = False
     for arg in sys.argv:
         keyVal = arg.split('=')
         if keyVal[0] == "-user":     usr = int(keyVal[1])
         if keyVal[0] == "-sequence": seq = int(keyVal[1])
         if keyVal[0] == "-session":  ses = int(keyVal[1])
+        if keyVal[0] == "-device":   dev = int(keyVal[1])
+        if keyVal[0] == "-noCV":     noCV = True
         if keyVal[0] == "-lenOnly":  lenOnly = True
 
     if (usr is None) or (seq is None) or (ses is None):
         raise IndexError
     else:
-        return (usr, seq, ses, lenOnly)
+        return (usr, seq, ses, dev, noCV, lenOnly)
 
 
 def main():
     # 1. Handle Session Arguments and Display
-    try:  userId, sequenceId, sessionId, lenOnly = parseArgs()
+    try:  
+        (
+            userId, 
+            sequenceId, 
+            sessionId, 
+            deviceId, 
+            noCV,
+            lenOnly 
+        ) = parseArgs()
     except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>", file=sys.stderr)
 
     # 2. Initialise the pose estimation service and set the session data
@@ -29,7 +40,9 @@ def main():
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
-            int(sessionId)
+            int(sessionId),
+            int(deviceId),
+            int(noCV)
         )
     except Exception as e:
         print("Error setting session data:", e, file=sys.stderr)

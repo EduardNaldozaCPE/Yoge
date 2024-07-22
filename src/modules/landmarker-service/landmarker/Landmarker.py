@@ -14,6 +14,8 @@ class Landmarker:
         self.userId = None
         self.sequenceId = None
         self.sessionId = None
+        self.deviceId = None
+        self.noCV = False
         self.running = False
         self.isSessionSet = False
         self.queries = queue.Queue(10)
@@ -42,22 +44,24 @@ class Landmarker:
 
         # Use cv2 to draw the landmarks into the frame taken from the queue
         cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
-        try:
-            nextLandmarks = {
-                "leftShoulder"  : result.pose_landmarks[0][11],
-                "rightShoulder" : result.pose_landmarks[0][12],
-                "leftElbow"     : result.pose_landmarks[0][13],
-                "rightElbow"    : result.pose_landmarks[0][14],
-                "leftHip"       : result.pose_landmarks[0][23],
-                "rightHip"      : result.pose_landmarks[0][24],
-                "leftKnee"      : result.pose_landmarks[0][25],
-                "rightKnee"     : result.pose_landmarks[0][26],
-            }
-            cvimg = drawLandmarks(cvimg, (self.frameWidth, self.frameHeight), nextLandmarks)
-        except AttributeError as e:
-            print("Error Drawing Landmarks:", e, file=sys.stderr)
-        except Exception as e:
-            print(e, file=sys.stderr)
+        
+        if not self.noCV:
+            try:
+                nextLandmarks = {
+                    "leftShoulder"  : result.pose_landmarks[0][11],
+                    "rightShoulder" : result.pose_landmarks[0][12],
+                    "leftElbow"     : result.pose_landmarks[0][13],
+                    "rightElbow"    : result.pose_landmarks[0][14],
+                    "leftHip"       : result.pose_landmarks[0][23],
+                    "rightHip"      : result.pose_landmarks[0][24],
+                    "leftKnee"      : result.pose_landmarks[0][25],
+                    "rightKnee"     : result.pose_landmarks[0][26],
+                }
+                cvimg = drawLandmarks(cvimg, (self.frameWidth, self.frameHeight), nextLandmarks)
+            except AttributeError as e:
+                print("Error Drawing Landmarks:", e, file=sys.stderr)
+            except Exception as e:
+                print(e, file=sys.stderr)
 
         # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
         _, data = cv.imencode('.jpeg', cvimg)
@@ -74,10 +78,12 @@ class Landmarker:
 
 
     # Records a new session in the database
-    def setSessionData(self, userId=0, sequenceId=0, sessionId=0):
+    def setSessionData(self, userId=0, sequenceId=0, sessionId=0, deviceId=0, noCV=False):
         self.userId = userId
         self.sequenceId = sequenceId
         self.sessionId = sessionId
+        self.deviceId = deviceId
+        self.noCV = noCV
         self.isSessionSet = True
 
 
@@ -102,7 +108,7 @@ class Landmarker:
         
         # Start video capture
         try:
-            self.feed = cv.VideoCapture(0)
+            self.feed = cv.VideoCapture(self.deviceId)
             self.running = True
         except:
             print("Error running cv2.VideoCapture(). Stopping...", file=sys.stderr)

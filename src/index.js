@@ -35,10 +35,13 @@ const createWindow = () => {
   /**
    * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
    */
-  ipcMain.on("run-consumer", () => {
+  ipcMain.on("run-consumer", (ev, device, noCV) => {
     var strBuffer;
+    let spawnArgsCopy = spawnargs;
+    if (noCV) spawnArgsCopy.push(`-noCV`);
+    spawnArgsCopy.push(`-device=${device}`);
     try {
-      producer = spawn(spawnoption, spawnargs);
+      producer = spawn(spawnoption, spawnArgsCopy);
       producer.stdout.on('data', (data)=>{
         try {
           strBuffer = data.toString().split("'")[1];
