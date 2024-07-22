@@ -95,6 +95,9 @@ def main():
     finally:
         poseService.stopVideo()
         video_thread.join(10)
+        
+    if poseService.flagExit: 
+        exit(1)
 
 
 if __name__ == "__main__":
@@ -106,4 +109,3 @@ if __name__ == "__main__":
     FRAMEHEIGHT     = config_options["FRAMEHEIGHT"]
     config.close()
     main()
-    print("Exiting Landmarker.", file=sys.stderr)
