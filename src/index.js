@@ -24,21 +24,24 @@ const createWindow = () => {
     },
   });
   
+  var landmarker = undefined;
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   mainWindow.setMenu(null);
-  
-  var landmarker = undefined;
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  /**
-   * Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-   */
+  // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.on("run-landmarker", (_, device, noCV) => {
     var strBuffer;
     let spawnArgsCopy = spawnargs;
     let connection_success = false;
+
+    // Restart landmarker if it is already running.
+    if (landmarker != undefined) {
+      mainWindow.webContents.send('restart-landmarker', device, noCV);
+      return;
+    }
 
     spawnArgsCopy.push(`-device=${device}`);
     if (noCV) spawnArgsCopy.push(`-noCV`);
@@ -69,6 +72,7 @@ const createWindow = () => {
       }
 
       switch (code) {
+        case null: break;
         case 0:
           mainWindow.webContents.send('landmarker-status', "NORMAL");
           break;
@@ -76,6 +80,7 @@ const createWindow = () => {
           mainWindow.webContents.send('landmarker-status', "NOVIDEO");
           break;
         default:
+          console.log("Landmarker closed with code: ", code);
           break;
       }
     });
@@ -84,6 +89,7 @@ const createWindow = () => {
     landmarker.stderr.on('data', (data)=>{console.log(`${data}`)});
   });
 
+  // Kills the landmarker child process
   ipcMain.on("stop-landmarker", ()=>{
     if (landmarker) {
       landmarker.kill();
@@ -91,19 +97,17 @@ const createWindow = () => {
     }
   });
 
+  // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
   ipcMain.on("restart-landmarker", (_, device, noCV) => {
-    // Kill landmarker if it still exists, then signal to re-call run-landmarker.
     if (landmarker !== undefined) {
-      while (!landmarker.killed) { 
-        landmarker.kill();
-        console.log("Waiting for Landmarker to die."); 
-      }
+      landmarker.kill();
       landmarker = undefined
     }
     console.log("Landmarker is dead. Running a new one...");
     mainWindow.webContents.send('recall-landmarker', device, noCV)
   });
 
+  // kills the landmarker child process and closes the window.
   ipcMain.on("window-close", ()=>{
     if (landmarker) {
       landmarker.kill();
@@ -111,12 +115,14 @@ const createWindow = () => {
     }
     mainWindow.close()
   });
-  
+
+  // Toggles between maximize() and unmaximize().
   ipcMain.on("window-maximize", ()=>{
     if (mainWindow.isMaximized()) mainWindow.unmaximize();
     else mainWindow.maximize();
   });
 
+  // Minimizes the window.
   ipcMain.on("window-minimize", ()=>mainWindow.minimize());
 };
 

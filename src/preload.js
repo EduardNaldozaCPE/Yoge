@@ -21,8 +21,12 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
         ipcRenderer.on('recall-landmarker', (_, device, noCV)=>{
             restartListener()
             ipcRenderer.send('run-landmarker', device, noCV);
-        }
-    )},
+        });
+        ipcRenderer.on('restart-landmarker', (_, device, noCV)=>{
+            console.log("Restarted Landmarker from Main.");
+            ipcRenderer.send('restart-landmarker', device, noCV);
+        })
+    },
 })
 
 

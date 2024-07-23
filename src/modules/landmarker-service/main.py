@@ -48,6 +48,7 @@ def main():
         print("Error setting session data:", e, file=sys.stderr)
         return
 
+    # 3. Start a new thread for the video capture loop.
     try:
         video_thread = threading.Thread(target=poseService.runVideo, daemon=True)
         video_thread.start()

@@ -44,6 +44,7 @@ body {
 }
 
 #latest-widget {
+  cursor: pointer;
   background-color: #6F4699;
   border-radius: 15px;
   padding: 20px 40px;
@@ -51,6 +52,14 @@ body {
   width: 500px;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.1s ease, rotate 0.5s ease, transform 0.2s ease;
+  rotate: 0deg;
+}
+#latest-widget:hover {
+  background-color: #804eb1;
+  box-shadow: #5555 0px 0px 10px;
+  rotate: 0.5deg;
+  transform: scale(1.02, 1.02);
 }
 
 #widget-header {
@@ -172,20 +181,21 @@ body {
   gap: 15px;
   background-color: var(--container-colour);
   box-shadow: #3333 0px 2px 15px;
-  transition: background-color 0.15s ease-in;
+  rotate: 0deg;
+  transition: background-color 0.15s ease, rotate 0.5s ease, transform 0.1s ease;
   text-align: left;
   p {
     font-size: 14px;
   }
 }
-
-/* TODO */
 .sequence-card:hover {
   background: #3332;
 }
 .sequence-card[select="true"] {
   background-color: #1118;
   box-shadow: inset #ab9f8a55 0px 0px 10px;
+  rotate: 2deg;
+  transform: scale(0.95, 0.95);
 }
 
 .sequence-thumb {

@@ -23,7 +23,7 @@ landmarkerAPI.onStatus(
         console.log("LANDMARKER FAILED TO RUN");
         liveFeed.style.opacity = 0.2;
         currentDevice = 0;
-        landmarkerAPI.run();
+        landmarkerAPI.restart(device=currentDevice);
         camSwitchBtn.disabled = true;
     }
 );

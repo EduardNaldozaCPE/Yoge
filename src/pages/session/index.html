@@ -59,11 +59,7 @@
                         </tbody>
                     </table>
                 </div>
-                <form method="get" action="../dashboard/index.html?page=scores">
-                    <input name="page" value="scores" hidden/>
-                    <input name="sequence" value="general-fitness" hidden/>
-                    <input type="submit" class="menu-btn" value="Finish" onclick="electronAPI.stopConsumer()"/>
-                </form>
+                <button class="menu-btn" onclick="returnToDashboard()">Finish</button>
             </section>
         <script src="session.js"></script>
         <script src="../../modules/jquery-3.7.1.min.js"></script>
