@@ -9,10 +9,10 @@ class SqliteController:
     def __init__(self):
         config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
         config_options = json.load(config)
-        DBPATH = config_options["DBPATH"]
+        DB_PATH = config_options["DB_PATH"]
         config.close()
         
-        self.con = sqlite3.connect(DBPATH)
+        self.con = sqlite3.connect(DB_PATH)
         self.cur = self.con.cursor()
 
 

@@ -16,7 +16,7 @@ def parseArgs() -> tuple:
         if keyVal[0] == "-device":   dev = int(keyVal[1])
         if keyVal[0] == "-noCV":     noCV = True
         if keyVal[0] == "-lenOnly":  lenOnly = True
-        if keyVal[0] == "-imshow":  imshow = True
+        if keyVal[0] == "-imshow":   imshow = True
 
     if (usr is None) or (seq is None) or (ses is None):
         raise IndexError
@@ -85,7 +85,7 @@ def main():
             # Print the frame to stdout
             try:
                 if lenOnly:
-                    print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout)
+                    print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout, end='\r')
                 else:
                     print(b64img, file=sys.stdout, end="")
                 if (errCounter != 0): errCounter = 0

@@ -1,23 +1,23 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { spawn } = require("child_process");
+const { cwd } = require('process');
 const path = require('node:path');
 const fs = require('fs');
-const { cwd } = require('process');
 
-if (require('electron-squirrel-startup')) app.quit;
+if ( require('electron-squirrel-startup') ) app.quit;
 
 // NOTE: Turn OFF when running "npm run make"
 // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const DEBUG = false;
-var landmarkerPath = path.join(cwd(), 'resources/landmarker-config.json');
-var landmarkerConfig = JSON.parse(fs.readFileSync(landmarkerPath, 'utf8'));
+var landmarkerPath = path.join( cwd(), 'resources/landmarker-config.json' );
+var landmarkerConfig = JSON.parse( fs.readFileSync(landmarkerPath, 'utf8') );
 const spawncommand = DEBUG ? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG ? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
 
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    icon: "media/favicon",
+    icon: "appicon",
     width: 1280,
     height: 720,
     minHeight: 700,

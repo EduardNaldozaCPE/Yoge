@@ -3,7 +3,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    icon: "src/media/favicon",
+    icon: "appicon",
     asar: true,
     extraResource: [
       "./resources/landmarker",
