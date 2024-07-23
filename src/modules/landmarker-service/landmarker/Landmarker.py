@@ -11,6 +11,17 @@ class Landmarker:
         self.frameWidth = options["width"]
         self.frameHeight = options["height"]
         # State
+        self.currentPoseId = 0
+        self.currentPoseTargets = {
+            "left-elbow": 180, 
+            "right-elbow": 180, 
+            "left-shoulder": 90, 
+            "right-shoulder": 270, 
+            "left-hip": 180, 
+            "right-hip": 180, 
+            "left-knee": 180, 
+            "right-knee": 180
+        }
         self.userId = None
         self.sequenceId = None
         self.sessionId = None
@@ -50,16 +61,26 @@ class Landmarker:
         if not self.noCV:
             try:
                 nextLandmarks = {
-                    "leftShoulder"  : result.pose_landmarks[0][11],
-                    "rightShoulder" : result.pose_landmarks[0][12],
-                    "leftElbow"     : result.pose_landmarks[0][13],
-                    "rightElbow"    : result.pose_landmarks[0][14],
-                    "leftHip"       : result.pose_landmarks[0][23],
-                    "rightHip"      : result.pose_landmarks[0][24],
-                    "leftKnee"      : result.pose_landmarks[0][25],
-                    "rightKnee"     : result.pose_landmarks[0][26],
+                    "left-shoulder"  : result.pose_landmarks[0][11],
+                    "right-shoulder" : result.pose_landmarks[0][12],
+                    "left-elbow"     : result.pose_landmarks[0][13],
+                    "right-elbow"    : result.pose_landmarks[0][14],
+                    "left-hip"       : result.pose_landmarks[0][23],
+                    "right-hip"      : result.pose_landmarks[0][24],
+                    "left-knee"      : result.pose_landmarks[0][25],
+                    "right-knee"     : result.pose_landmarks[0][26],
+                    # Only for calculations
+                    "left-wrist"    : result.pose_landmarks[0][15],
+                    "right-wrist"   : result.pose_landmarks[0][16],
+                    "left-ankle"    : result.pose_landmarks[0][27],
+                    "right-ankle"   : result.pose_landmarks[0][28]
                 }
-                cvimg = drawLandmarks(cvimg, (self.frameWidth, self.frameHeight), nextLandmarks)
+                cvimg = drawLandmarks(
+                    cvimg, 
+                    (self.frameWidth, self.frameHeight), 
+                    nextLandmarks, 
+                    self.currentPoseTargets
+                    )
             except AttributeError as e:
                 print("Error Drawing Landmarks:", e, file=sys.stderr)
             except Exception as e:
@@ -156,6 +177,18 @@ class Landmarker:
     # Stops the video feed loop in runVideo().
     def stopVideo(self):
         self.running = False
+
+    def _queryPoseData(poseId:int):
+        return {
+            "left-elbow": 180, 
+            "right-elbow": 180, 
+            "left-shoulder": 90, 
+            "right-shoulder": 90, 
+            "left-hip": 180, 
+            "right-hip": 180, 
+            "left-knee": 180, 
+            "right-knee": 180
+        }
 
 if __name__ == "__main__":
     p = Landmarker()
