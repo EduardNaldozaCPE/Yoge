@@ -1,0 +1,8 @@
+{
+    "MODEL_PATH"     : "resources/pose_landmarker_lite.task",
+    "DBPATH"         : "resources/yoge.db",
+    "LANDMARKER_PATH": "resources/landmarker/landmarker.exe",
+    "MAXBUFFERSIZE"  : 101205,
+    "FRAMEWIDTH"     : 640,
+    "FRAMEHEIGHT"    : 480
+}

@@ -94,4 +94,4 @@ out/
 venv*
 dist/
 build/
-resources/
+resources/landmarker
