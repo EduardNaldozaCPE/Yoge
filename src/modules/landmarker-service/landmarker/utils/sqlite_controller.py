@@ -17,6 +17,7 @@ class SqliteController:
 
     def runInsert(self, query:str):
         # Create a new row in the session table once ScoreQueue object is created
+        if query is None: return 
         try: 
             self.cur.execute(query)
             self.con.commit()

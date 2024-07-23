@@ -21,6 +21,7 @@ class Landmarker:
         self.flagExit = False
         self.queries = queue.Queue(10)
         # Queues
+        self._currentFrame = None
         self.currentFrame = None
         self.lastLandmarks:mp.tasks.vision.PoseLandmarkerResult
         # MediaPipe Pose Landmarker Options
@@ -68,6 +69,7 @@ class Landmarker:
         _, data = cv.imencode('.jpeg', cvimg)
         data_bytes = data.tobytes()
         self.currentFrame = data_bytes
+        self._currentFrame = cvimg
 
         # Run every 300ms
         if timestamp_ms % 20 != 0 and timestamp_ms != 0: return
@@ -79,12 +81,13 @@ class Landmarker:
 
 
     # Records a new session in the database
-    def setSessionData(self, userId=0, sequenceId=0, sessionId=0, deviceId=0, noCV=False):
+    def setSessionData(self, userId=0, sequenceId=0, sessionId=0, deviceId=0, noCV=False, imshow=False):
         self.userId = userId
         self.sequenceId = sequenceId
         self.sessionId = sessionId
         self.deviceId = deviceId
         self.noCV = noCV
+        self.imshow = imshow
         self.isSessionSet = True
 
 
@@ -130,6 +133,16 @@ class Landmarker:
             
             landmarker.detect_async(mp_image, t)
             t += 1
+            
+            # DEBUG (-imshow)
+            if self.imshow:
+                try:
+                    cv.imshow("debug_imshow", self._currentFrame)
+                    if cv.waitKey(1) & 0xFF == ord('q'):
+                        self.feed.release()
+                        cv.destroyAllWindows()
+                except Exception as e:
+                    print(e, file=sys.stderr)
 
             # Record scores every 2 seconds
             if (t%20 == 0) and not self.queries.empty():

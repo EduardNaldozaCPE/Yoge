@@ -6,6 +6,7 @@ from landmarker import Landmarker
 def parseArgs() -> tuple:
     lenOnly = False
     noCV = False
+    imshow = False
     for arg in sys.argv:
         keyVal = arg.split('=')
         if keyVal[0] == "-user":     usr = int(keyVal[1])
@@ -14,11 +15,12 @@ def parseArgs() -> tuple:
         if keyVal[0] == "-device":   dev = int(keyVal[1])
         if keyVal[0] == "-noCV":     noCV = True
         if keyVal[0] == "-lenOnly":  lenOnly = True
+        if keyVal[0] == "-imshow":  imshow = True
 
     if (usr is None) or (seq is None) or (ses is None):
         raise IndexError
     else:
-        return (usr, seq, ses, dev, noCV, lenOnly)
+        return (usr, seq, ses, dev, noCV, lenOnly, imshow)
 
 
 def main():
@@ -30,7 +32,8 @@ def main():
             sessionId, 
             deviceId, 
             noCV,
-            lenOnly 
+            lenOnly,
+            imshow
         ) = parseArgs()
     except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>", file=sys.stderr)
 
@@ -42,7 +45,8 @@ def main():
             int(sequenceId),
             int(sessionId),
             int(deviceId),
-            int(noCV)
+            noCV,
+            imshow
         )
     except Exception as e:
         print("Error setting session data:", e, file=sys.stderr)
