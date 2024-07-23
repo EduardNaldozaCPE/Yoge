@@ -59,25 +59,26 @@ def drawLandmarks(
         ):
     
     next_frame = cv_frame
-    # Get the angles for each joint listed.
+
+    # Get the angles for each listed joint.
     joints = {
-        "elbow": ["wrist", "shoulder"], 
+        "elbow":    ["wrist", "shoulder"], 
         "shoulder": ["elbow", "hip"],
-        "hip": ["shoulder", "knee"],
-        "knee": ["hip", "ankle"]
+        "hip":      ["shoulder", "knee"],
+        "knee":     ["hip", "ankle"]
         }
     
     angles = {}
     for joint in joints:
         angles[f"left-{joint}"] = _angleFrom3Points(
-            (landmarks[f"left-{joints[joint][0]}"].x,   landmarks[f"left-{joints[joint][0]}"].y ),
-            (landmarks[f"left-{joint}"].x,              landmarks[f"left-{joint}"].y ),
-            (landmarks[f"left-{joints[joint][1]}"].x,   landmarks[f"left-{joints[joint][1]}"].y ),
+            ( landmarks[f"left-{joints[joint][0]}"].x,   landmarks[f"left-{joints[joint][0]}"].y ),
+            ( landmarks[f"left-{joint}"].x,              landmarks[f"left-{joint}"].y ),
+            ( landmarks[f"left-{joints[joint][1]}"].x,   landmarks[f"left-{joints[joint][1]}"].y ),
             )
         angles[f"right-{joint}"] = _angleFrom3Points(
-            (landmarks[f"right-{joints[joint][0]}"].x,  landmarks[f"right-{joints[joint][0]}"].y ),
-            (landmarks[f"right-{joint}"].x,             landmarks[f"right-{joint}"].y ),
-            (landmarks[f"right-{joints[joint][1]}"].x,  landmarks[f"right-{joints[joint][1]}"].y ),
+            ( landmarks[f"right-{joints[joint][0]}"].x,  landmarks[f"right-{joints[joint][0]}"].y ),
+            ( landmarks[f"right-{joint}"].x,             landmarks[f"right-{joint}"].y ),
+            ( landmarks[f"right-{joints[joint][1]}"].x,  landmarks[f"right-{joints[joint][1]}"].y ),
             )
     
     # Calculate score for each angle, then draw landmarks

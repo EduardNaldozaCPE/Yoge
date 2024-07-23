@@ -2,15 +2,14 @@
   "name": "yoge-electron",
   "productName": "yoge-electron",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A Yoga Training aid App powered by MediaPipe",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\"",
-    "testfc": "nodemon ./src/session/session.js"
+    "lint": "echo \"No linting configured\""
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",

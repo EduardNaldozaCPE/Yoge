@@ -1,13 +1,17 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { spawn } = require("child_process");
 const path = require('node:path');
+const fs = require('fs');
+const { cwd } = require('process');
 
 if (require('electron-squirrel-startup')) app.quit;
 
 // NOTE: Turn OFF when running "npm run make"
-//  - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/landmarker/"
-const DEBUG = true;
-const spawnoption = DEBUG ? "python" : "landmarker/landmarker.exe";
+// - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+const DEBUG = false;
+var landmarkerPath = path.join(cwd(), 'resources/landmarker-config.json');
+var landmarkerConfig = JSON.parse(fs.readFileSync(landmarkerPath, 'utf8'));
+const spawncommand = DEBUG ? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG ? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
 
 // Create the browser window and start the landmarker script.
@@ -29,7 +33,7 @@ const createWindow = () => {
   mainWindow.setMenu(null);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.on("run-landmarker", (_, device, noCV) => {
@@ -47,7 +51,7 @@ const createWindow = () => {
     if (noCV) spawnArgsCopy.push(`-noCV`);
 
     try {
-      landmarker = spawn(spawnoption, spawnArgsCopy);
+      landmarker = spawn(spawncommand, spawnArgsCopy);
     } catch (error) { console.log(`Encountered an error while connecting: \n${error}`); }
 
     // Parse Data to image src string & Signal landmarker-status "SUCCESS" on the first data sent

@@ -1,3 +1,4 @@
+import os
 import sys, json, threading
 import base64 as b64
 
@@ -107,9 +108,9 @@ def main():
 
 if __name__ == "__main__":
     # Initialise Constants from config.json
-    config = open('./landmarker-config.json', 'r')
+    config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
     config_options = json.load(config)
-    MODEL_PATH      = config_options["MODEL_PATH"]
+    MODEL_PATH      = os.path.join(os.getcwd(), config_options["MODEL_PATH"])
     FRAMEWIDTH      = config_options["FRAMEWIDTH"]
     FRAMEHEIGHT     = config_options["FRAMEHEIGHT"]
     config.close()

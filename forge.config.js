@@ -5,6 +5,12 @@ module.exports = {
   packagerConfig: {
     icon: "src/media/favicon",
     asar: true,
+    extraResource: [
+      "./resources/landmarker",
+      "./resources/data",
+      "./resources/landmarker-config.json",
+      "./resources/pose_landmarker_lite.task",
+    ]
   },
   rebuildConfig: {},
   makers: [

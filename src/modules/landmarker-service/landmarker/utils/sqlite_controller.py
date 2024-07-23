@@ -1,12 +1,13 @@
 import sqlite3
 import json
+import os
 
 
 # Processes the PoseLandmarkerResult Queue to insert into the database   
 class SqliteController:
     # Initialise scores queue and sqlite connection
     def __init__(self):
-        config = open('./landmarker-config.json', 'r')
+        config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
         config_options = json.load(config)
         DBPATH = config_options["DBPATH"]
         config.close()

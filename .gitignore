@@ -94,3 +94,4 @@ out/
 venv*
 dist/
 build/
+resources/
