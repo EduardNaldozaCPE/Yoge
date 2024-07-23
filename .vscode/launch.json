@@ -29,16 +29,6 @@
             "args": "-user=0 -sequence=1 -session=2 -device=${command:pickArgs} -lenOnly -imshow"
         },
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Debug 'session'",
-            // "skipFiles": [
-            //     "<node_internals>/**"
-            // ],
-            "console": "integratedTerminal",
-            "program": "${workspaceFolder}\\src\\session\\session.js"
-        },
-        {
             "name": "Renderer",
             "port": 9222,
             "request": "attach",

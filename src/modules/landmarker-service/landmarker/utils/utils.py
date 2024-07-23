@@ -47,8 +47,17 @@ def formatResult(sessionId, result, timestamp) -> str:
     except Exception as e:
         print("Error Occurred while recording score:", e , file=sys.stderr)
 
+
 # Draw landmarks into cv image from landmarks 
-def drawLandmarks(cv_frame, img_size:tuple, landmarks:dict, targets:dict, bestColour:tuple=(0,255,0), worstColour:tuple=(50,0,200)):
+def drawLandmarks(
+        cv_frame, 
+        img_size:tuple, 
+        landmarks:dict, 
+        targets:dict, 
+        bestColour:tuple=(0,255,0), 
+        worstColour:tuple=(50,0,200)
+        ):
+    
     next_frame = cv_frame
     # Get the angles for each joint listed.
     joints = {
@@ -57,6 +66,7 @@ def drawLandmarks(cv_frame, img_size:tuple, landmarks:dict, targets:dict, bestCo
         "hip": ["shoulder", "knee"],
         "knee": ["hip", "ankle"]
         }
+    
     angles = {}
     for joint in joints:
         angles[f"left-{joint}"] = _angleFrom3Points(
@@ -72,22 +82,19 @@ def drawLandmarks(cv_frame, img_size:tuple, landmarks:dict, targets:dict, bestCo
     
     # Calculate score for each angle, then draw landmarks
     for key in landmarks:
-        if targets[key] is None: continue
-        score = _scoreFromAngles(angles[key], targets[key], 1)
+        if key == "left-wrist": break
+        score = _scoreFromAngles(angles[key], targets[key])
 
         try:
             next_frame = cv.circle(
                 cv_frame,
-                ( int(landmarks[key].x * img_size[0] * 2), int(landmarks[key].y * img_size[1] * 2) ),
+                (
+                    int(landmarks[key].x * img_size[0] * 2), 
+                    int(landmarks[key].y * img_size[1] * 2)
+                ),
                 20, _colourFromScore(score, bestColour, worstColour), 8, 2, 1 )
-            next_frame = cv.putText(
-                next_frame,
-                str(score),
-                ( int(landmarks[key].x * img_size[0])-10, int(landmarks[key].y * img_size[1])-10 ),
-                cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 1, cv.LINE_AA )
         except IndexError:
-            print(f"Landmark \"{key}\" Not in array. Skipping.", file=sys.stderr)
-            continue
+            print(f"Landmark {key} Not in array. Skipping.", file=sys.stderr)
 
     return next_frame
 
@@ -101,7 +108,7 @@ def _angleFrom3Points(p1:tuple, p2:tuple, p3:tuple) -> float:
     return angle
 
 # Calculate the score from angles, accounting for the angle's orientation
-def _scoreFromAngles(angle:float, target:float, weight:float) -> float:
+def _scoreFromAngles(angle:float, target:float) -> float:
     target_90cc = target - 90   # 90 degrees counter-clockwise of target angle 
     target_90c = target + 90    # 90 degrees clockwise of target angle 
 
