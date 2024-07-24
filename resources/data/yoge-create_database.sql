@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS session (
 CREATE TABLE IF NOT EXISTS score(
     scoreId INTEGER PRIMARY KEY AUTOINCREMENT,
     sessionId INTEGER REFERENCES session ON DELETE SET NULL,
-    timestamp INTEGER,
+    timestmp INTEGER,
     leftElbow NUMERIC,
     rightElbow NUMERIC,
     leftKnee NUMERIC,
@@ -32,7 +32,11 @@ CREATE TABLE IF NOT EXISTS score(
 
 CREATE TABLE IF NOT EXISTS sequence(
     sequenceId INTEGER PRIMARY KEY,
-    sequenceName TEXT
+    sequenceName TEXT,
+    poseNum INTEGER,
+    tags TEXT,
+    peakPose INTEGER,
+    difficulty TEXT
 );
 
 
@@ -48,6 +52,8 @@ CREATE TABLE IF NOT EXISTS pose(
     targetLeftShoulder NUMERIC,
     targetRightShoulder NUMERIC,
     targetLeftHip NUMERIC,
-    targetRightHip NUMERIC
+    targetRightHip NUMERIC,
+    duration NUMERIC,
+    wght NUMERIC
 )
 ;

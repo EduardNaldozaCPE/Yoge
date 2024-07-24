@@ -11,8 +11,8 @@ if ( require('electron-squirrel-startup') ) app.quit;
 const DEBUG = false;
 var landmarkerPath = path.join( cwd(), 'resources/landmarker-config.json' );
 var landmarkerConfig = JSON.parse( fs.readFileSync(landmarkerPath, 'utf8') );
-const spawncommand = DEBUG ? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
-const spawnargs = DEBUG ? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
+const spawncommand = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
+const spawnargs = DEBUG? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1', '-session=2'] : ['-user=0', '-sequence=1', '-session=2'];
 
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
