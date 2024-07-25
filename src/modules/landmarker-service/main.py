@@ -64,23 +64,22 @@ def main():
     isRunning = True
 
     # 4. Collect the frame data every loop.
+    last_b64img = b''
     try:
         errCounter = 0
         while isRunning:
             if poseService.flagExit: 
                 break
-            # Take current frame from poseService object state
             try:
+                # Take current frame from poseService object state
                 frameBuffer = poseService.getFrame()
-                if frameBuffer is None: continue
-            except Exception as e:
-                print(e, file=sys.stderr)
             
-            # Pad out the frame data to match the buffer size.
-            try:
                 # Convert the buffer to base64 and Wrap it
                 b64img = b64.b64encode(frameBuffer)
-            except Exception as e: print(e, file=sys.stderr)
+
+            except Exception as e: 
+                # print(e, file=sys.stderr)
+                b64img = last_b64img
 
             # Print the frame to stdout
             try:
@@ -88,6 +87,7 @@ def main():
                     print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout, end='\r')
                 else:
                     print(b64img, file=sys.stdout, end="")
+                last_b64img = b64img
                 if (errCounter != 0): errCounter = 0
             except Exception as e:
                 print(e, file=sys.stderr)

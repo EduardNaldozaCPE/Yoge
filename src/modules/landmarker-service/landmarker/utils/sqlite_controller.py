@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+import sys
 
 
 # Processes the PoseLandmarkerResult Queue to insert into the database   
@@ -16,14 +17,35 @@ class SqliteController:
         self.cur = self.con.cursor()
 
 
-    def runInsert(self, query:str):
-        # Create a new row in the session table once ScoreQueue object is created
-        if query is None: return 
+    def runInsert(self, query):
+        if query is None: return
         try: 
             self.cur.execute(query)
             self.con.commit()
         except Exception as e: 
-            print(e)
+            print(e, file=sys.stderr)
+
+
+    def runSelectAll(self, query):
+        data = []
+        if query is None: return []
+        try:
+            res = self.cur.execute(query)
+            data = res.fetchall()
+        except Exception as e:
+            print(e, file=sys.stderr)
+        return data
+
+
+    def runSelectOne(self, query):
+        data = ()
+        if query is None: return ()
+        try:
+            res = self.cur.execute(query)
+            data = res.fetchone()
+        except Exception as e:
+            print(e, file=sys.stderr)
+        return data
 
 
     def closeConnection(self):
