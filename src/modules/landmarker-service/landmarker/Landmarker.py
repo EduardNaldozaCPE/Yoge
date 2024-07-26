@@ -9,7 +9,6 @@ from .utils import formatResult, drawLandmarks
 class Landmarker:
     def __init__(self, model_path:str, options={"width": 640, "height":480}):
         # Carry Forward Variables - To avoid crashing
-        self._last_mp_image = None
         self._last_landmarks = {}
 
         # Configuration
@@ -28,7 +27,7 @@ class Landmarker:
         self.isSessionSet = False
         self.flagExit = False
         self.isRecording = False
-        self.queries = queue.Queue(10)
+        self.query = ""
         self.maxPoseSteps = 10
         self.currentPoseStep = 0
         self.poseList = []
@@ -63,20 +62,25 @@ class Landmarker:
 #region ----- Public Methods -----
 
     ## Records a new session in the database and updates the pose list
-    def setSessionData(self, userId=0, sequenceId=0, sessionId=0, deviceId=0, noCV=False, imshow=False):
+    def setSessionData(self, userId=0, sequenceId=0, deviceId=0, noCV=False, imshow=False):
         self.userId = userId
         self.sequenceId = sequenceId
-        self.sessionId = sessionId
         self.deviceId = deviceId
         self.noCV = noCV
         self.imshow = imshow
         self.isSessionSet = True
 
+        # Set Session Data in Database
         self.db = db()
+        self.db.runInsert(f""" 
+            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+        """)
         self.poseList = self.db.runSelectAll(f"SELECT * FROM pose WHERE sequenceId={self.sequenceId};")
+        self.sessionId = self.db.runSelectOne(f"SELECT MAX(sessionId) FROM session;")[0]
         self.db.closeConnection()
         self.db = None
-        if self.poseList is None: raise Exception("Unsuccessful Query @ setSessionData")
+        if self.poseList is None: raise Exception("Unsuccessful poseList Query @ setSessionData")
+        if len(self.sessionId) == 0: raise Exception("Unsuccessful sessionId Query @ setSessionData")
         self.maxPoseSteps = len(self.poseList)
         self._setNextPose()
 
@@ -120,15 +124,10 @@ class Landmarker:
 
             frame = cv.resize(frame, (self.frameWidth, self.frameHeight))
             rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
-            if not mp_image:
-                mp_image = self._last_mp_image
-                print("could not read image", file=sys.stderr) 
             
             landmarker.detect_async(mp_image, t)
             t += 1
-            self._last_mp_image = mp_image
             
             # DEBUG (-imshow)
             if self.imshow:
@@ -142,19 +141,11 @@ class Landmarker:
 
             # Record scores every 2 seconds.
             if not self.isRecording: continue
-            if (t%20 == 0) and not self.queries.empty():
-                self.db.runInsert(self.queries.get())
 
             self.stop_time = time.time()
             if (self.stop_time-self.start_time) >= 2:
-                print(f"\n{self.poseDuration}", file=sys.stderr)
-                print("\nTIME ELAPSED SINCE LAST LOOP:",(self.stop_time-self.start_time), file=sys.stderr)
                 self.start_time = time.time()
-
-                if self.currentPoseStep < self.maxPoseSteps:
-                    self._setNextPose()
-                else:
-                    self.isRecording = False
+                self._recScores()
 
         self.feed.release()
         landmarker.close()
@@ -182,13 +173,12 @@ class Landmarker:
                 "right-ankle"   : result.pose_landmarks[0][28]
             }
             self._last_landmarks = nextLandmarks
-        except IndexError as e: 
+        except Exception as e:
+            print(e, file=sys.stderr)
             nextLandmarks = self._last_landmarks
         
-        # Use cv2 to draw the landmarks into the frame taken from the queue
-        try:
-            cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
-        except Exception as e: print(e, file=sys.stderr)
+        # # Use cv2 to draw the landmarks into the frame taken from the queue
+        cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
 
         if not self.noCV or self.isRecording:
             try:
@@ -201,19 +191,23 @@ class Landmarker:
             except Exception as e:
                 print("Error Drawing Landmarks:", e, file=sys.stderr)
 
-        # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
-        _, data = cv.imencode('.jpeg', cvimg)
-        data_bytes = data.tobytes()
-        self.currentFrame = data_bytes
-        self._currentFrame = cvimg
+        # # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
+        try:
+            _, data = cv.imencode('.jpeg', cvimg)
+            data_bytes = data.tobytes()
+            self.currentFrame = data_bytes
+            self._currentFrame = cvimg
+        except Exception as e:
+            print(e, file=sys.stderr)
 
-        # Run every 300ms
-        if timestamp_ms % 20 != 0 and timestamp_ms > 0: return
+        # # Run every 300ms
+        if timestamp_ms % 20 != 0: return
         if not self.isSessionSet: return
-
-        scoreQuery = formatResult(self.sessionId, scores, timestamp_ms)
-        if scoreQuery != "":
-            self.queries.put(scoreQuery)
+        try:
+            scoreQuery = formatResult(self.sessionId, scores, timestamp_ms)
+            if scoreQuery != "": self.query = scoreQuery
+        except Exception as e:
+            print("Err @ _on_detect() -> formatResult()", e, file=sys.stderr)
 
 
     def _setNextPose(self):
@@ -232,5 +226,15 @@ class Landmarker:
             "right-knee": nextPose[7]
         }
         print(f"\nNext Pose Step: {self.currentPoseStep}", file=sys.stderr)
+
+    def _recScores(self):
+        if len(self.query) != 0:
+            self.db.runInsert(self.query)
+            self.query = ""
+
+        if self.currentPoseStep < self.maxPoseSteps:
+            self._setNextPose()
+        else:
+            self.isRecording = False
 
 #endregion

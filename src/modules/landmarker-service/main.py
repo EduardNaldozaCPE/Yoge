@@ -12,16 +12,15 @@ def parseArgs() -> tuple:
         keyVal = arg.split('=')
         if keyVal[0] == "-user":     usr = int(keyVal[1])
         if keyVal[0] == "-sequence": seq = int(keyVal[1])
-        if keyVal[0] == "-session":  ses = int(keyVal[1])
         if keyVal[0] == "-device":   dev = int(keyVal[1])
         if keyVal[0] == "-noCV":     noCV = True
         if keyVal[0] == "-lenOnly":  lenOnly = True
         if keyVal[0] == "-imshow":   imshow = True
 
-    if (usr is None) or (seq is None) or (ses is None):
+    if (usr is None) or (seq is None):
         raise IndexError
     else:
-        return (usr, seq, ses, dev, noCV, lenOnly, imshow)
+        return (usr, seq, dev, noCV, lenOnly, imshow)
 
 
 def main():
@@ -29,8 +28,7 @@ def main():
     try:  
         (
             userId, 
-            sequenceId, 
-            sessionId, 
+            sequenceId,
             deviceId, 
             noCV,
             lenOnly,
@@ -44,7 +42,6 @@ def main():
         poseService.setSessionData(
             int(userId),
             int(sequenceId),
-            int(sessionId),
             int(deviceId),
             noCV,
             imshow
@@ -100,7 +97,7 @@ def main():
     except Exception as e: print(f"Error: {e}", file=sys.stderr)
     finally:
         poseService.stopVideo()
-        video_thread.join(10)
+        video_thread.join()
         
     if poseService.flagExit: 
         exit(1)

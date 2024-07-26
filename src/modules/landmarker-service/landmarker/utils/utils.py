@@ -35,6 +35,7 @@ def formatResult(sessionId, scores, timestamp) -> str:
             """
     except Exception as e:
         print("Error Occurred while recording score:", e , file=sys.stderr)
+        return ""
 
 
 # Draw landmarks into cv image from landmarks 
@@ -91,7 +92,7 @@ def drawLandmarks(
     next_frame = cv.putText(
         cv_frame, str(targets),
         ( 10, 10 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
-        (200,200,0), 1, cv.LINE_AA, False)
+        ( 200, 200, 0 ), 1, cv.LINE_AA, False)
 
     return (scores, next_frame)
 

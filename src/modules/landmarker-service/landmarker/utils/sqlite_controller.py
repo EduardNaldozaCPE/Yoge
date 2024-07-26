@@ -18,6 +18,7 @@ class SqliteController:
 
 
     def runInsert(self, query):
+        print("RUNNING INSERT:", query, file=sys.stderr)
         if query is None: return
         try: 
             self.cur.execute(query)
