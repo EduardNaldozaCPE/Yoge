@@ -1,7 +1,6 @@
-import queue, sys
+import sys, time
 import mediapipe as mp
 import cv2 as cv
-import time
 
 from .utils import SqliteController as db
 from .utils import formatResult, drawLandmarks
@@ -23,16 +22,17 @@ class Landmarker:
         # State
         self.stop_time = time.time()
         self.start_time = time.time()
+        self.time_in_step = 0.0
         self.running = False
         self.isSessionSet = False
         self.flagExit = False
         self.isRecording = False
         self.query = ""
         self.maxPoseSteps = 10
-        self.currentPoseStep = 0
+        self.current_poseStep = 0
         self.poseList = []
-        self.poseDuration = 1000
-        self.currentPoseTargets = {
+        self.current_poseDuration = 1000
+        self.current_poseTargets = {
             # Default Pose is T-Pose
             "left-elbow": 180, 
             "right-elbow": 180, 
@@ -44,15 +44,13 @@ class Landmarker:
             "right-knee": 180
         }   
         # Queues
-        self._currentFrame = None
-        self.currentFrame = None
-        self.lastLandmarks:mp.tasks.vision.PoseLandmarkerResult
+        self._currentFrame  = None
+        self.current_Frame   = None
         # MediaPipe Pose Landmarker Options
-        self.BaseOptions = mp.tasks.BaseOptions
-        self.PoseLandmarker = mp.tasks.vision.PoseLandmarker
-        self.PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
-        self.VisionRunningMode = mp.tasks.vision.RunningMode
-        
+        self.BaseOptions            = mp.tasks.BaseOptions
+        self.PoseLandmarker         = mp.tasks.vision.PoseLandmarker
+        self.PoseLandmarkerOptions  = mp.tasks.vision.PoseLandmarkerOptions
+        self.VisionRunningMode      = mp.tasks.vision.RunningMode
         self.options = self.PoseLandmarkerOptions(
             base_options=self.BaseOptions(model_asset_path=model_path),
             running_mode=self.VisionRunningMode.LIVE_STREAM,
@@ -63,31 +61,35 @@ class Landmarker:
 
     ## Records a new session in the database and updates the pose list
     def setSessionData(self, userId=0, sequenceId=0, deviceId=0, noCV=False, imshow=False):
-        self.userId = userId
+        self.userId     = userId
         self.sequenceId = sequenceId
-        self.deviceId = deviceId
-        self.noCV = noCV
-        self.imshow = imshow
-        self.isSessionSet = True
+        self.deviceId   = deviceId
+        self.noCV       = noCV
+        self.imshow     = imshow
 
-        # Set Session Data in Database
+        # Set Session Data in Database and Close it for the video thread to access.
         self.db = db()
         self.db.runInsert(f""" 
             INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
         """)
         self.poseList = self.db.runSelectAll(f"SELECT * FROM pose WHERE sequenceId={self.sequenceId};")
-        self.sessionId = self.db.runSelectOne(f"SELECT MAX(sessionId) FROM session;")[0]
+        _sessionId_res = self.db.runSelectOne(f"SELECT MAX(sessionId) FROM session;")
         self.db.closeConnection()
         self.db = None
-        if self.poseList is None: raise Exception("Unsuccessful poseList Query @ setSessionData")
-        if len(self.sessionId) == 0: raise Exception("Unsuccessful sessionId Query @ setSessionData")
+
+        # Validate Data.
+        if len(self.poseList) == 0  : raise Exception("Unsuccessful poseList Query @ setSessionData")
+        if len(_sessionId_res) == 0 : raise Exception("Unsuccessful sessionId Query @ setSessionData")
+        self.sessionId = _sessionId_res[0]
         self.maxPoseSteps = len(self.poseList)
+
+        self.isSessionSet = True
         self._setNextPose()
 
 
     ## Gets the latest frame data in the queue
     def getFrame(self) -> bytes:
-        try: return self.currentFrame
+        try: return self.current_Frame
         except: return None
 
         
@@ -104,9 +106,7 @@ class Landmarker:
         
         # Create a new row in the session table
         self.db = db()
-        self.db.runInsert(f""" 
-            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
-        """)
+        self.db.runInsert(f"INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});")
         
         # Start video capture
         self.feed = cv.VideoCapture(self.deviceId)
@@ -144,8 +144,9 @@ class Landmarker:
 
             self.stop_time = time.time()
             if (self.stop_time-self.start_time) >= 2:
-                self.start_time = time.time()
                 self._recScores()
+                self._stop_or_next()
+                self.start_time = time.time()
 
         self.feed.release()
         landmarker.close()
@@ -177,7 +178,7 @@ class Landmarker:
             print(e, file=sys.stderr)
             nextLandmarks = self._last_landmarks
         
-        # # Use cv2 to draw the landmarks into the frame taken from the queue
+        # Use cv2 to draw the landmarks into the frame taken from the queue
         cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
 
         if not self.noCV or self.isRecording:
@@ -186,36 +187,34 @@ class Landmarker:
                     cvimg, 
                     (self.frameWidth, self.frameHeight),
                     nextLandmarks, 
-                    self.currentPoseTargets
+                    self.current_poseTargets
                     )
             except Exception as e:
                 print("Error Drawing Landmarks:", e, file=sys.stderr)
 
-        # # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
+        # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
         try:
             _, data = cv.imencode('.jpeg', cvimg)
             data_bytes = data.tobytes()
-            self.currentFrame = data_bytes
+            self.current_Frame = data_bytes
             self._currentFrame = cvimg
         except Exception as e:
             print(e, file=sys.stderr)
 
-        # # Run every 300ms
+        # Run every 300ms
         if timestamp_ms % 20 != 0: return
         if not self.isSessionSet: return
-        try:
-            scoreQuery = formatResult(self.sessionId, scores, timestamp_ms)
-            if scoreQuery != "": self.query = scoreQuery
-        except Exception as e:
-            print("Err @ _on_detect() -> formatResult()", e, file=sys.stderr)
+        scoreQuery = formatResult(self.sessionId, scores, self.current_poseStep)
+        if scoreQuery != "": self.query = scoreQuery
 
-
+    # Get the next pose in the pose list and set the state variables as needed
     def _setNextPose(self):
         nextPose = self.poseList.pop(0)
-        self.currentPoseStep += 1
-        self.currentPoseId = nextPose[0]
-        self.poseDuration = nextPose[12]
-        self.currentPoseTargets = {
+        self.time_in_step = 0.0
+        self.current_poseStep += 1
+        self.current_poseId = nextPose[0]
+        self.current_poseDuration = nextPose[12]
+        self.current_poseTargets = {
             "left-elbow": nextPose[4], 
             "right-elbow": nextPose[5], 
             "left-shoulder": nextPose[8], 
@@ -225,16 +224,21 @@ class Landmarker:
             "left-knee": nextPose[6], 
             "right-knee": nextPose[7]
         }
-        print(f"\nNext Pose Step: {self.currentPoseStep}", file=sys.stderr)
+        print(f"Pose Step is now: {self.current_poseStep}", file=sys.stderr, end='\r\n')
 
+    # Insert scores into database every x seconds.
     def _recScores(self):
         if len(self.query) != 0:
             self.db.runInsert(self.query)
             self.query = ""
 
-        if self.currentPoseStep < self.maxPoseSteps:
-            self._setNextPose()
-        else:
-            self.isRecording = False
+    # Set next pose data / stop recording after the pose duration has elapsed
+    def _stop_or_next(self):
+        self.time_in_step += (self.stop_time-self.start_time)
+        if self.time_in_step > self.current_poseDuration: 
+            if self.current_poseStep < self.maxPoseSteps:
+                self._setNextPose()
+            else:
+                self.isRecording = False
 
 #endregion

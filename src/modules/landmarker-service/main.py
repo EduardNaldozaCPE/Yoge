@@ -34,7 +34,7 @@ def main():
             lenOnly,
             imshow
         ) = parseArgs()
-    except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id> -session=<id>", file=sys.stderr)
+    except IndexError as e: print("Please enter valid arguments for: -user=<id> -sequence=<id>", file=sys.stderr)
 
     # 2. Initialise the pose estimation service and set the session data
     try:

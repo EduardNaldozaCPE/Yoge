@@ -15,14 +15,14 @@ JOINT_IDS = {
 }
 
 # Format angle score to an insert query
-def formatResult(sessionId, scores, timestamp) -> str:
+def formatResult(sessionId, scores, step) -> str:
     # print(f"Recording Score @ {timestamp}", file=sys.stderr)
     try:
         return f"""
-            INSERT INTO score (sessionId, timestmp, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
+            INSERT INTO score (sessionId, step, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
                 (
                 {sessionId},
-                {timestamp}, 
+                {step}, 
                 {scores["left-elbow"]}, 
                 {scores["right-elbow"]}, 
                 {scores["left-knee"]}, 
@@ -91,8 +91,8 @@ def drawLandmarks(
 
     next_frame = cv.putText(
         cv_frame, str(targets),
-        ( 10, 10 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
-        ( 200, 200, 0 ), 1, cv.LINE_AA, False)
+        ( 10, 10 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
+        ( 150, 30, 0 ), 1, cv.LINE_AA, False)
 
     return (scores, next_frame)
 
