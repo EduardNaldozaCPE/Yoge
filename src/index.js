@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { parse } = require('csv-parse/sync');
 const { spawn } = require("child_process");
 const { cwd } = require('process');
 const path = require('node:path');
@@ -32,8 +33,36 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   mainWindow.setMenu(null);
 
+
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
+
+  // Command Queue IPC
+  const cmdQueue_path = path.join(cwd(), "resources/cmdQueue.csv");
+
+  var lastCmdId = 0;
+  function _onFileChange(ev) {
+    if (ev == "change"){
+      const cmdString = fs.readFileSync(cmdQueue_path,options={encoding: "utf8", flag: 'r'});
+      const cmdLines = cmdString.toString()
+      var cmds = parse(cmdLines, { delimiter: ",", skip_empty_lines:true});
+      for (let i=0; i<cmds.length; i++) {
+        console.log("FROM: " ,cmds[i][0]);
+        console.log("ID: " ,cmds[i][1]);
+        console.log("COMMAND: " ,cmds[i][2]);
+        console.log('\n');
+        fs.writeFileSync(cmdQueue_path, "")
+      }
+    }
+
+  fs.watch(cmdQueue_path, (ev, filename)=>{
+    if (filename) {
+      _onFileChange(ev);
+    } else {
+      console.log('filename not provided');
+    }
+  });
+
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.on("run-landmarker", (_, device, noCV) => {
@@ -128,6 +157,8 @@ const createWindow = () => {
 
   // Minimizes the window.
   ipcMain.on("window-minimize", ()=>mainWindow.minimize());
+
+
 };
 
 

@@ -74,18 +74,19 @@ def main():
                 # Convert the buffer to base64 and Wrap it
                 b64img = b64.b64encode(frameBuffer)
 
-            except Exception as e: 
+            except Exception as e:
                 # print(e, file=sys.stderr)
                 b64img = last_b64img
 
             # Print the frame to stdout
             try:
-                if lenOnly:
-                    print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout, end='\r')
-                else:
-                    print(b64img, file=sys.stdout, end="")
-                last_b64img = b64img
-                if (errCounter != 0): errCounter = 0
+                if len(b64img) > 0:
+                    if lenOnly:
+                        print(f"BUFFER: {len(b64img)} bytes", file=sys.stdout, end='\r')
+                    else:
+                        print(b64img, file=sys.stdout, end="")
+                    last_b64img = b64img
+                    if (errCounter != 0): errCounter = 0
             except Exception as e:
                 print(e, file=sys.stderr)
                 if (errCounter > 10): break
