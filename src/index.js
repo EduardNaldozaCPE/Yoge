@@ -38,9 +38,8 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools();
 
   // Command Queue IPC
-  const cmdQueue_path = path.join(cwd(), "resources/cmdQueue.csv");
+  const cmdQueue_path = path.join(cwd(), "resources/ipc/cmdQueue.csv");
 
-  var lastCmdId = 0;
   function _onFileChange(ev) {
     if (ev == "change"){
       const cmdString = fs.readFileSync(cmdQueue_path,options={encoding: "utf8", flag: 'r'});
@@ -54,6 +53,7 @@ const createWindow = () => {
         fs.writeFileSync(cmdQueue_path, "")
       }
     }
+  }
 
   fs.watch(cmdQueue_path, (ev, filename)=>{
     if (filename) {

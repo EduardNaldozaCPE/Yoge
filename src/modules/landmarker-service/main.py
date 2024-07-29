@@ -1,8 +1,32 @@
-import os
-import sys, json, threading
+import os, sys, json, threading, csv
 import base64 as b64
 
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from landmarker import Landmarker
+
+IPC_CMD_DIR = os.path.join(os.getcwd(),'resources','ipc')
+IPC_CMD_PATH = os.path.join(IPC_CMD_DIR,'cmdqueue.csv')
+ipcQueue = []
+
+class _ipc_handler(FileSystemEventHandler):
+    def _is_in_list(self, list1, list2) -> bool:
+        for value in list1:
+            if list2[1] == value[1]: return True
+        return False
+    
+    # Append new commands to ipcQueue every file update
+    def on_modified(self, event: FileSystemEvent) -> None:
+        with open(IPC_CMD_PATH, 'r') as cmdfile:
+            try:
+                reader = csv.reader(cmdfile, delimiter=',', lineterminator='\n')
+                for row in reader:
+                    if row[0] != "NODE": continue
+                    if self._is_in_list(ipcQueue, row): break
+                    ipcQueue.append(row)
+            except Exception as e:
+                print("Error found in _ipc_handler:", e, file=sys.stderr)
+            
 
 def parseArgs() -> tuple:
     lenOnly = False
@@ -49,6 +73,12 @@ def main():
     except Exception as e:
         print("Error setting session data:", e, file=sys.stderr)
         return
+    
+    # 2a. Initialise the watchdog Observer to check for file changes in resources/ipc
+    observer = Observer()
+    handler = _ipc_handler()
+    observer.schedule(handler, IPC_CMD_DIR, recursive=True)
+    observer.start()
 
     # 3. Start a new thread for the video capture loop.
     try:
@@ -67,6 +97,20 @@ def main():
         while isRunning:
             if poseService.flagExit: 
                 break
+            
+            # Handle IPC Commands
+            if len(ipcQueue) > 0:
+                lastCmd = ipcQueue.pop()
+                match lastCmd[2]:
+                    case "START":
+                        poseService.startRec()
+                        print("START REC",file=sys.stderr)
+                    case "PAUSE":
+                        poseService.stopRec()
+                        print("PAUSE REC",file=sys.stderr)
+                    case _:
+                        print("IPC COMMAND DOES NOT EXIST",file=sys.stderr)
+
             try:
                 # Take current frame from poseService object state
                 frameBuffer = poseService.getFrame()
@@ -97,7 +141,9 @@ def main():
     except KeyboardInterrupt: print("KeyboardInterrupt. Exiting.", file=sys.stderr)
     except Exception as e: print(f"Error: {e}", file=sys.stderr)
     finally:
+        observer.stop()
         poseService.stopVideo()
+        observer.join()
         video_thread.join()
         
     if poseService.flagExit: 

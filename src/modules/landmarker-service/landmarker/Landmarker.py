@@ -22,6 +22,7 @@ class Landmarker:
         # State
         self.stop_time = time.time()
         self.start_time = time.time()
+        self.time_in_pause = 0.0
         self.time_in_step = 0.0
         self.running = False
         self.isSessionSet = False
@@ -92,6 +93,11 @@ class Landmarker:
         try: return self.current_Frame
         except: return None
 
+    def startRec(self):
+        self.isRecording = True
+
+    def stopRec(self):
+        self.isRecording = False
         
     ## Stops the video feed loop in runVideo().
     def stopVideo(self):
@@ -110,7 +116,6 @@ class Landmarker:
         
         # Start video capture
         self.feed = cv.VideoCapture(self.deviceId)
-        self.isRecording = True
         self.running = True
         
         # Read the current frame in the live video, detect asynchronously
@@ -140,8 +145,14 @@ class Landmarker:
                     print(e, file=sys.stderr)
 
             # Record scores every 2 seconds.
-            if not self.isRecording: continue
+            if not self.isRecording: 
+                self.time_in_pause = time.time()
+                continue
 
+            if self.time_in_pause > 0.0:
+                self.start_time += (self.time_in_pause - self.start_time)
+                self.time_in_pause = 0.0
+            
             self.stop_time = time.time()
             if (self.stop_time-self.start_time) >= 2:
                 self._recScores()
