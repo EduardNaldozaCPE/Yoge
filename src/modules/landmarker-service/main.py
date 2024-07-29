@@ -6,24 +6,18 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from landmarker import Landmarker
 
 IPC_CMD_DIR = os.path.join(os.getcwd(),'resources','ipc')
-IPC_CMD_PATH = os.path.join(IPC_CMD_DIR,'cmdqueue.csv')
+IPC_CMD_PATH = os.path.join(IPC_CMD_DIR,'to_landmarker.csv')
 ipcQueue = []
 
-class _ipc_handler(FileSystemEventHandler):
-    def _is_in_list(self, list1, list2) -> bool:
-        for value in list1:
-            if list2[1] == value[1]: return True
-        return False
-    
-    # Append new commands to ipcQueue every file update
+class _ipc_handler(FileSystemEventHandler):    
+    # Append latest command to ipcQueue every file update
     def on_modified(self, event: FileSystemEvent) -> None:
         with open(IPC_CMD_PATH, 'r') as cmdfile:
-            try:
-                reader = csv.reader(cmdfile, delimiter=',', lineterminator='\n')
-                for row in reader:
-                    if row[0] != "NODE": continue
-                    if self._is_in_list(ipcQueue, row): break
-                    ipcQueue.append(row)
+            try:    
+                last_line = cmdfile.readlines()[-1]
+                cmd = last_line.split(',')
+                final_cmd = [int(cmd[0]), cmd[1].rstrip('\n')]
+                ipcQueue.append(final_cmd)
             except Exception as e:
                 print("Error found in _ipc_handler:", e, file=sys.stderr)
             
@@ -101,12 +95,12 @@ def main():
             # Handle IPC Commands
             if len(ipcQueue) > 0:
                 lastCmd = ipcQueue.pop()
-                match lastCmd[2]:
+                match lastCmd[1]:
                     case "START":
                         poseService.startRec()
                         print("START REC",file=sys.stderr)
                     case "PAUSE":
-                        poseService.stopRec()
+                        poseService.stopRec() 
                         print("PAUSE REC",file=sys.stderr)
                     case _:
                         print("IPC COMMAND DOES NOT EXIST",file=sys.stderr)
