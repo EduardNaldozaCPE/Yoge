@@ -2,6 +2,7 @@ const liveFeed = document.getElementById('live-feed');
 const camSwitchBtn = document.getElementById('live-camswitch');
 let currentDevice = 0;
 let showFeed = false;
+let isPlaying = false;
 
 // Run the landmarker, enable restart, and handle connection statuses
 landmarkerAPI.run(device=currentDevice);
@@ -48,4 +49,13 @@ function switchCamera() {
 function returnToDashboard() {
     landmarkerAPI.stop();
     electronWindow.transitionTo('../dashboard/index.html?page=dashboard');
+}
+
+function togglePlay() {
+    if (isPlaying){
+        landmarkerAPI.pause();
+    } else {
+        landmarkerAPI.play();
+    }
+    isPlaying = !isPlaying
 }

@@ -203,6 +203,12 @@ class Landmarker:
             except Exception as e:
                 print("Error Drawing Landmarks:", e, file=sys.stderr)
 
+        debug_isRecStr = "RECORDING" if self.isRecording else "NOT RECORDING"  
+        cvimg = cv.putText(
+            cvimg, debug_isRecStr,
+            ( 10, 120 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
+            ( 150, 30, 0 ), 1, cv.LINE_AA, False)
+        
         # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
         try:
             _, data = cv.imencode('.jpeg', cvimg)

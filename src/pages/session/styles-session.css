@@ -94,6 +94,7 @@
 }
 
 #control-widget {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -102,6 +103,8 @@
     justify-content: space-between;
     padding: 20px 25px;
     border-radius: 20px;
+    rotate: 0deg;
+    transition: rotate 0.3s ease, transform 0.2s ease, box-shadow 0.4s ease;
     background: radial-gradient(
         circle at left top, 
         #8CDC0A16 0%, 
@@ -116,6 +119,11 @@
         font-size: 20px;
         font-weight: bold;
     }
+}
+#control-widget:hover {
+    rotate: 0.8deg;
+    transform: scale(1.02,1.02);
+    box-shadow: inset #aaa5 0px 0px 10px;
 }
 
 #pause-btn {

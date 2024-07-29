@@ -38,7 +38,7 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools();
 
   // Command Queue IPC
-  const cmdQueue_path = path.join(cwd(), "resources/ipc/cmdQueue.csv");
+  const cmdQueue_path = path.join(cwd(), "resources/ipc/to_landmarker.csv");
 
   function _onFileChange(ev) {
     if (ev == "change"){
@@ -55,13 +55,17 @@ const createWindow = () => {
     }
   }
 
-  fs.watch(cmdQueue_path, (ev, filename)=>{
-    if (filename) {
-      _onFileChange(ev);
-    } else {
-      console.log('filename not provided');
-    }
-  });
+  function _add_ipc_command(command) {
+    fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`)
+  }
+
+  // fs.watch(cmdQueue_path, (ev, filename)=>{
+  //   if (filename) {
+  //     _onFileChange(ev);
+  //   } else {
+  //     console.log('filename not provided');
+  //   }
+  // });
 
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
@@ -138,6 +142,14 @@ const createWindow = () => {
     }
     console.log("Landmarker is dead. Running a new one...");
     mainWindow.webContents.send('recall-landmarker', device, noCV)
+  });
+
+  ipcMain.on("cmd-start", ()=>{
+    _add_ipc_command("START");
+  });
+
+  ipcMain.on("cmd-pause", ()=>{
+    _add_ipc_command("PAUSE");
   });
 
   // kills the landmarker child process and closes the window.

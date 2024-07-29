@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     restart: (device=0, noCV=false) => ipcRenderer.send('restart-landmarker', device, noCV),
     stop: () => ipcRenderer.send('stop-landmarker'),
 
+    play: () => ipcRenderer.send('cmd-start'),
+    pause: () => ipcRenderer.send('cmd-pause'),
+
     // Callbacks 
     onFrame: (callback) => {ipcRenderer.on('current-frame', (_, imgStr)=> callback(imgStr))},
     onStatus: (successCallback, failCallback) => {ipcRenderer.on('landmarker-status', (_, status)=>{
