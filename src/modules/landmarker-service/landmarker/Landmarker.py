@@ -16,14 +16,20 @@ class Landmarker:
         self.sessionId = None
         self.deviceId = None
         self.noCV = False
+
         # Options
         self.frameWidth = options["width"]
         self.frameHeight = options["height"]
-        # State
-        self.stop_time = time.time()
+
+        # Timing
+        self.stop_time  = time.time()
         self.start_time = time.time()
         self.time_in_pause = 0.0
-        self.time_in_step = 0.0
+        self.time_in_step  = 0.0
+
+        # State
+        self._current_frame_cv  = None
+        self._current_frame  = None
         self.running = False
         self.isSessionSet = False
         self.flagExit = False
@@ -43,10 +49,8 @@ class Landmarker:
             "right-hip": 180, 
             "left-knee": 180, 
             "right-knee": 180
-        }   
-        # Queues
-        self._currentFrame  = None
-        self.current_Frame   = None
+        }
+        
         # MediaPipe Pose Landmarker Options
         self.BaseOptions            = mp.tasks.BaseOptions
         self.PoseLandmarker         = mp.tasks.vision.PoseLandmarker
@@ -90,15 +94,18 @@ class Landmarker:
 
     ## Gets the latest frame data in the queue
     def getFrame(self) -> bytes:
-        try: return self.current_Frame
+        try: return self._current_frame
         except: return None
+
 
     def startRec(self):
         self.isRecording = True
 
+
     def stopRec(self):
         self.isRecording = False
         
+
     ## Stops the video feed loop in runVideo().
     def stopVideo(self):
         self.running = False
@@ -137,14 +144,14 @@ class Landmarker:
             # DEBUG (-imshow)
             if self.imshow:
                 try:
-                    cv.imshow("debug_imshow", self._currentFrame)
+                    cv.imshow("debug_imshow", self._current_frame_cv)
                     if cv.waitKey(1) & 0xFF == ord('q'):
                         self.feed.release()
                         cv.destroyAllWindows()
                 except Exception as e:
                     print(e, file=sys.stderr)
 
-            # Record scores every 2 seconds.
+            # Record scores every 2 seconds & account for paused time. 
             if not self.isRecording: 
                 self.time_in_pause = time.time()
                 continue
@@ -162,8 +169,8 @@ class Landmarker:
         self.feed.release()
         landmarker.close()
         self.flagExit = True
-#endregion
 
+#endregion
 #region   ----- Private Methods -----
  
     ## Handle Async image detect
@@ -178,16 +185,14 @@ class Landmarker:
                 "right-hip"      : result.pose_landmarks[0][24],
                 "left-knee"      : result.pose_landmarks[0][25],
                 "right-knee"     : result.pose_landmarks[0][26],
-                # Only for calculations
+                # Only for angle calculation
                 "left-wrist"    : result.pose_landmarks[0][15],
                 "right-wrist"   : result.pose_landmarks[0][16],
                 "left-ankle"    : result.pose_landmarks[0][27],
                 "right-ankle"   : result.pose_landmarks[0][28]
             }
             self._last_landmarks = nextLandmarks
-        except Exception as e:
-            print(e, file=sys.stderr)
-            nextLandmarks = self._last_landmarks
+        except Exception as e: nextLandmarks = self._last_landmarks
         
         # Use cv2 to draw the landmarks into the frame taken from the queue
         cvimg = cv.cvtColor(output_image.numpy_view(), cv.COLOR_BGR2RGB)
@@ -213,8 +218,8 @@ class Landmarker:
         try:
             _, data = cv.imencode('.jpeg', cvimg)
             data_bytes = data.tobytes()
-            self.current_Frame = data_bytes
-            self._currentFrame = cvimg
+            self._current_frame = data_bytes
+            self._current_frame_cv = cvimg
         except Exception as e:
             print(e, file=sys.stderr)
 
@@ -223,6 +228,7 @@ class Landmarker:
         if not self.isSessionSet: return
         scoreQuery = formatResult(self.sessionId, scores, self.current_poseStep)
         if scoreQuery != "": self.query = scoreQuery
+
 
     # Get the next pose in the pose list and set the state variables as needed
     def _setNextPose(self):
@@ -252,7 +258,7 @@ class Landmarker:
     # Set next pose data / stop recording after the pose duration has elapsed
     def _stop_or_next(self):
         self.time_in_step += (self.stop_time-self.start_time)
-        if self.time_in_step > self.current_poseDuration: 
+        if self.time_in_step > self.current_poseDuration:
             if self.current_poseStep < self.maxPoseSteps:
                 self._setNextPose()
             else:

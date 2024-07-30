@@ -10,6 +10,9 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     play: () => ipcRenderer.send('cmd-start'),
     pause: () => ipcRenderer.send('cmd-pause'),
 
+    getScore: () => ipcRenderer.send('get-score'),
+    onScore: (data) => ipcRenderer.on('on-score', data),
+
     // Callbacks 
     onFrame: (callback) => {ipcRenderer.on('current-frame', (_, imgStr)=> callback(imgStr))},
     onStatus: (successCallback, failCallback) => {ipcRenderer.on('landmarker-status', (_, status)=>{

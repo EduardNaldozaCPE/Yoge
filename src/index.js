@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { parse } = require('csv-parse/sync');
+// const { parse } = require('csv-parse/sync');
+const sqlite3 = require("sqlite3").verbose();
 const { spawn } = require("child_process");
 const { cwd } = require('process');
 const path = require('node:path');
@@ -14,6 +15,24 @@ var landmarkerPath = path.join( cwd(), 'resources/landmarker-config.json' );
 var landmarkerConfig = JSON.parse( fs.readFileSync(landmarkerPath, 'utf8') );
 const spawncommand = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1'] : ['-user=0', '-sequence=1'];
+
+const db = new sqlite3.Database(landmarkerConfig.DB_PATH);
+
+function _get_latest_score(callback) {
+  db.get(
+    "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
+    (err, row)=>{
+      let d = undefined
+      if (err) {
+        console.log(err);
+      } else {
+        d = row;
+        console.log("get-score SUCCESS: " + typeof(row) + " " + row);
+      }
+      callback(d)
+    }
+    );
+}
 
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
@@ -35,29 +54,25 @@ const createWindow = () => {
 
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   // Command Queue IPC
   const cmdQueue_path = path.join(cwd(), "resources/ipc/to_landmarker.csv");
 
-  function _onFileChange(ev) {
-    if (ev == "change"){
-      const cmdString = fs.readFileSync(cmdQueue_path,options={encoding: "utf8", flag: 'r'});
-      const cmdLines = cmdString.toString()
-      var cmds = parse(cmdLines, { delimiter: ",", skip_empty_lines:true});
-      for (let i=0; i<cmds.length; i++) {
-        console.log("FROM: " ,cmds[i][0]);
-        console.log("ID: " ,cmds[i][1]);
-        console.log("COMMAND: " ,cmds[i][2]);
-        console.log('\n');
-        fs.writeFileSync(cmdQueue_path, "")
-      }
-    }
-  }
-
-  function _add_ipc_command(command) {
-    fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`)
-  }
+  // function _onFileChange(ev) {
+  //   if (ev == "change"){
+  //     const cmdString = fs.readFileSync(cmdQueue_path,options={encoding: "utf8", flag: 'r'});
+  //     const cmdLines = cmdString.toString()
+  //     var cmds = parse(cmdLines, { delimiter: ",", skip_empty_lines:true});
+  //     for (let i=0; i<cmds.length; i++) {
+  //       console.log("FROM: " ,cmds[i][0]);
+  //       console.log("ID: " ,cmds[i][1]);
+  //       console.log("COMMAND: " ,cmds[i][2]);
+  //       console.log('\n');
+  //       fs.writeFileSync(cmdQueue_path, "")
+  //     }
+  //   }
+  // }
 
   // fs.watch(cmdQueue_path, (ev, filename)=>{
   //   if (filename) {
@@ -66,6 +81,10 @@ const createWindow = () => {
   //     console.log('filename not provided');
   //   }
   // });
+
+  function _add_ipc_command(command) {
+    fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
+  }
 
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
@@ -170,6 +189,11 @@ const createWindow = () => {
   // Minimizes the window.
   ipcMain.on("window-minimize", ()=>mainWindow.minimize());
 
+  ipcMain.on("get-score", (ev)=>{
+    _get_latest_score((d)=>{
+      ev.sender.send('on-score', d);
+    });
+  });
 
 };
 

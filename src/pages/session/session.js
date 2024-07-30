@@ -34,6 +34,10 @@ landmarkerAPI.onFrame((imgStr)=>{
     liveFeed.src = imgStr;
 });
 
+landmarkerAPI.onScore((ev, data) => {
+    console.log(data);
+});
+
 /**
  * Restart the landmarker process. Wait for new landmarker via OnStatus()  
  */

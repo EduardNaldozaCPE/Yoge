@@ -32,6 +32,7 @@
     "csv": "^6.3.10",
     "electron-squirrel-startup": "^1.0.1",
     "net": "^1.0.2",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "sqlite3": "^5.1.7"
   }
 }
