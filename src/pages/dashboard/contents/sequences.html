@@ -5,7 +5,7 @@
             <p class="colour-accent">Let's get started!</p>
         </div>
         <div id="sequence-list">
-            <button class="sequence-card" sequence="general-fitness" onclick="updateSelect(this)">
+            <button class="sequence-card" sequenceId="1" sequence="general-fitness" onclick="updateSelect(this)">
                 <img src="../../media/guides/1_02_UpwardSolute.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">General Fitness Sequence (Sun Salutation A)</p>
@@ -13,7 +13,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </button>
-            <button class="sequence-card" sequence="core-strength" onclick="updateSelect(this)">
+            <button class="sequence-card" sequenceId="2" sequence="core-strength" onclick="updateSelect(this)">
                 <img src="../../media/guides/4_07_IntenseLegStretchPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Core Strength Sequence</p>
@@ -21,7 +21,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </button>
-            <button class="sequence-card" sequence="weight-loss" onclick="updateSelect(this)">
+            <button class="sequence-card" sequenceId="3" sequence="weight-loss" onclick="updateSelect(this)">
                 <img src="../../media/guides/2_16_BoatPose.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Weight Loss Sequence</p>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="proficiency-indicator" proficiency="intermediate"></div>
             </button>
-            <button class="sequence-card" sequence="flexibility" onclick="updateSelect(this)">
+            <button class="sequence-card" sequenceId="4" sequence="flexibility" onclick="updateSelect(this)">
                 <img src="../../media/guides/3_07_EasyPoseVariationSideBend.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">Flexibility Sequence</p>
@@ -42,25 +42,25 @@
     <hr>
     <div id="menu-seq-info">
         <div id="info-header">
-            <h3>General Fitness Sequence (Sun Salutation A)</h3>
-            <p class="colour-accent">12 Poses (See Guide Videos)</p>
-            <div class="proficiency-indicator" proficiency="beginner"></div>
+            <h3 id="info-header-title">General Fitness Sequence (Sun Salutation A)</h3>
+            <p id="info-header-posenum" class="colour-accent">12 Poses (See Guide Videos)</p>
+            <div id="info-header-proficiency" class="proficiency-indicator" proficiency="beginner"></div>
         </div>
         <div id="info-recommendations">
             <div class="stat-title">
                 <img src="../../media/titleblock.svg">
                 <p>Recommendations</p>
             </div>
-            <p>Tag 1, Tag 2, Tag 3</p>
+            <p id="info-recommendations-text">Tag 1, Tag 2, Tag 3</p>
         </div>
         <div id="info-latest-best">
             <div id="latest-score">
                 <p>Latest Score</p>
-                <h3>61</h3>
+                <h3 id="info-latest-score">--</h3>
             </div>
             <div id="best-score">
                 <p>Best Score</p>
-                <h3>80</h3>
+                <h3 id="info-best-score">--</h3>
             </div>
         </div>
         <div id="info-scores">
@@ -79,55 +79,11 @@
                     <tbody>
                       <tr>
                         <td>pose-name</td>
-                        <td>82.23%</td>
+                        <td>--</td>
                       </tr>
                       <tr alt="true">
                         <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>93.29%</td>
-                      </tr>
-                      <tr alt="true">
-                        <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>93.29%</td>
-                      </tr>
-                      <tr alt="true">
-                        <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>82.23%</td>
-                      </tr>
-                      <tr alt="true">
-                        <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>93.29%</td>
-                      </tr>
-                      <tr alt="true">
-                        <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>93.29%</td>
-                      </tr>
-                      <tr alt="true">
-                        <td>pose-name</td>
-                        <td>74.28%</td>
-                      </tr>
-                      <tr>
-                        <td>pose-name</td>
-                        <td>93.29%</td>
+                        <td>--</td>
                       </tr>
                     </tbody>
                 </table>
@@ -138,7 +94,7 @@
 </div>
 <script>
     // Select the sequence card in URL parameters on load
-    _updateSequenceCards()
+    _updateSequenceCards();
 
     // Include text for proficiency indicator
     $(".proficiency-indicator").each((i,e)=>{
@@ -151,7 +107,8 @@
     */
     function updateSelect(elem) {
         params.set("sequence", $(elem).attr("sequence"));
-        _updateSequenceCards()
+        landmarkerAPI.getSequenceData($(elem).attr("sequenceId"));
+        _updateSequenceCards();
     }
 
     /** 
@@ -168,4 +125,12 @@
             }
         });
     }
+
+    landmarkerAPI.onSequenceData((data)=>{
+      console.log(data);
+      $("#info-header-title").text(data.sequenceName);
+      $("#info-header-posenum").text(`${data.sequenceName} Poses`);
+      $("#info-header-proficiency").attr("proficiency", data.difficulty.toLowerCase()).text(data.difficulty);
+      $("info-recommendations-text").text(data.tags)
+    });
 </script>

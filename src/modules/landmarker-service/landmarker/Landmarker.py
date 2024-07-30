@@ -247,7 +247,7 @@ class Landmarker:
             "left-knee": nextPose[6], 
             "right-knee": nextPose[7]
         }
-        print(f"Pose Step is now: {self.current_poseStep}", file=sys.stderr, end='\r\n')
+        print(f"NPOSE={self.current_poseStep}", file=sys.stderr, end='\r\n')
 
     # Insert scores into database every x seconds.
     def _recScores(self):

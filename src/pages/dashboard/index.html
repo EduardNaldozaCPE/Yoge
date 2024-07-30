@@ -38,6 +38,7 @@
         </section>
         <script src="../../modules/jquery-3.7.1.min.js"></script>
         <script>
+            sessionStorage.setItem('userId', 0); 
             // Include title bar and body via JQuery
             let params = new URLSearchParams(location.search);
             $(document).ready(()=>$('#app-title-bar').load('../../shared/apptitlebar.html'));
@@ -63,7 +64,8 @@
                 updateNavBtns();
             });
 
-            function moveToSession() { 
+            function moveToSession(userId, sequenceId) {
+                sessionStorage.setItem('sequenceId', sequenceId);
                 location.href = "../session/index.html";
             }
 

@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron/renderer')
 contextBridge.exposeInMainWorld('landmarkerAPI', {
 
     // Functions
-    run: (device=0, noCV=false) => {ipcRenderer.send('run-landmarker', device, noCV)},
+    run: (userId, sequenceId, device=0, noCV=false) => {ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV)},
     restart: (device=0, noCV=false) => ipcRenderer.send('restart-landmarker', device, noCV),
     stop: () => ipcRenderer.send('stop-landmarker'),
 
@@ -11,7 +11,15 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     pause: () => ipcRenderer.send('cmd-pause'),
 
     getScore: () => ipcRenderer.send('get-score'),
-    onScore: (data) => ipcRenderer.on('on-score', data),
+    onScore: (callback) => ipcRenderer.on('on-score', (ev, data)=>{callback(data)}),
+
+    getPoses: (sequenceId) => ipcRenderer.send('get-poses', sequenceId),
+    onPoses: (callback) => ipcRenderer.on('on-poses', (ev, data)=>{callback(data)}),
+
+    getSequenceData: (sequenceId) => ipcRenderer.send('get-sequence-data', sequenceId),
+    onSequenceData: (callback) => ipcRenderer.on('on-sequence-data', (ev, data)=>{callback(data)}),
+
+    onNextPose: (callback) => ipcRenderer.on('next-pose', ()=>{callback()}),
 
     // Callbacks 
     onFrame: (callback) => {ipcRenderer.on('current-frame', (_, imgStr)=> callback(imgStr))},

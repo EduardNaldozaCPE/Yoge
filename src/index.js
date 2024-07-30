@@ -14,25 +14,9 @@ const DEBUG = true;
 var landmarkerPath = path.join( cwd(), 'resources/landmarker-config.json' );
 var landmarkerConfig = JSON.parse( fs.readFileSync(landmarkerPath, 'utf8') );
 const spawncommand = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
-const spawnargs = DEBUG? ['src/modules/landmarker-service/main.py', '-user=0', '-sequence=1'] : ['-user=0', '-sequence=1'];
+const spawnargs = DEBUG? ['src/modules/landmarker-service/main.py'] : [];
 
 const db = new sqlite3.Database(landmarkerConfig.DB_PATH);
-
-function _get_latest_score(callback) {
-  db.get(
-    "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
-    (err, row)=>{
-      let d = undefined
-      if (err) {
-        console.log(err);
-      } else {
-        d = row;
-        console.log("get-score SUCCESS: " + typeof(row) + " " + row);
-      }
-      callback(d)
-    }
-    );
-}
 
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
@@ -88,7 +72,7 @@ const createWindow = () => {
 
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-  ipcMain.on("run-landmarker", (_, device, noCV) => {
+  ipcMain.on("run-landmarker", (_, userId, sequenceId, device, noCV) => {
     var strBuffer;
     let spawnArgsCopy = spawnargs;
     let connection_success = false;
@@ -99,6 +83,8 @@ const createWindow = () => {
       return;
     }
 
+    spawnArgsCopy.push(`-user=${userId}`);
+    spawnArgsCopy.push(`-sequence=${sequenceId}`);
     spawnArgsCopy.push(`-device=${device}`);
     if (noCV) spawnArgsCopy.push(`-noCV`);
 
@@ -142,7 +128,14 @@ const createWindow = () => {
     });
     
     // Print stderr logs
-    landmarker.stderr.on('data', (data)=>{console.log(`${data}`)});
+    landmarker.stderr.on('data', (data)=>{
+      let prefix = data.toString().substring(0,5);
+      if (prefix == "NPOSE") {
+        mainWindow.webContents.send('next-pose');
+      } else {
+        console.log(`${data}`);
+      }
+    });
   });
 
   // Kills the landmarker child process
@@ -195,6 +188,18 @@ const createWindow = () => {
     });
   });
 
+  ipcMain.on("get-poses", (ev, sequenceId)=>{
+    _get_steps_from_sequenceId(sequenceId, (data)=>{
+      ev.sender.send('on-poses', data);
+    });
+  })
+
+  ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
+    _get_sequence_from_sequenceId(sequenceId, (data)=>{
+      ev.sender.send('on-sequence-data', data);
+    });
+  })
+
 };
 
 
@@ -213,3 +218,60 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+// region   ----- DB Functions -----
+
+var _lastScore = {
+  "scoreId":0,
+  "sessionId":0,
+  "step":0,
+  "leftElbow":0, 
+  "rightElbow":0, 
+  "leftKnee":0, 
+  "rightKnee":0, 
+  "leftShoulder":0, 
+  "rightShoulder":0, 
+  "leftHip":0, 
+  "rightHip":0
+};
+
+function _get_latest_score(callback) {
+  db.get(
+    "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
+    (err, row)=>{
+      let d = undefined
+      if (err) {
+        console.log(err);
+        d = _lastScore;
+      } else {
+        d = row;
+        _lastScore = row;
+      }
+      callback(d);
+    }
+    );
+}
+
+function _get_steps_from_session(sessionId ,callback) {
+  db.all(`SELECT * FROM session INNER JOIN pose ON session.sequenceId = pose.sequenceId WHERE session.sessionId = ${sessionId};`, (err, rows)=>{
+      if (err)
+        throw Error("Invalid Session Id in _get_steps_from_session");
+      callback(rows);
+    });
+}
+
+function _get_steps_from_sequenceId(sequenceId ,callback) {
+  db.all(`SELECT * FROM pose WHERE sequenceId = 1; = ${sequenceId};`, (err, rows)=>{
+      if (err)
+        throw Error("Invalid Session Id in _get_steps_from_session");
+      callback(rows);
+    });
+}
+
+function _get_sequence_from_sequenceId(sequenceId ,callback) {
+  db.get(`SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
+      if (err)
+        throw Error("Invalid Session Id in _get_steps_from_session");
+      callback(rows);
+    });
+}
