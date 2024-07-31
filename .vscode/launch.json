@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "src/modules/landmarker-service/main.py",
             "console": "integratedTerminal",
-            "args": "-user=0 -sequence=1 -device=0 -lenOnly"
+            "args": "-user=0 -sequence=1 -session=1000 -device=0 -lenOnly"
         },
         {
             "name": "Landmarker (DeviceID, len-only)",
@@ -18,7 +18,7 @@
             "request": "launch",
             "program": "src/modules/landmarker-service/main.py",
             "console": "integratedTerminal",
-            "args": "-user=0 -sequence=1 -device=${command:pickArgs} -lenOnly"
+            "args": "-user=0 -sequence=1 -session=1000 -device=${command:pickArgs} -lenOnly"
         },
         {
             "name": "Landmarker (DeviceID, len-only, imshow)",
@@ -26,7 +26,7 @@
             "request": "launch",
             "program": "src/modules/landmarker-service/main.py",
             "console": "integratedTerminal",
-            "args": "-user=0 -sequence=1 -device=${command:pickArgs} -lenOnly -imshow"
+            "args": "-user=0 -sequence=1 -session=1000 -device=${command:pickArgs} -lenOnly -imshow"
         },
         {
             "name": "Renderer",

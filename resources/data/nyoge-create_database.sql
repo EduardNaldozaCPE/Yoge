@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS "session" (
 	"sessionId"	INTEGER,
 	"userId"	INTEGER,
 	"sequenceId"	INTEGER NOT NULL,
-	PRIMARY KEY("sessionId" AUTOINCREMENT),
+	PRIMARY KEY("sessionId")
 	FOREIGN KEY("userId") REFERENCES "user" ON DELETE SET NULL
 );
 CREATE TABLE IF NOT EXISTS "user" (
@@ -60,8 +60,12 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"averageScore"	NUMERIC DEFAULT (0.0),
 	"bestScore"	NUMERIC DEFAULT (0.0),
 	"bestSequenceId"	INTEGER,
-	PRIMARY KEY("userId" AUTOINCREMENT)
+	PRIMARY KEY("userId")
 );
+INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (1,'General Fitness Sequence (Sun Salutation A)',12,'stretching, warm-up','Downward Dog','Beginner');
+INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (2,'Core Strength Yoga Sequence',19,'core strength, spine','Boat Pose','Intermediate');
+INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (3,'Flexibility Sequence',9,'flexibility','Easy Pose Variation Side Bend','Intermediate');
+INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (4,'Weight Loss Sequnce',8,'weight-loss, warm-up','Intense Leg Stretch Pose','Beginner');
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (1,1,1,'Prayer Pose',325.7289619,286.7764138,180,180,0,0,172.5652274,174.2249081,4,5);
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (2,1,2,'Upward Solute',189.2543928,184.6207853,180,180,0,0,169.5731042,171.8436228,4,5);
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (3,1,3,'Standing Forward Fold',207.0365057,211.1990789,180,180,0,0,330.0205866,330.0495943,8,8);
@@ -110,8 +114,4 @@ INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow"
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (46,4,6,'Extended Triangle Pose',189.3955746,146.5662653,103.6989341,177.0616076,0,0,254.7060451,107.3304162,32,13);
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (47,4,7,'Intense Leg Stretch Pose',192.4103021,166.9897658,149.0086626,167.7295229,0,0,310.5378433,183.8742604,64,13);
 INSERT INTO "pose" ("poseId","sequenceId","stepNum","poseName","targetLeftElbow","targetRightElbow","targetLeftKnee","targetRightKnee","targetLeftShoulder","targetRightShoulder","targetLeftHip","targetRightHip","duration","wght") VALUES (48,4,8,'Garland Pose',238.7597283,124.1989529,165.2294046,202.3799291,0,0,328.6305419,22.39476084,48,12);
-INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (1,'General Fitness Sequence (Sun Salutation A)',12,'stretching, warm-up','Downward Dog','Beginner');
-INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (2,'Core Strength Yoga Sequence',19,'core strength, spine','Boat Pose','Intermediate');
-INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (3,'Flexibility Sequence',9,'flexibility','Easy Pose Variation Side Bend','Intermediate');
-INSERT INTO "sequence" ("sequenceId","sequenceName","poseNum","tags","peakPose","difficulty") VALUES (4,'Weight Loss Sequnce',8,'weight-loss, warm-up','Intense Leg Stretch Pose','Beginner');
 COMMIT;

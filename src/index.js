@@ -82,15 +82,20 @@ const createWindow = () => {
       mainWindow.webContents.send('restart-landmarker', device, noCV);
       return;
     }
-
+    let sessionId = Math.floor( Date.now() );
     spawnArgsCopy.push(`-user=${userId}`);
     spawnArgsCopy.push(`-sequence=${sequenceId}`);
+    spawnArgsCopy.push(`-session=${sessionId}`);
     spawnArgsCopy.push(`-device=${device}`);
     if (noCV) spawnArgsCopy.push(`-noCV`);
 
     try {
       landmarker = spawn(spawncommand, spawnArgsCopy);
-    } catch (error) { console.log(`Encountered an error while connecting: \n${error}`); }
+    } catch (error) { 
+      console.log(`Encountered an error while connecting: \n${error}`); 
+    } finally {
+      mainWindow.webContents.send("on-session", sessionId);
+    }
 
     // Parse Data to image src string & Signal landmarker-status "SUCCESS" on the first data sent
     landmarker.stdout.on('data', (data)=>{
@@ -100,7 +105,7 @@ const createWindow = () => {
 
       mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${strBuffer}`);
 
-      if (connection_success) return
+      if (connection_success) return;
       connection_success = true;
       mainWindow.webContents.send('landmarker-status', "SUCCESS")
     });
@@ -148,11 +153,11 @@ const createWindow = () => {
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
   ipcMain.on("restart-landmarker", (_, device, noCV) => {
-    if (landmarker !== undefined) {
+    if (landmarker != undefined) {
       landmarker.kill();
       landmarker = undefined
     }
-    console.log("Landmarker is dead. Running a new one...");
+    console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
     mainWindow.webContents.send('recall-landmarker', device, noCV)
   });
 
@@ -189,6 +194,7 @@ const createWindow = () => {
   });
 
   ipcMain.on("get-poses", (ev, sequenceId)=>{
+    console.log(`RUNNING GET POSES (${sequenceId})`);
     _get_steps_from_sequenceId(sequenceId, (data)=>{
       ev.sender.send('on-poses', data);
     });
@@ -261,7 +267,7 @@ function _get_steps_from_session(sessionId ,callback) {
 }
 
 function _get_steps_from_sequenceId(sequenceId ,callback) {
-  db.all(`SELECT * FROM pose WHERE sequenceId = 1; = ${sequenceId};`, (err, rows)=>{
+  db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
       if (err)
         throw Error("Invalid Session Id in _get_steps_from_session");
       callback(rows);
@@ -271,7 +277,15 @@ function _get_steps_from_sequenceId(sequenceId ,callback) {
 function _get_sequence_from_sequenceId(sequenceId ,callback) {
   db.get(`SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
       if (err)
-        throw Error("Invalid Session Id in _get_steps_from_session");
+        throw Error("Invalid Sequence Id in _get_sequence_from_sequenceId");
+      callback(rows);
+    });
+}
+
+function _get_latest_sessionId(callback) {
+  db.get(`SELECT MAX(sessionId) FROM session;`, (err, rows)=>{
+      if (err)
+        throw Error("Error Caught _get_latest_sessionId");
       callback(rows);
     });
 }

@@ -64,7 +64,10 @@
                 updateNavBtns();
             });
 
-            function moveToSession(userId, sequenceId) {
+            /**
+             * Set the sequenceId to sessionStorage and move to session/index.html
+             */
+            function moveToSession(sequenceId) {
                 sessionStorage.setItem('sequenceId', sequenceId);
                 location.href = "../session/index.html";
             }

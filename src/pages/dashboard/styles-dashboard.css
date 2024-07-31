@@ -210,12 +210,15 @@ body {
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
 #info-header {
   display: flex;
   flex-direction: column;
   height: max-content;
+  align-self: baseline;
   gap: 8px;
   h3 {
     margin: 0px;

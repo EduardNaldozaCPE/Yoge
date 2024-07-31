@@ -1,32 +1,50 @@
 const liveFeed = document.getElementById('live-feed');
 const camSwitchBtn = document.getElementById('live-camswitch');
 const widgetScore = document.getElementById('widget-score');
-let currentDevice = 0;
-let showFeed = false;
-let isPlaying = false;
+var currentDevice = 0;
+var showFeed = false;
+var isRecording = false;
 var poseScores = [];
 var currentScore = 0.0;
 
 const userId = sessionStorage.getItem('userId');
 const sequenceId = sessionStorage.getItem('sequenceId');
-var isSessionValid = false;
 
-if (userId !== undefined || sequenceId !== undefined) {
-    isSessionValid = true;
-    console.log(userId);
-    console.log(sequenceId);
-    landmarkerAPI.run(userId, sequenceId, device=currentDevice);
+if (sequenceId == "undefined" || sequenceId == undefined) {
+    alert("Sequence Is undefined. Returning to dashboard...");
+    returnToDashboard();
+} else {
+    landmarkerAPI.run(
+        parseInt( userId ), 
+        parseInt( sequenceId ), 
+        device = currentDevice
+    );
 }
 
-if (isSessionValid) {
+landmarkerAPI.onSession((sessionId)=>{
     // Run the landmarker, enable restart, and handle connection statuses
-    landmarkerAPI.getPoses(sessionId, (data)=>{
+    console.log("SESSION ID: "+sessionId);
+    landmarkerAPI.getPoses(sequenceId);
+    landmarkerAPI.onPoses((data)=>{
         console.log(data);
+        $("#pose-table-body").html("");
+        for (let i = 0; i < data.length; i++) {
+            $("#pose-table-body").append(`
+                <tr>
+                    <td>${data[i]["poseName"]}</td>
+                    <td>--</td>
+                </tr>
+                `);
+        }
     });
 
     landmarkerAPI.enableRestart(()=>{
         console.log("Rerunning landmarker...");
     });
+
+    setInterval(() => {
+        if (isRecording) landmarkerAPI.getScore();
+    }, 1000);
 
     landmarkerAPI.onStatus(
         // Landmarker ran successfully. Show the feed.
@@ -51,10 +69,6 @@ if (isSessionValid) {
         liveFeed.src = imgStr;
     });
 
-    setInterval(() => {
-        landmarkerAPI.getScore();
-    }, 1000);
-
     landmarkerAPI.onNextPose(()=>{
         console.log('nextpose');
     });
@@ -64,19 +78,17 @@ if (isSessionValid) {
         let totalScore = 0.0;
         try {
             for (let i=0; i<joints.length; i++) {
-                console.log(data[joints[i]]);
                 totalScore += data[joints[i]];
                 totalScore = totalScore/joints.length;
             }
             widgetScore.innerText = `${totalScore.toFixed(2)}%`;
             currentScore = totalScore.toFixed(2);
         } catch (e) {
-            if (e === TypeError) return;
+            if (e instanceof TypeError) return;
             else console.log(e);
         }
     });
-
-}
+});
 
 /**
  * Restart the landmarker process. Wait for new landmarker via OnStatus()  
@@ -90,16 +102,22 @@ function switchCamera() {
     landmarkerAPI.restart(device=currentDevice);
 }
 
+/**
+ * Stops the landmarker module and move back to dashboard
+ */
 function returnToDashboard() {
     landmarkerAPI.stop();
     electronWindow.transitionTo('../dashboard/index.html?page=dashboard');
 }
 
+/**
+ * Handle Pause/Play button.
+ */
 function togglePlay() {
-    if (isPlaying){
+    if (isRecording){
         landmarkerAPI.pause();
     } else {
         landmarkerAPI.play();
     }
-    isPlaying = !isPlaying
+    isRecording = !isRecording
 }

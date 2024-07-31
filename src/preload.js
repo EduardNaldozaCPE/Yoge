@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
 
     // Functions
     run: (userId, sequenceId, device=0, noCV=false) => {ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV)},
+    onSession: (callback) => ipcRenderer.on('on-session', (ev, sessionId)=>{callback(sessionId)}),
     restart: (device=0, noCV=false) => ipcRenderer.send('restart-landmarker', device, noCV),
     stop: () => ipcRenderer.send('stop-landmarker'),
 

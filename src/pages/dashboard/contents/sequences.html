@@ -9,7 +9,7 @@
                 <img src="../../media/guides/1_02_UpwardSolute.png" alt="thumb" class="sequence-thumb">
                 <div class="sequence-card-title">
                     <p class="colour-main">General Fitness Sequence (Sun Salutation A)</p>
-                    <p class="colour-accent">Downward Dog</p>
+                    <p class="colour-accent">Peak Pose</p>
                 </div>
                 <div class="proficiency-indicator" proficiency="beginner"></div>
             </button>
@@ -39,11 +39,11 @@
             </button>
         </div>
     </div>
-    <hr>
+    <hr>    
     <div id="menu-seq-info">
         <div id="info-header">
-            <h3 id="info-header-title">General Fitness Sequence (Sun Salutation A)</h3>
-            <p id="info-header-posenum" class="colour-accent">12 Poses (See Guide Videos)</p>
+            <h3 id="info-header-title">Select a Pose Sequence</h3>
+            <p id="info-header-posenum" class="colour-accent"></p>
             <div id="info-header-proficiency" class="proficiency-indicator" proficiency="beginner"></div>
         </div>
         <div id="info-recommendations">
@@ -89,18 +89,27 @@
                 </table>
             </div>
         </div>
-        <button id="info-startbtn" onclick="moveToSession()">Start</button>
+        <button id="info-startbtn" onclick="_moveToSession()">Start</button>
     </div>
 </div>
 <script>
-    // Select the sequence card in URL parameters on load
+    // Select the sequence card in URL parameters on load.
     _updateSequenceCards();
 
-    // Include text for proficiency indicator
+    // Include text for proficiency indicator.
     $(".proficiency-indicator").each((i,e)=>{
         let proficiencyText = $(e).attr("proficiency");
         $(e).html(`<p>${proficiencyText.charAt(0).toUpperCase()}${proficiencyText.substring(1,proficiencyText.length)}</p>`);
-    })
+    });
+
+    // Show info of pre-selected sequence upon loading via sessionStorage.   
+    if (seqInfo !== undefined) var seqInfo;
+    seqInfo = JSON.parse( sessionStorage.getItem('sequence-info') );
+    if (seqInfo != null && seqInfo != "") { _updateInfoSection(seqInfo); }
+
+    // Handle getSequenceData callback.
+    landmarkerAPI.onSequenceData((_data)=>{ _updateInfoSection(_data) });
+    
 
     /** 
      * Update the "sequence" parameter, then calls _updateSequenceCards
@@ -126,11 +135,26 @@
         });
     }
 
-    landmarkerAPI.onSequenceData((data)=>{
-      console.log(data);
-      $("#info-header-title").text(data.sequenceName);
-      $("#info-header-posenum").text(`${data.sequenceName} Poses`);
-      $("#info-header-proficiency").attr("proficiency", data.difficulty.toLowerCase()).text(data.difficulty);
-      $("info-recommendations-text").text(data.tags)
-    });
+    /**
+     *  When data is ready, update the info section to show the sequence info. 
+     */
+    function _updateInfoSection(data) {
+        sessionStorage.setItem('sequence-info', JSON.stringify(data));
+        $("#menu-seq-info").css('opacity', 1);
+        $("#info-header-title").text(data.sequenceName);
+        $("#info-header-posenum").text(`${data.sequenceName} Poses`);
+        $("#info-header-proficiency")
+            .attr("proficiency", data.difficulty.toLowerCase())
+            .text(data.difficulty)
+            .attr("hidden", false);
+        $("info-recommendations-text").text(data.tags);
+    }
+
+    /**
+     * Takes the necessary info from sessionStorage before running moveToSession() in dashboard/index.html 
+     */
+    function _moveToSession() {
+        let seqInfo = JSON.parse( sessionStorage.getItem('sequence-info') );;
+        moveToSession( seqInfo['sequenceId'] );
+    }
 </script>

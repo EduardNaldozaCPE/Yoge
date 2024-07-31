@@ -65,17 +65,18 @@ class Landmarker:
 #region ----- Public Methods -----
 
     ## Records a new session in the database and updates the pose list
-    def setSessionData(self, userId=0, sequenceId=0, deviceId=0, noCV=False, imshow=False):
+    def setSessionData(self, userId, sequenceId, sessionId, deviceId=0, noCV=False, imshow=False):
         self.userId     = userId
         self.sequenceId = sequenceId
+        self.sessionId  = sessionId
         self.deviceId   = deviceId
         self.noCV       = noCV
         self.imshow     = imshow
 
         # Set Session Data in Database and Close it for the video thread to access.
         self.db = db()
-        self.db.runInsert(f""" 
-            INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});
+        self.db.runInsert(f"""
+            INSERT INTO session (sessionId, userId, sequenceId) VALUES ({self.sessionId}, {self.userId}, {self.sequenceId});
         """)
         self.poseList = self.db.runSelectAll(f"SELECT * FROM pose WHERE sequenceId={self.sequenceId};")
         _sessionId_res = self.db.runSelectOne(f"SELECT MAX(sessionId) FROM session;")
@@ -85,7 +86,6 @@ class Landmarker:
         # Validate Data.
         if len(self.poseList) == 0  : raise Exception("Unsuccessful poseList Query @ setSessionData")
         if len(_sessionId_res) == 0 : raise Exception("Unsuccessful sessionId Query @ setSessionData")
-        self.sessionId = _sessionId_res[0]
         self.maxPoseSteps = len(self.poseList)
 
         self.isSessionSet = True
@@ -119,7 +119,6 @@ class Landmarker:
         
         # Create a new row in the session table
         self.db = db()
-        self.db.runInsert(f"INSERT INTO session (userId, sequenceId) VALUES ({self.userId}, {self.sequenceId});")
         
         # Start video capture
         self.feed = cv.VideoCapture(self.deviceId)
