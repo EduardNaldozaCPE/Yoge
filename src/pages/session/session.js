@@ -16,7 +16,7 @@ if (sequenceId == "undefined" || sequenceId == undefined) {
 } else {
     landmarkerAPI.run(
         parseInt( userId ), 
-        parseInt( sequenceId ), 
+        parseInt( sequenceId ),
         device = currentDevice
     );
 }
@@ -37,57 +37,57 @@ landmarkerAPI.onSession((sessionId)=>{
                 `);
         }
     });
+});
 
-    landmarkerAPI.enableRestart(()=>{
-        console.log("Rerunning landmarker...");
-    });
+landmarkerAPI.enableRestart(userId, sequenceId, ()=>{
+    console.log("Rerunning landmarker...");
+});
 
-    setInterval(() => {
-        if (isRecording) landmarkerAPI.getScore();
-    }, 1000);
+setInterval(() => {
+    if (isRecording) landmarkerAPI.getScore();
+}, 1000);
 
-    landmarkerAPI.onStatus(
-        // Landmarker ran successfully. Show the feed.
-        successCallback = ()=>{
-            console.log("LANDMARKER RAN SUCCESSFULLY");
-            liveFeed.style.opacity = 1;
-            showFeed = true;
-            camSwitchBtn.disabled = false;
-        },
-        // Landmarker failed to run. Reset to DeviceID 0 then re-run.
-        failCallback = ()=>{
-            console.log("LANDMARKER FAILED TO RUN");
-            liveFeed.style.opacity = 0.2;
-            currentDevice = 0;
-            landmarkerAPI.restart(device=currentDevice);
-            camSwitchBtn.disabled = true;
+landmarkerAPI.onStatus(
+    // Landmarker ran successfully. Show the feed.
+    successCallback = ()=>{
+        console.log("LANDMARKER RAN SUCCESSFULLY");
+        liveFeed.style.opacity = 1;
+        showFeed = true;
+        camSwitchBtn.disabled = false;
+    },
+    // Landmarker failed to run. Reset to DeviceID 0 then re-run.
+    failCallback = ()=>{
+        console.log("LANDMARKER FAILED TO RUN");
+        liveFeed.style.opacity = 0.2;
+        currentDevice = 0;
+        landmarkerAPI.restart(device=currentDevice);
+        camSwitchBtn.disabled = true;
+    }
+);
+
+landmarkerAPI.onFrame((imgStr)=>{
+    if (!showFeed) { return } 
+    liveFeed.src = imgStr;
+});
+
+landmarkerAPI.onNextPose(()=>{
+    console.log('nextpose');
+});
+
+landmarkerAPI.onScore((data) => {
+    let joints = ["leftElbow", "rightElbow", "leftKnee", "rightKnee", "leftShoulder", "rightShoulder", "leftHip", "rightHip"];
+    let totalScore = 0.0;
+    try {
+        for (let i=0; i<joints.length; i++) {
+            totalScore += data[joints[i]];
+            totalScore = totalScore/joints.length;
         }
-    );
-
-    landmarkerAPI.onFrame((imgStr)=>{
-        if (!showFeed) { return } 
-        liveFeed.src = imgStr;
-    });
-
-    landmarkerAPI.onNextPose(()=>{
-        console.log('nextpose');
-    });
-
-    landmarkerAPI.onScore((data) => {
-        let joints = ["leftElbow", "rightElbow", "leftKnee", "rightKnee", "leftShoulder", "rightShoulder", "leftHip", "rightHip"];
-        let totalScore = 0.0;
-        try {
-            for (let i=0; i<joints.length; i++) {
-                totalScore += data[joints[i]];
-                totalScore = totalScore/joints.length;
-            }
-            widgetScore.innerText = `${totalScore.toFixed(2)}%`;
-            currentScore = totalScore.toFixed(2);
-        } catch (e) {
-            if (e instanceof TypeError) return;
-            else console.log(e);
-        }
-    });
+        widgetScore.innerText = `${totalScore.toFixed(2)}%`;
+        currentScore = totalScore.toFixed(2);
+    } catch (e) {
+        if (e instanceof TypeError) return;
+        else console.log(e);
+    }
 });
 
 /**

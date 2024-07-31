@@ -5,7 +5,8 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     // Functions
     run: (userId, sequenceId, device=0, noCV=false) => {ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV)},
     onSession: (callback) => ipcRenderer.on('on-session', (ev, sessionId)=>{callback(sessionId)}),
-    restart: (device=0, noCV=false) => ipcRenderer.send('restart-landmarker', device, noCV),
+
+    restart: (userId, sequenceId, device=0, noCV=false) => ipcRenderer.send('restart-landmarker', userId, sequenceId, device, noCV),
     stop: () => ipcRenderer.send('stop-landmarker'),
 
     play: () => ipcRenderer.send('cmd-start'),
@@ -20,9 +21,8 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     getSequenceData: (sequenceId) => ipcRenderer.send('get-sequence-data', sequenceId),
     onSequenceData: (callback) => ipcRenderer.on('on-sequence-data', (ev, data)=>{callback(data)}),
 
-    onNextPose: (callback) => ipcRenderer.on('next-pose', ()=>{callback()}),
-
     // Callbacks 
+    onNextPose: (callback) => ipcRenderer.on('next-pose', ()=>{callback()}),
     onFrame: (callback) => {ipcRenderer.on('current-frame', (_, imgStr)=> callback(imgStr))},
     onStatus: (successCallback, failCallback) => {ipcRenderer.on('landmarker-status', (_, status)=>{
         switch (status) {
@@ -32,15 +32,11 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
             default: break;
         }
     })},
-    enableRestart: (restartListener=()=>{}) => {
+    enableRestart: (userId, sequenceId, restartListener=()=>{}) => {
         ipcRenderer.on('recall-landmarker', (_, device, noCV)=>{
             restartListener()
-            ipcRenderer.send('run-landmarker', device, noCV);
+            ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV);
         });
-        ipcRenderer.on('restart-landmarker', (_, device, noCV)=>{
-            console.log("Restarted Landmarker from Main.");
-            ipcRenderer.send('restart-landmarker', device, noCV);
-        })
     },
 })
 

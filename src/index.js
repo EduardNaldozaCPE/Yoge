@@ -152,13 +152,13 @@ const createWindow = () => {
   });
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-  ipcMain.on("restart-landmarker", (_, device, noCV) => {
+  ipcMain.on("restart-landmarker", (_, userId, sequenceId, device, noCV) => {
     if (landmarker != undefined) {
       landmarker.kill();
       landmarker = undefined
     }
     console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
-    mainWindow.webContents.send('recall-landmarker', device, noCV)
+    mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device, noCV)
   });
 
   ipcMain.on("cmd-start", ()=>{
