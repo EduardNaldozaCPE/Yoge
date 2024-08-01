@@ -1,36 +1,24 @@
-import math
-import sys
-import cv2 as cv 
-import mediapipe as mp 
+import math, sys
+import cv2 as cv
+from .utils import *
+from landmarker.Joints import *
 
-JOINT_IDS = {
-    "leftShoulder"  : 11,
-    "rightShoulder" : 12,
-    "leftElbow"     : 13,
-    "rightElbow"    : 14,
-    "leftHip"       : 23,
-    "rightHip"      : 24,
-    "leftKnee"      : 25,
-    "rightKnee"     : 26,
-}
-
-# Format angle score to an insert query
 def formatResult(sessionId, scores, step) -> str:
-    # print(f"Recording Score @ {timestamp}", file=sys.stderr)
+    """ Format angle score to an insert query """
     try:
         return f"""
             INSERT INTO score (sessionId, step, leftElbow, rightElbow, leftKnee, rightKnee, leftShoulder, rightShoulder, leftHip, rightHip) VALUES 
                 (
                 {sessionId},
                 {step}, 
-                {scores["left-elbow"]}, 
-                {scores["right-elbow"]}, 
-                {scores["left-knee"]}, 
-                {scores["right-knee"]}, 
-                {scores["left-shoulder"]}, 
-                {scores["right-shoulder"]}, 
-                {scores["left-hip"]}, 
-                {scores["right-hip"]}
+                {scores[Joint.leftElbow]}, 
+                {scores[Joint.rightElbow]}, 
+                {scores[Joint.leftKnee]}, 
+                {scores[Joint.rightKnee]}, 
+                {scores[Joint.leftShoulder]}, 
+                {scores[Joint.rightShoulder]}, 
+                {scores[Joint.leftHip]}, 
+                {scores[Joint.rightHip]}
                 );
             """
     except Exception as e:
@@ -38,66 +26,90 @@ def formatResult(sessionId, scores, step) -> str:
         return ""
 
 
-# Draw landmarks into cv image from landmarks 
-def drawLandmarks(
-        cv_frame, 
-        img_size:tuple, 
-        landmarks:dict, 
-        targets:dict, 
-        bestColour:tuple=(0,255,0), 
-        worstColour:tuple=(50,0,200)
-        ) -> tuple:
-    
-    next_frame = cv_frame
-
+def calculateScores( landmarks:JointLandmark, targets:JointFloat ):
+    """ Get the angles for each listed joint, then Calculate the scores """
     # Get the angles for each listed joint.
-    joints = {
-        "elbow":    ["wrist", "shoulder"], 
-        "shoulder": ["elbow", "hip"],
-        "hip":      ["shoulder", "knee"],
-        "knee":     ["hip", "ankle"]
+    jointNeighbours = {
+        "Elbow":    ["Wrist", "Shoulder"],
+        "Shoulder": ["Elbow", "Hip"],
+        "Hip":      ["Shoulder", "Knee"],
+        "Knee":     ["Hip", "Ankle"]
         }
     
-    angles = {}
-    for joint in joints:
-        angles[f"left-{joint}"] = _angleFrom3Points(
-            ( landmarks[f"left-{joints[joint][0]}"].x,   landmarks[f"left-{joints[joint][0]}"].y ),
-            ( landmarks[f"left-{joint}"].x,              landmarks[f"left-{joint}"].y ),
-            ( landmarks[f"left-{joints[joint][1]}"].x,   landmarks[f"left-{joints[joint][1]}"].y ),
-            )
-        angles[f"right-{joint}"] = _angleFrom3Points(
-            ( landmarks[f"right-{joints[joint][0]}"].x,  landmarks[f"right-{joints[joint][0]}"].y ),
-            ( landmarks[f"right-{joint}"].x,             landmarks[f"right-{joint}"].y ),
-            ( landmarks[f"right-{joints[joint][1]}"].x,  landmarks[f"right-{joints[joint][1]}"].y ),
-            )
+    angles = JointFloat("angles")
+    for joint in jointNeighbours:
+        try:
+            angles.set(Joint[f"left{joint}"], __angleFrom3Points(
+                ( 
+                    landmarks.get(Joint[f"left{jointNeighbours[joint][0]}"]).x,
+                    landmarks.get(Joint[f"left{jointNeighbours[joint][0]}"]).y ),
+                (
+                    landmarks.get(Joint[f"left{joint}"]).x,
+                    landmarks.get(Joint[f"left{joint}"]).y ),
+                ( 
+                    landmarks.get(Joint[f"left{jointNeighbours[joint][1]}"]).x,
+                    landmarks.get(Joint[f"left{jointNeighbours[joint][1]}"]).y )
+                ))
+            angles.set(Joint[f"right{joint}"], __angleFrom3Points(
+                (
+                    landmarks.get(Joint[f"right{jointNeighbours[joint][0]}"]).x,
+                    landmarks.get(Joint[f"right{jointNeighbours[joint][0]}"]).y ),
+                (
+                    landmarks.get(Joint[f"right{joint}"]).x,
+                    landmarks.get(Joint[f"right{joint}"]).y ),
+                (
+                    landmarks.get(Joint[f"right{jointNeighbours[joint][1]}"]).x,
+                    landmarks.get(Joint[f"right{jointNeighbours[joint][1]}"]).y )
+                ))
+        except Exception as e:
+            print("Error while getting angles:", e, file=sys.stderr)
+    
+    # Calculate score for each angle
+    scores = JointFloat("scores")
+    for key in landmarks.getKeys():
+        if key == Joint.leftWrist: break
+        try:
+            scores.set( key, __scoreFromAngles(angles.get(key),targets.get(key)) )
+        except Exception as e:
+            print("Error while calculating scores", e, file=sys.stderr)
+    
+    return scores
+    
+
+def drawLandmarks(
+        cv_frame, 
+        img_width:int, 
+        img_height:int, 
+        landmarks:JointLandmark, 
+        scores:JointFloat, 
+        bestColour:tuple=(0,255,0), 
+        worstColour:tuple=(50,0,200)
+        ):
+    """ Draw landmarks into cv image from landmarks """
+    
+    next_frame = cv_frame
     
     # Calculate score for each angle, then draw landmarks
-    scores = {}
-    for key in landmarks:
-        if key == "left-wrist": break
-        score = _scoreFromAngles(angles[key], targets[key])
-        scores[key] = score
-
+    for key in landmarks.getKeys():
+        if key == Joint.leftWrist: break
         try:
             next_frame = cv.circle(
                 cv_frame,
                 (
-                    int(landmarks[key].x * img_size[0] * 2), 
-                    int(landmarks[key].y * img_size[1] * 2)
+                    int(landmarks.get(key).x * img_width * 2), 
+                    int(landmarks.get(key).y * img_height * 2)
                 ),
-                20, _colourFromScore(score, bestColour, worstColour), 8, 2, 1 )
+                20, __colourFromScore(scores.get(key), bestColour, worstColour), 8, 2, 1 )
         except IndexError:
             print(f"Landmark {key} Not in array. Skipping.", file=sys.stderr)
+        except Exception as e:
+            print("Error while drawing circle Landmarks", e, file=sys.stderr)
 
-    next_frame = cv.putText(
-        cv_frame, str(targets),
-        ( 10, 10 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
-        ( 150, 30, 0 ), 1, cv.LINE_AA, False)
+    return next_frame
 
-    return (scores, next_frame)
 
-# Calculate the angle between 3 points
-def _angleFrom3Points(p1:tuple, p2:tuple, p3:tuple) -> float:
+def __angleFrom3Points(p1:tuple, p2:tuple, p3:tuple) -> float:
+    """ Calculate the angle between 3 points """
     x1, y1 = p1
     x2, y2 = p2
     x3, y3 = p3
@@ -105,8 +117,9 @@ def _angleFrom3Points(p1:tuple, p2:tuple, p3:tuple) -> float:
     if angle < 0: angle += 360
     return angle
 
-# Calculate the score from angles, accounting for the angle's orientation
-def _scoreFromAngles(angle:float, target:float) -> float:
+
+def __scoreFromAngles(angle:float, target:float) -> float:
+    """ Calculate the score from angles, accounting for the angle's orientation """
     target_90cc = target - 90   # 90 degrees counter-clockwise of target angle 
     target_90c = target + 90    # 90 degrees clockwise of target angle 
 
@@ -148,8 +161,9 @@ def _scoreFromAngles(angle:float, target:float) -> float:
         else:
             return 0
     
-# Linearly interpolate rgb between best and worst colours depending on the score
-def _colourFromScore(score:float, bestColour:tuple, worstColour:tuple) -> tuple:
+
+def __colourFromScore(score:float, bestColour:tuple, worstColour:tuple) -> tuple:
+    """ Linearly interpolate rgb between best and worst colours depending on the score """
     return (
         worstColour[0]+(score/100.0)*(bestColour[0]-worstColour[0]),
         worstColour[1]+(score/100.0)*(bestColour[1]-worstColour[1]),

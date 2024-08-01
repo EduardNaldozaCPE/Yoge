@@ -1,13 +1,9 @@
-import sqlite3
-import json
-import os
-import sys
+import sqlite3, json, os, sys
 
-
-# Processes the PoseLandmarkerResult Queue to insert into the database   
 class SqliteController:
-    # Initialise scores queue and sqlite connection
+    """ Connects to yoge database and runs SQL queries """
     def __init__(self):
+        # Initialise scores queue and sqlite connection
         config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
         config_options = json.load(config)
         DB_PATH = config_options["DB_PATH"]
@@ -18,15 +14,19 @@ class SqliteController:
 
 
     def runInsert(self, query):
+        """ Run an Insert Query in the yoge database """
         if query is None: return
         try: 
             self.cur.execute(query)
             self.con.commit()
-        except Exception as e: 
+        except sqlite3.IntegrityError as e:
+            print(e, file=sys.stderr)
+        except Exception as e:
             print(e, file=sys.stderr)
 
 
     def runSelectAll(self, query):
+        """ Run an Insert Query in the yoge database """
         data = []
         if query is None: return []
         try:
@@ -37,7 +37,8 @@ class SqliteController:
         return data
 
 
-    def runSelectOne(self, query):
+    def runSelectOne(self, query): 
+        """ Run an Insert Query in the yoge database """
         data = ()
         if query is None: return ()
         try:
@@ -49,5 +50,6 @@ class SqliteController:
 
 
     def closeConnection(self):
+        """ Closes the database connection """
         self.con.close()
         
