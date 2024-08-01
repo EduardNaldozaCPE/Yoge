@@ -4,13 +4,14 @@ const widgetScore = document.getElementById('widget-score');
 var currentDevice = 0;
 var showFeed = false;
 var isRecording = false;
-var poseScores = [];
+var poseListState = []; // {step:number, posename:string, score:number}
+var currentStep = 0;
 var currentScore = 0.0;
 
 const userId = sessionStorage.getItem('userId');
 const sequenceId = sessionStorage.getItem('sequenceId');
 
-if (sequenceId == "undefined" || sequenceId == undefined) {
+if (sequenceId == "undefined" || sequenceId == null) {
     alert("Sequence Is undefined. Returning to dashboard...");
     returnToDashboard();
 } else {
@@ -22,19 +23,30 @@ if (sequenceId == "undefined" || sequenceId == undefined) {
 }
 
 landmarkerAPI.onSession((sessionId)=>{
-    // Run the landmarker, enable restart, and handle connection statuses
     console.log("SESSION ID: "+sessionId);
+    
+    // Get rows to the pose list and save each ID in poseListState
     landmarkerAPI.getPoses(sequenceId);
     landmarkerAPI.onPoses((data)=>{
         console.log(data);
-        $("#pose-table-body").html("");
+        let poseIds = [];
+        $("#pose-table-body").html("");;
         for (let i = 0; i < data.length; i++) {
+            let poseId = "poseScore-".concat(i+1);
             $("#pose-table-body").append(`
-                <tr>
-                    <td>${data[i]["poseName"]}</td>
-                    <td>--</td>
+                <tr id="pose-${i+1}">
+                    <td id="poseName-${i+1}">${data[i]["poseName"]}</td>
+                    <td id="${poseId}">-</td>
                 </tr>
-                `);
+            `);
+            poseIds.push(poseId);
+        }
+        for (let i=0; i<poseIds.length; i++) {
+            poseListState.push({
+                "step":poseIds[i],
+                "poseName":data[i]["poseName"], 
+                "score":-1
+            });
         }
     });
 });
@@ -46,6 +58,30 @@ landmarkerAPI.enableRestart(userId, sequenceId, ()=>{
 setInterval(() => {
     if (isRecording) landmarkerAPI.getScore();
 }, 1000);
+
+landmarkerAPI.onScore((data) => {
+    let joints = ["leftElbow", "rightElbow", "leftKnee", "rightKnee", "leftShoulder", "rightShoulder", "leftHip", "rightHip"];
+    let totalScore = 0.0;
+    try {
+        // Average all joints' scores. (TODO: Account for score weights)
+        for (let i=0; i<joints.length; i++) {
+            totalScore += data[joints[i]];
+            totalScore = totalScore/joints.length;
+        }
+    } catch (e) {
+        if (e instanceof TypeError) return;
+        else console.log(e);
+    }
+
+    // Show the score in the widget
+    currentScore = totalScore.toFixed(2);
+    $(widgetScore).text(`${totalScore.toFixed(2)}%`);
+
+    // Show the score in the pose-list table row
+    if (currentStep > 0) {
+        $("#"+poseListState[currentStep-1].step).text(currentScore);
+    }
+});
 
 landmarkerAPI.onStatus(
     // Landmarker ran successfully. Show the feed.
@@ -71,24 +107,13 @@ landmarkerAPI.onFrame((imgStr)=>{
 });
 
 landmarkerAPI.onNextPose(()=>{
-    console.log('nextpose');
+    currentStep++;
+    console.log("currentStep = "+currentStep);
 });
 
-landmarkerAPI.onScore((data) => {
-    let joints = ["leftElbow", "rightElbow", "leftKnee", "rightKnee", "leftShoulder", "rightShoulder", "leftHip", "rightHip"];
-    let totalScore = 0.0;
-    try {
-        for (let i=0; i<joints.length; i++) {
-            totalScore += data[joints[i]];
-            totalScore = totalScore/joints.length;
-        }
-        widgetScore.innerText = `${totalScore.toFixed(2)}%`;
-        currentScore = totalScore.toFixed(2);
-    } catch (e) {
-        if (e instanceof TypeError) return;
-        else console.log(e);
-    }
-});
+// landmarkerAPI.onSequenceFinish(()=>{
+//     currentStep++;
+// });
 
 /**
  * Restart the landmarker process. Wait for new landmarker via OnStatus()  

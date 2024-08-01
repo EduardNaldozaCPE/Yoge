@@ -50,14 +50,14 @@ const createWindow = () => {
   }
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-  ipcMain.on("run-landmarker", (_, userId, sequenceId, device, noCV) => {
+  ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
     var strBuffer: string;
     let spawnArgsCopy = spawnargs;
     let connection_success = false;
 
     // Restart landmarker if it is already running.
     if (landmarker != undefined) {
-      mainWindow.webContents.send('restart-landmarker', device, noCV);
+      mainWindow.webContents.send('restart-landmarker', device);
       return;
     }
     let sessionId = Math.floor( Date.now() );
@@ -65,7 +65,6 @@ const createWindow = () => {
     spawnArgsCopy.push(`-sequence=${sequenceId}`);
     spawnArgsCopy.push(`-session=${sessionId}`);
     spawnArgsCopy.push(`-device=${device}`);
-    if (noCV) spawnArgsCopy.push(`-noCV`);
 
     try {
       landmarker = spawn(spawncommand, spawnArgsCopy);
@@ -130,13 +129,13 @@ const createWindow = () => {
   });
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-  ipcMain.on("restart-landmarker", (_, userId, sequenceId, device, noCV) => {
+  ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {
     if (landmarker != null) {
       landmarker.kill();
       landmarker = null;
     }
     console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
-    mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device, noCV)
+    mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device)
   });
 
   ipcMain.on("cmd-start", ()=>{
