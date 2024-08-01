@@ -99,9 +99,9 @@ def main():
             if len(ipcQueue) > 0:
                 lastCmd = ipcQueue.pop()
                 match lastCmd[1]:
-                    case "START":
+                    case "PLAY":
                         poseService.startRec()
-                        print("START REC",file=sys.stderr)
+                        print("PLAY REC",file=sys.stderr)
                     case "PAUSE":
                         poseService.stopRec() 
                         print("PAUSE REC",file=sys.stderr)

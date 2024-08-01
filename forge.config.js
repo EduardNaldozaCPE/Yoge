@@ -8,6 +8,7 @@ module.exports = {
     extraResource: [
       "./resources/landmarker",
       "./resources/data",
+      "./resources/ipc",
       "./resources/landmarker-config.json",
       "./resources/pose_landmarker_lite.task",
     ]

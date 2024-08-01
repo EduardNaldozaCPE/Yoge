@@ -8,7 +8,7 @@
             "name": "Landmarker (len-only)",
             "type": "debugpy",
             "request": "launch",
-            "program": "src/modules/landmarker-service/main.py",
+            "program": "src/services/landmarker-service/main.py",
             "console": "integratedTerminal",
             "args": "-user=0 -sequence=1 -session=1000 -device=0 -lenOnly"
         },
@@ -16,7 +16,7 @@
             "name": "Landmarker (DeviceID, len-only)",
             "type": "debugpy",
             "request": "launch",
-            "program": "src/modules/landmarker-service/main.py",
+            "program": "src/services/landmarker-service/main.py",
             "console": "integratedTerminal",
             "args": "-user=0 -sequence=1 -session=1000 -device=${command:pickArgs} -lenOnly"
         },
@@ -24,7 +24,7 @@
             "name": "Landmarker (DeviceID, len-only, imshow)",
             "type": "debugpy",
             "request": "launch",
-            "program": "src/modules/landmarker-service/main.py",
+            "program": "src/services/landmarker-service/main.py",
             "console": "integratedTerminal",
             "args": "-user=0 -sequence=1 -session=1000 -device=${command:pickArgs} -lenOnly -imshow"
         },

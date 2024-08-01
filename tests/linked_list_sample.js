@@ -1,4 +1,4 @@
-const LinkedList = require("./modules/LinkedList.js");
+const LinkedList = require("./services/LinkedList.js");
 
 petList = new LinkedList();
 

@@ -1,291 +1,210 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-// const { parse } = require('csv-parse/sync');
-const sqlite3 = require("sqlite3").verbose();
-const { spawn } = require("child_process");
-const { cwd } = require('process');
-const path = require('node:path');
-const fs = require('fs');
-
-if ( require('electron-squirrel-startup') ) app.quit;
-
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path = __importStar(require("node:path"));
+const fs = __importStar(require("fs"));
+const electron_1 = require("electron");
+const node_child_process_1 = require("node:child_process");
+const process_1 = require("process");
+const config_1 = require("./config");
+const SessionModel_1 = require("./models/SessionModel");
+if (require('electron-squirrel-startup'))
+    electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"
-// - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+// 
 const DEBUG = true;
-var landmarkerPath = path.join( cwd(), 'resources/landmarker-config.json' );
-var landmarkerConfig = JSON.parse( fs.readFileSync(landmarkerPath, 'utf8') );
-const spawncommand = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
-const spawnargs = DEBUG? ['src/modules/landmarker-service/main.py'] : [];
-
-const db = new sqlite3.Database(landmarkerConfig.DB_PATH);
-
+// 
+// - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+const spawncommand = DEBUG ? "python" : path.join((0, process_1.cwd)(), config_1.landmarkerConfig.LANDMARKER_PATH);
+const spawnargs = DEBUG ? ['src/services/landmarker-service/main.py'] : [];
+const session = new SessionModel_1.SessionModel();
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    icon: "appicon",
-    width: 1280,
-    height: 720,
-    minHeight: 700,
-    minWidth: 1200,
-    titleBarStyle: 'hidden',
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-  
-  var landmarker = undefined;
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
-  mainWindow.setMenu(null);
-
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-
-  // Command Queue IPC
-  const cmdQueue_path = path.join(cwd(), "resources/ipc/to_landmarker.csv");
-
-  // function _onFileChange(ev) {
-  //   if (ev == "change"){
-  //     const cmdString = fs.readFileSync(cmdQueue_path,options={encoding: "utf8", flag: 'r'});
-  //     const cmdLines = cmdString.toString()
-  //     var cmds = parse(cmdLines, { delimiter: ",", skip_empty_lines:true});
-  //     for (let i=0; i<cmds.length; i++) {
-  //       console.log("FROM: " ,cmds[i][0]);
-  //       console.log("ID: " ,cmds[i][1]);
-  //       console.log("COMMAND: " ,cmds[i][2]);
-  //       console.log('\n');
-  //       fs.writeFileSync(cmdQueue_path, "")
-  //     }
-  //   }
-  // }
-
-  // fs.watch(cmdQueue_path, (ev, filename)=>{
-  //   if (filename) {
-  //     _onFileChange(ev);
-  //   } else {
-  //     console.log('filename not provided');
-  //   }
-  // });
-
-  function _add_ipc_command(command) {
-    fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
-  }
-
-
-  // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-  ipcMain.on("run-landmarker", (_, userId, sequenceId, device, noCV) => {
-    var strBuffer;
-    let spawnArgsCopy = spawnargs;
-    let connection_success = false;
-
-    // Restart landmarker if it is already running.
-    if (landmarker != undefined) {
-      mainWindow.webContents.send('restart-landmarker', device, noCV);
-      return;
-    }
-    let sessionId = Math.floor( Date.now() );
-    spawnArgsCopy.push(`-user=${userId}`);
-    spawnArgsCopy.push(`-sequence=${sequenceId}`);
-    spawnArgsCopy.push(`-session=${sessionId}`);
-    spawnArgsCopy.push(`-device=${device}`);
-    if (noCV) spawnArgsCopy.push(`-noCV`);
-
-    try {
-      landmarker = spawn(spawncommand, spawnArgsCopy);
-    } catch (error) { 
-      console.log(`Encountered an error while connecting: \n${error}`); 
-    } finally {
-      mainWindow.webContents.send("on-session", sessionId);
-    }
-
-    // Parse Data to image src string & Signal landmarker-status "SUCCESS" on the first data sent
-    landmarker.stdout.on('data', (data)=>{
-      try {
-        strBuffer = data.toString().split("'")[1];
-      } catch (err) { console.log("Error Caught:", err); }
-
-      mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${strBuffer}`);
-
-      if (connection_success) return;
-      connection_success = true;
-      mainWindow.webContents.send('landmarker-status', "SUCCESS")
+    const mainWindow = new electron_1.BrowserWindow({
+        icon: "appicon",
+        width: 1280,
+        height: 720,
+        minHeight: 700,
+        minWidth: 1200,
+        titleBarStyle: 'hidden',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+        },
     });
-
-    // Signal landmarker-status on close.
-    landmarker.on('close', (code, signal)=>{
-      if (signal == "SIGTERM") {
+    var landmarker;
+    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.setMenu(null);
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+    // Command Queue IPC
+    const cmdQueue_path = path.join((0, process_1.cwd)(), "resources/ipc/to_landmarker.csv");
+    function _add_ipc_command(command) {
+        fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
+    }
+    // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
+    electron_1.ipcMain.on("run-landmarker", (_, userId, sequenceId, device, noCV) => {
+        var strBuffer;
+        let spawnArgsCopy = spawnargs;
+        let connection_success = false;
+        // Restart landmarker if it is already running.
+        if (landmarker != undefined) {
+            mainWindow.webContents.send('restart-landmarker', device, noCV);
+            return;
+        }
+        let sessionId = Math.floor(Date.now());
+        spawnArgsCopy.push(`-user=${userId}`);
+        spawnArgsCopy.push(`-sequence=${sequenceId}`);
+        spawnArgsCopy.push(`-session=${sessionId}`);
+        spawnArgsCopy.push(`-device=${device}`);
+        if (noCV)
+            spawnArgsCopy.push(`-noCV`);
         try {
-          mainWindow.webContents.send('landmarker-status', "SIGTERM");
-        } catch (e) { if (typeof(e) == TypeError) return }
-      }
-
-      switch (code) {
-        case null: break;
-        case 0:
-          mainWindow.webContents.send('landmarker-status', "NORMAL");
-          break;
-        case 1:
-          mainWindow.webContents.send('landmarker-status', "NOVIDEO");
-          break;
-        default:
-          console.log("Landmarker closed with code: ", code);
-          break;
-      }
+            landmarker = (0, node_child_process_1.spawn)(spawncommand, spawnArgsCopy);
+        }
+        catch (error) {
+            console.log(`Encountered an error while connecting: \n${error}`);
+        }
+        finally {
+            mainWindow.webContents.send("on-session", sessionId);
+        }
+        // Parse Data to image src string & Signal landmarker-status "SUCCESS" on the first data sent
+        landmarker.stdout.on('data', (data) => {
+            try {
+                strBuffer = data.toString().split("'")[1];
+            }
+            catch (err) {
+                console.log("Error Caught:", err);
+            }
+            mainWindow.webContents.send('current-frame', `data:image/jpg;base64,${strBuffer}`);
+            if (connection_success)
+                return;
+            connection_success = true;
+            mainWindow.webContents.send('landmarker-status', "SUCCESS");
+        });
+        // Signal landmarker-status on close.
+        landmarker.on('close', (code, signal) => {
+            if (signal == "SIGTERM") {
+                try {
+                    mainWindow.webContents.send('landmarker-status', "SIGTERM");
+                }
+                catch (e) {
+                    if (e instanceof TypeError)
+                        return;
+                }
+            }
+            switch (code) {
+                case null: break;
+                case 0:
+                    mainWindow.webContents.send('landmarker-status', "NORMAL");
+                    break;
+                case 1:
+                    mainWindow.webContents.send('landmarker-status', "NOVIDEO");
+                    break;
+                default:
+                    console.log("Landmarker closed with code: ", code);
+                    break;
+            }
+        });
+        // Print stderr logs
+        landmarker.stderr.on('data', (data) => {
+            let prefix = data.toString().substring(0, 5);
+            if (prefix == "NPOSE") {
+                mainWindow.webContents.send('next-pose');
+            }
+            else {
+                console.log(`${data}`);
+            }
+        });
     });
-    
-    // Print stderr logs
-    landmarker.stderr.on('data', (data)=>{
-      let prefix = data.toString().substring(0,5);
-      if (prefix == "NPOSE") {
-        mainWindow.webContents.send('next-pose');
-      } else {
-        console.log(`${data}`);
-      }
+    // Kills the landmarker child process
+    electron_1.ipcMain.on("stop-landmarker", () => {
+        if (landmarker) {
+            landmarker.kill();
+            landmarker = null;
+        }
     });
-  });
-
-  // Kills the landmarker child process
-  ipcMain.on("stop-landmarker", ()=>{
-    if (landmarker) {
-      landmarker.kill();
-      landmarker = undefined;
-    }
-  });
-
-  // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-  ipcMain.on("restart-landmarker", (_, userId, sequenceId, device, noCV) => {
-    if (landmarker != undefined) {
-      landmarker.kill();
-      landmarker = undefined
-    }
-    console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
-    mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device, noCV)
-  });
-
-  ipcMain.on("cmd-start", ()=>{
-    _add_ipc_command("START");
-  });
-
-  ipcMain.on("cmd-pause", ()=>{
-    _add_ipc_command("PAUSE");
-  });
-
-  // kills the landmarker child process and closes the window.
-  ipcMain.on("window-close", ()=>{
-    if (landmarker) {
-      landmarker.kill();
-      landmarker = undefined;
-    }
-    mainWindow.close()
-  });
-
-  // Toggles between maximize() and unmaximize().
-  ipcMain.on("window-maximize", ()=>{
-    if (mainWindow.isMaximized()) mainWindow.unmaximize();
-    else mainWindow.maximize();
-  });
-
-  // Minimizes the window.
-  ipcMain.on("window-minimize", ()=>mainWindow.minimize());
-
-  ipcMain.on("get-score", (ev)=>{
-    _get_latest_score((d)=>{
-      ev.sender.send('on-score', d);
+    // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
+    electron_1.ipcMain.on("restart-landmarker", (_, userId, sequenceId, device, noCV) => {
+        if (landmarker != null) {
+            landmarker.kill();
+            landmarker = null;
+        }
+        console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
+        mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device, noCV);
     });
-  });
-
-  ipcMain.on("get-poses", (ev, sequenceId)=>{
-    console.log(`RUNNING GET POSES (${sequenceId})`);
-    _get_steps_from_sequenceId(sequenceId, (data)=>{
-      ev.sender.send('on-poses', data);
+    electron_1.ipcMain.on("cmd-start", () => {
+        _add_ipc_command("PLAY");
     });
-  })
-
-  ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
-    _get_sequence_from_sequenceId(sequenceId, (data)=>{
-      ev.sender.send('on-sequence-data', data);
+    electron_1.ipcMain.on("cmd-pause", () => {
+        _add_ipc_command("PAUSE");
     });
-  })
-
+    // kills the landmarker child process and closes the window.
+    electron_1.ipcMain.on("window-close", () => {
+        if (landmarker) {
+            landmarker.kill();
+            landmarker = null;
+        }
+        mainWindow.close();
+    });
+    // Toggles between maximize() and unmaximize().
+    electron_1.ipcMain.on("window-maximize", () => {
+        if (mainWindow.isMaximized())
+            mainWindow.unmaximize();
+        else
+            mainWindow.maximize();
+    });
+    // Minimizes the window.
+    electron_1.ipcMain.on("window-minimize", () => mainWindow.minimize());
+    // Query
+    electron_1.ipcMain.on("get-score", (ev) => {
+        session.get_latest_score((data) => {
+            ev.sender.send('on-score', data);
+        });
+    });
+    electron_1.ipcMain.on("get-poses", (ev, sequenceId) => {
+        console.log(`RUNNING GET POSES (${sequenceId})`);
+        session.get_steps_from_sequenceId(sequenceId, (data) => {
+            ev.sender.send('on-poses', data);
+        });
+    });
+    electron_1.ipcMain.on("get-sequence-data", (ev, sequenceId) => {
+        session.get_sequence_from_sequenceId(sequenceId, (data) => {
+            ev.sender.send('on-sequence-data', data);
+        });
+    });
 };
-
-
-app.whenReady().then(() => {
-  createWindow();
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+electron_1.app.whenReady().then(() => {
+    createWindow();
+    electron_1.app.on('activate', () => {
+        if (electron_1.BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
 });
-
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// region   ----- DB Functions -----
-
-var _lastScore = {
-  "scoreId":0,
-  "sessionId":0,
-  "step":0,
-  "leftElbow":0, 
-  "rightElbow":0, 
-  "leftKnee":0, 
-  "rightKnee":0, 
-  "leftShoulder":0, 
-  "rightShoulder":0, 
-  "leftHip":0, 
-  "rightHip":0
-};
-
-function _get_latest_score(callback) {
-  db.get(
-    "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
-    (err, row)=>{
-      let d = undefined
-      if (err) {
-        console.log(err);
-        d = _lastScore;
-      } else {
-        d = row;
-        _lastScore = row;
-      }
-      callback(d);
+electron_1.app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        electron_1.app.quit();
     }
-    );
-}
-
-function _get_steps_from_session(sessionId ,callback) {
-  db.all(`SELECT * FROM session INNER JOIN pose ON session.sequenceId = pose.sequenceId WHERE session.sessionId = ${sessionId};`, (err, rows)=>{
-      if (err)
-        throw Error("Invalid Session Id in _get_steps_from_session");
-      callback(rows);
-    });
-}
-
-function _get_steps_from_sequenceId(sequenceId ,callback) {
-  db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
-      if (err)
-        throw Error("Invalid Session Id in _get_steps_from_session");
-      callback(rows);
-    });
-}
-
-function _get_sequence_from_sequenceId(sequenceId ,callback) {
-  db.get(`SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
-      if (err)
-        throw Error("Invalid Sequence Id in _get_sequence_from_sequenceId");
-      callback(rows);
-    });
-}
-
-function _get_latest_sessionId(callback) {
-  db.get(`SELECT MAX(sessionId) FROM session;`, (err, rows)=>{
-      if (err)
-        throw Error("Error Caught _get_latest_sessionId");
-      callback(rows);
-    });
-}
+});
