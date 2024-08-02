@@ -4,7 +4,7 @@ import cv2 as cv
 
 from .Joints import *
 from .utils import *
-from .Session import Session
+from .LandmarkerSession import LandmarkerSession
 from sqlite_controller import SqliteController as db
 from .LandmarkerOptions import LandmarkerOptions
 
@@ -14,7 +14,7 @@ class Landmarker:
     Uses OpenCV to capture video, MediaPipe Pose Landmarker Solution to asynchronously detect pose landmarks from the video frame
     Draws on to the detected frame via OpenCV, and stores the latest frame in bytes that can be accessed using `getFrame()`.
     """
-    def __init__(self, model_path:str, session:Session, options:LandmarkerOptions):
+    def __init__(self, model_path:str, session:LandmarkerSession, options:LandmarkerOptions):
         # Carry Forward Variables - To avoid crashing
         self.__landmarks = JointLandmark()
 
@@ -69,7 +69,7 @@ class Landmarker:
         
         # Validate session
         self.isSessionSet = self.session.validateSession()
-        if (not self.isSessionSet): raise Exception("Error in validating the Session")
+        if (not self.isSessionSet): raise Exception("Error in validating the LandmarkerSession")
         self.db = db()
         self.poseList = self.db.runSelectAll(f"SELECT * FROM pose WHERE sequenceId={self.session.sequenceId};")
         self.db.closeConnection()
@@ -105,7 +105,7 @@ class Landmarker:
     def runVideo(self):
         """ Starts video feed and stores frame data in the queue - Run in a separate thread and stop by using Landmarker.stopVideo() """
         if not self.isSessionSet:
-            print("Session Data has not been set. Use setSessionData() before calling runVideo()", file=sys.stderr)
+            print("LandmarkerSession Data has not been set. Use setSessionData() before calling runVideo()", file=sys.stderr)
             return
         
         # Create a new row in the session table

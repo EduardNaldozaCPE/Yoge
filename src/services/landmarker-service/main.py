@@ -2,7 +2,7 @@ import os, sys, json, threading, csv
 import base64 as b64
 
 from watchdog.observers import Observer
-from landmarker import Landmarker, LandmarkerOptions, Session
+from landmarker import Landmarker, LandmarkerOptions, LandmarkerSession
 from ipc_handler import IpcHandler
 
 def main():
@@ -32,9 +32,9 @@ def main():
         return
 
     # 2. Initialise the pose estimation service and set the session data
+    landmarker_session = LandmarkerSession(userId, sequenceId, sessionId)
     landmarker_options = LandmarkerOptions(FRAMEWIDTH, FRAMEHEIGHT)
     landmarker_options.setDeviceId(deviceId).setImshow(imshow)
-    landmarker_session = Session(userId, sequenceId, sessionId)
     service = Landmarker(
         MODEL_PATH,
         session=landmarker_session,

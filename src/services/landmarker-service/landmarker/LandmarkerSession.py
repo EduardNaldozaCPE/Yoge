@@ -1,7 +1,7 @@
 from sqlite_controller import SqliteController as db
 import sys
 
-class Session:
+class LandmarkerSession:
     """ Stores Landmarker Session Details """
     def __init__(self, userId:int, sequenceId:int, sessionId:int):
         self.userId = userId
