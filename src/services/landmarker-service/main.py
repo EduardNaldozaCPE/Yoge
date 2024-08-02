@@ -2,8 +2,7 @@ import os, sys, json, threading, csv
 import base64 as b64
 
 from watchdog.observers import Observer
-from landmarker import Landmarker, LandmarkerOptions
-from session import Session
+from landmarker import Landmarker, LandmarkerOptions, Session
 from ipc_handler import IpcHandler
 
 def main():

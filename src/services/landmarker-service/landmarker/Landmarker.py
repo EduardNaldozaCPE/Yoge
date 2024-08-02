@@ -4,7 +4,7 @@ import cv2 as cv
 
 from .Joints import *
 from .utils import *
-from session import Session
+from .Session import Session
 from sqlite_controller import SqliteController as db
 from .LandmarkerOptions import LandmarkerOptions
 
