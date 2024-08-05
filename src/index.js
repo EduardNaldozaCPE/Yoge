@@ -53,7 +53,7 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
-    var landmarker;
+    let landmarker;
     mainWindow.loadFile(path.join(__dirname, 'index.html'));
     mainWindow.setMenu(null);
     // Open the DevTools.
@@ -64,22 +64,20 @@ const createWindow = () => {
         fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
     }
     // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-    electron_1.ipcMain.on("run-landmarker", (_, userId, sequenceId, device, noCV) => {
+    electron_1.ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
+        // Restart landmarker if it is already running.
+        if (landmarker != undefined) {
+            mainWindow.webContents.send('restart-landmarker', device);
+            return;
+        }
         var strBuffer;
         let spawnArgsCopy = spawnargs;
         let connection_success = false;
-        // Restart landmarker if it is already running.
-        if (landmarker != undefined) {
-            mainWindow.webContents.send('restart-landmarker', device, noCV);
-            return;
-        }
         let sessionId = Math.floor(Date.now());
         spawnArgsCopy.push(`-user=${userId}`);
         spawnArgsCopy.push(`-sequence=${sequenceId}`);
         spawnArgsCopy.push(`-session=${sessionId}`);
         spawnArgsCopy.push(`-device=${device}`);
-        if (noCV)
-            spawnArgsCopy.push(`-noCV`);
         try {
             landmarker = (0, node_child_process_1.spawn)(spawncommand, spawnArgsCopy);
         }
@@ -146,13 +144,13 @@ const createWindow = () => {
         }
     });
     // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-    electron_1.ipcMain.on("restart-landmarker", (_, userId, sequenceId, device, noCV) => {
+    electron_1.ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {
         if (landmarker != null) {
             landmarker.kill();
             landmarker = null;
         }
         console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
-        mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device, noCV);
+        mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device);
     });
     electron_1.ipcMain.on("cmd-start", () => {
         _add_ipc_command("PLAY");

@@ -33,8 +33,8 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  
-  var landmarker: ChildProcess | null;
+
+  let landmarker: ChildProcess | null;
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   mainWindow.setMenu(null);
@@ -51,15 +51,17 @@ const createWindow = () => {
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
-    var strBuffer: string;
-    let spawnArgsCopy = spawnargs;
-    let connection_success = false;
 
     // Restart landmarker if it is already running.
     if (landmarker != undefined) {
       mainWindow.webContents.send('restart-landmarker', device);
       return;
     }
+
+    var strBuffer: string;
+    let spawnArgsCopy = spawnargs;
+    let connection_success = false;
+
     let sessionId = Math.floor( Date.now() );
     spawnArgsCopy.push(`-user=${userId}`);
     spawnArgsCopy.push(`-sequence=${sequenceId}`);

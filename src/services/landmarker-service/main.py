@@ -99,8 +99,11 @@ def main():
     service.stopVideo()
     observer.join()
     video_thread.join()
+    
     if service.flagExit: 
-        exit(1)
+        return 1
+    else:
+        return 0
 
 if __name__ == "__main__":
-    main()
+    SystemExit(main())

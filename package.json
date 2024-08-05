@@ -1,6 +1,6 @@
 {
-  "name": "yoge-electron",
-  "productName": "yoge-electron",
+  "name": "yoge",
+  "productName": "yoge",
   "version": "1.0.0",
   "description": "A Yoga Training aid App powered by MediaPipe",
   "main": "src/index.js",

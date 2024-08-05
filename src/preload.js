@@ -2,9 +2,9 @@
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 contextBridge.exposeInMainWorld('landmarkerAPI', {
     // Functions
-    run: (userId, sequenceId, device = 0, noCV = false) => ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV),
+    run: (userId, sequenceId, device = 0) => ipcRenderer.send('run-landmarker', userId, sequenceId, device),
     onSession: (callback) => ipcRenderer.on('on-session', (ev, sessionId) => { callback(sessionId); }),
-    restart: (userId, sequenceId, device = 0, noCV = false) => ipcRenderer.send('restart-landmarker', userId, sequenceId, device, noCV),
+    restart: (userId, sequenceId, device = 0) => ipcRenderer.send('restart-landmarker', userId, sequenceId, device),
     stop: () => ipcRenderer.send('stop-landmarker'),
     play: () => ipcRenderer.send('cmd-start'),
     pause: () => ipcRenderer.send('cmd-pause'),
@@ -32,9 +32,9 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
         });
     },
     enableRestart: (userId, sequenceId, restartListener = () => { }) => {
-        ipcRenderer.on('recall-landmarker', (_, device, noCV) => {
+        ipcRenderer.on('recall-landmarker', (_, device) => {
             restartListener();
-            ipcRenderer.send('run-landmarker', userId, sequenceId, device, noCV);
+            ipcRenderer.send('run-landmarker', userId, sequenceId, device);
         });
     },
 });
