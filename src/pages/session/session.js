@@ -8,6 +8,13 @@ var poseListState = []; // {step:number, posename:string, score:number}
 var currentStep = 0;
 var currentScore = 0.0;
 
+const resetVars = () => {
+    isRecording = false;
+    poseListState = [];
+    currentStep = 0;
+    currentScore = 0.0;
+}
+
 const userId = sessionStorage.getItem('userId');
 const sequenceId = sessionStorage.getItem('sequenceId');
 
@@ -90,6 +97,7 @@ landmarkerAPI.onStatus(
         liveFeed.style.opacity = 1;
         showFeed = true;
         camSwitchBtn.disabled = false;
+        resetVars();
     },
     // Landmarker failed to run. Reset to DeviceID 0 then re-run.
     failCallback = ()=>{
@@ -110,10 +118,6 @@ landmarkerAPI.onNextPose(()=>{
     currentStep++;
     console.log("currentStep = "+currentStep);
 });
-
-// landmarkerAPI.onSequenceFinish(()=>{
-//     currentStep++;
-// });
 
 /**
  * Restart the landmarker process. Wait for new landmarker via OnStatus()  
