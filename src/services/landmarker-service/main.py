@@ -1,18 +1,29 @@
-import os, sys, json, threading, csv
+import os, sys, json, threading
 import base64 as b64
 
 from watchdog.observers import Observer
 from landmarker import Landmarker, LandmarkerOptions, LandmarkerSession
-from ipc_handler import IpcHandler
+
+ipcInput =  ''
+willExit = False
+
+def inputHandler():
+    global willExit
+    global ipcInput
+    for line in sys.stdin:
+        ipcInput = line.strip().lower()
+        print("Python: Message Recieved", file=sys.stderr)
+        if ipcInput == 'exit': willExit = True
+        if willExit: break
 
 def main():
+    global ipcInput
+    global willExit
     config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
     config_options = json.load(config)
     MODEL_PATH      = os.path.join(os.getcwd(), config_options["MODEL_PATH"])
     FRAMEWIDTH      = config_options["FRAMEWIDTH"]
     FRAMEHEIGHT     = config_options["FRAMEHEIGHT"]
-    IPC_CSV_DIR = os.path.join(os.getcwd(),'resources','ipc')
-    IPC_CSV_PATH = os.path.join(IPC_CSV_DIR,'to_landmarker.csv')
     config.close()
 
     # 1. Handle Session Arguments and Display
@@ -40,20 +51,21 @@ def main():
         session=landmarker_session,
         options=landmarker_options
         )
-    
-    # 2a. Initialise the watchdog Observer to check for file changes in resources/ipc
-    observer = Observer()
-    handler = IpcHandler(IPC_CSV_PATH)
-    observer.schedule(handler, IPC_CSV_DIR, recursive=True)
-    observer.start()
 
-    # 3. Start a new thread for the video capture loop.
+    # 3a. Threading - Start a new thread for the video capture loop.
     try:
         video_thread = threading.Thread(target=service.runVideo, daemon=True)
         video_thread.start()
     except Exception as e:
-        print("Error while creating new thread:", e, file=sys.stderr)
+        print("Error while creating video thread:", e, file=sys.stderr)
         return
+    
+    # 3b. Threading - Start a new thread for IPC inputs.
+    try:
+        input_thread = threading.Thread(target=inputHandler, daemon=True)
+        input_thread.start()
+    except Exception as e:
+        print("Error while creating input thread:", e, file=sys.stderr)
     
     isRunning = True
 
@@ -62,19 +74,17 @@ def main():
     errCounter = 0
     while isRunning:
         if service.flagExit: break
-        
-        # Handle IPC Commands
-        if len(handler.ipcQueue) > 0:
-            lastCmd = handler.ipcQueue.pop()
-            match lastCmd[1]:
-                case "PLAY":
+
+        if len(ipcInput) > 0:
+            print("COMMAND RECEIVED: "+ipcInput, file=sys.stderr)
+            match ipcInput.lower():
+                case 'play':
                     service.startRec()
-                    print("PLAY REC",file=sys.stderr)
-                case "PAUSE":
-                    service.stopRec() 
-                    print("PAUSE REC",file=sys.stderr)
+                case 'pause':
+                    service.stopRec()
                 case _:
-                    print("IPC COMMAND DOES NOT EXIST",file=sys.stderr)
+                    print("IPC COMMAND DOES NOT EXIST", file=sys.stderr)
+            ipcInput = ''
 
         frameBuffer = service.getFrame()
         
@@ -95,12 +105,11 @@ def main():
 
         if not isRunning: break 
 
-    observer.stop()
     service.stopVideo()
-    observer.join()
     video_thread.join()
+    input_thread.join()
     
-    if service.flagExit: 
+    if service.flagExit or willExit: 
         return 1
     else:
         return 0

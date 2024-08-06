@@ -3,7 +3,7 @@ import cv2 as cv
 from .utils import *
 from landmarker.Joints import *
 
-def formatResult(sessionId, scores, step) -> str:
+def formatResult(sessionId, scores:JointFloat, step) -> str:
     """ Format angle score to an insert query """
     try:
         return f"""
@@ -11,14 +11,14 @@ def formatResult(sessionId, scores, step) -> str:
                 (
                 {sessionId},
                 {step}, 
-                {scores[Joint.leftElbow]}, 
-                {scores[Joint.rightElbow]}, 
-                {scores[Joint.leftKnee]}, 
-                {scores[Joint.rightKnee]}, 
-                {scores[Joint.leftShoulder]}, 
-                {scores[Joint.rightShoulder]}, 
-                {scores[Joint.leftHip]}, 
-                {scores[Joint.rightHip]}
+                {scores.get(Joint.leftElbow)}, 
+                {scores.get(Joint.rightElbow)}, 
+                {scores.get(Joint.leftKnee)}, 
+                {scores.get(Joint.rightKnee)}, 
+                {scores.get(Joint.leftShoulder)}, 
+                {scores.get(Joint.rightShoulder)}, 
+                {scores.get(Joint.leftHip)}, 
+                {scores.get(Joint.rightHip)}
                 );
             """
     except Exception as e:

@@ -42,11 +42,16 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  // Command Queue IPC
-  const cmdQueue_path = path.join(cwd(), "resources/ipc/to_landmarker.csv");
-
-  function _add_ipc_command(command:landmarkerCommand) {
-    fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
+  // Command IPC
+  function send_ipc(command:landmarkerCommand): void {
+    try {
+      if (landmarker instanceof ChildProcess) {
+        landmarker!.stdin!.write(`${command}\n`);
+        console.log("SENT COMMAND: "+command);
+      }
+    } catch (e) {
+      console.log("Error while sending to landmarker: ", e);
+    }
   }
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
@@ -141,11 +146,11 @@ const createWindow = () => {
   });
 
   ipcMain.on("cmd-start", ()=>{
-    _add_ipc_command("PLAY");
+    send_ipc("play");
   });
 
   ipcMain.on("cmd-pause", ()=>{
-    _add_ipc_command("PAUSE");
+    send_ipc("pause");
   });
 
   // kills the landmarker child process and closes the window.
@@ -168,21 +173,27 @@ const createWindow = () => {
 
   // Query
   ipcMain.on("get-score", (ev)=>{
-    session.get_latest_score((data)=>{
-      ev.sender.send('on-score', data);
+    session.get_latest_score((status, data)=>{
+      if (status == 'success') {
+        ev.sender.send('on-score', data);
+      }
     });
   });
 
   ipcMain.on("get-poses", (ev, sequenceId)=>{
     console.log(`RUNNING GET POSES (${sequenceId})`);
-    session.get_steps_from_sequenceId(sequenceId, (data)=>{
-      ev.sender.send('on-poses', data);
+    session.get_steps_from_sequenceId(sequenceId, (status, data)=>{
+      if (status == 'success') {
+        ev.sender.send('on-poses', data);
+      }
     });
   })
 
   ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
-    session.get_sequence_from_sequenceId(sequenceId, (data)=>{
-      ev.sender.send('on-sequence-data', data);
+    session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
+      if (status == 'success') {
+        ev.sender.send('on-sequence-data', data);
+      }
     });
   })
 

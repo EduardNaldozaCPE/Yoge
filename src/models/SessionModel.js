@@ -50,29 +50,36 @@ class SessionModel {
      */
     get_latest_score(callback) {
         this.db.get("SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);", (err, row) => {
+            let status;
             // Check for query errors 
             if (err) {
                 throw Error("Error while querying _get_latest_score: " + err);
             }
             // Validate Data
-            let rows2check = [
-                "scoreId", "sessionId", "step",
-                "leftElbow", "rightElbow", "leftKnee",
-                "rightKnee", "leftShoulder", "rightShoulder",
-                "leftHip", "rightHip"
-            ];
-            for (let i = 0; i < rows2check.length; i++) {
-                try {
-                    if (row[rows2check[i]] !== undefined)
-                        continue;
+            if (row !== undefined) {
+                let rows2check = [
+                    "scoreId", "sessionId", "step",
+                    "leftElbow", "rightElbow", "leftKnee",
+                    "rightKnee", "leftShoulder", "rightShoulder",
+                    "leftHip", "rightHip"
+                ];
+                for (let i = 0; i < rows2check.length; i++) {
+                    try {
+                        if (row[rows2check[i]] !== undefined)
+                            continue;
+                    }
+                    catch (e) {
+                        throw Error("Error while validating _get_latest_score: " + e);
+                    }
                 }
-                catch (e) {
-                    throw Error("Error while validating _get_latest_score: " + e);
-                }
+                status = 'success';
+                this._lastScore = row;
+            }
+            else {
+                status = "empty";
             }
             // Call callback and set the backup
-            this._lastScore = row;
-            callback(row);
+            callback(status, row);
         });
     }
     /**
@@ -82,9 +89,16 @@ class SessionModel {
      */
     get_steps_from_sequenceId(sequenceId, callback) {
         this.db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows) => {
+            let status;
             if (err)
                 throw Error("Invalid Session Id in _get_steps_from_session");
-            callback(rows);
+            if (rows !== undefined) {
+                status = 'success';
+            }
+            else {
+                status = 'empty';
+            }
+            callback(status, rows);
         });
     }
     /**
@@ -94,9 +108,16 @@ class SessionModel {
      */
     get_sequence_from_sequenceId(sequenceId, callback) {
         this.db.get(`SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`, (err, row) => {
+            let status;
             if (err)
                 throw Error("Invalid Sequence Id in _get_sequence_from_sequenceId");
-            callback(row);
+            if (row !== undefined) {
+                status = 'success';
+            }
+            else {
+                status = 'empty';
+            }
+            callback(status, row);
         });
     }
     /**
@@ -106,18 +127,20 @@ class SessionModel {
     get_latest_sessionId(callback) {
         this.db.get(`SELECT MAX(sessionId) FROM session;`, (err, row) => {
             let sequenceId;
+            let status;
             // Check for query Errors
             if (err)
                 throw Error("Error Caught _get_latest_sessionId: " + err);
             // Validate Data
-            try {
-                sequenceId = row.sessionId;
+            if (row !== undefined) {
+                status = 'success';
             }
-            catch (e) {
-                throw Error("Error Caught _get_latest_sessionId: " + err);
+            else {
+                status = 'empty';
             }
+            sequenceId = row.sessionId;
             // Run Callback if there are no errors during validation
-            callback(sequenceId);
+            callback(status, sequenceId);
         });
     }
 }

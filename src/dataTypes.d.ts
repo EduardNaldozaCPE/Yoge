@@ -1,4 +1,4 @@
-export type landmarkerCommand = "PLAY" | "PAUSE";
+export type landmarkerCommand = "play" | "pause";
 
 export interface config {
     MODEL_PATH      : string,

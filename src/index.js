@@ -24,7 +24,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("node:path"));
-const fs = __importStar(require("fs"));
 const electron_1 = require("electron");
 const node_child_process_1 = require("node:child_process");
 const process_1 = require("process");
@@ -60,8 +59,17 @@ const createWindow = () => {
     mainWindow.webContents.openDevTools();
     // Command Queue IPC
     const cmdQueue_path = path.join((0, process_1.cwd)(), "resources/ipc/to_landmarker.csv");
-    function _add_ipc_command(command) {
-        fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
+    function send_ipc(command) {
+        // fs.writeFileSync(cmdQueue_path, `${Date.now()},${command}`);
+        try {
+            if (landmarker instanceof node_child_process_1.ChildProcess) {
+                landmarker.stdin.write(`${command}\n`);
+                console.log("SENT COMMAND: " + command);
+            }
+        }
+        catch (e) {
+            console.log("Error while sending to landmarker: ", e);
+        }
     }
     // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
     electron_1.ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
@@ -153,10 +161,10 @@ const createWindow = () => {
         mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device);
     });
     electron_1.ipcMain.on("cmd-start", () => {
-        _add_ipc_command("PLAY");
+        send_ipc("play");
     });
     electron_1.ipcMain.on("cmd-pause", () => {
-        _add_ipc_command("PAUSE");
+        send_ipc("pause");
     });
     // kills the landmarker child process and closes the window.
     electron_1.ipcMain.on("window-close", () => {
@@ -177,19 +185,25 @@ const createWindow = () => {
     electron_1.ipcMain.on("window-minimize", () => mainWindow.minimize());
     // Query
     electron_1.ipcMain.on("get-score", (ev) => {
-        session.get_latest_score((data) => {
-            ev.sender.send('on-score', data);
+        session.get_latest_score((status, data) => {
+            if (status == 'success') {
+                ev.sender.send('on-score', data);
+            }
         });
     });
     electron_1.ipcMain.on("get-poses", (ev, sequenceId) => {
         console.log(`RUNNING GET POSES (${sequenceId})`);
-        session.get_steps_from_sequenceId(sequenceId, (data) => {
-            ev.sender.send('on-poses', data);
+        session.get_steps_from_sequenceId(sequenceId, (status, data) => {
+            if (status == 'success') {
+                ev.sender.send('on-poses', data);
+            }
         });
     });
     electron_1.ipcMain.on("get-sequence-data", (ev, sequenceId) => {
-        session.get_sequence_from_sequenceId(sequenceId, (data) => {
-            ev.sender.send('on-sequence-data', data);
+        session.get_sequence_from_sequenceId(sequenceId, (status, data) => {
+            if (status == 'success') {
+                ev.sender.send('on-sequence-data', data);
+            }
         });
     });
 };
