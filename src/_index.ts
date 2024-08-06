@@ -1,9 +1,11 @@
 import * as path from 'node:path';
+import * as fs from 'fs';
+import { landmarkerCommand } from './dataTypes';
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { spawn, ChildProcess } from "node:child_process";
 import { cwd } from 'process';
 import { landmarkerConfig } from './config';
 import { SessionModel } from './models/SessionModel';
-import { LandmarkerAPI } from './modules/landmarker-api';
 
 
 if ( require('electron-squirrel-startup') ) app.quit;
@@ -16,8 +18,6 @@ const DEBUG = true;
 const spawncommand: string = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs: Array<string> = DEBUG? ['src/services/landmarker-service/main.py'] : [];
 const session = new SessionModel();
-
-const landmarkerAPI = new LandmarkerAPI(spawncommand, spawnargs)
 
 
 // Create the browser window and start the landmarker script.
@@ -34,17 +34,31 @@ const createWindow = () => {
     },
   });
 
+  let landmarker: ChildProcess | null;
+
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   mainWindow.setMenu(null);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
+  // Command IPC
+  function send_ipc(command:landmarkerCommand): void {
+    try {
+      if (landmarker instanceof ChildProcess) {
+        landmarker!.stdin!.write(`${command}\n`);
+        console.log("SENT COMMAND: "+command);
+      }
+    } catch (e) {
+      console.log("Error while sending to landmarker: ", e);
+    }
+  }
+
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
 
     // Restart landmarker if it is already running.
-    if (landmarkerAPI.isInstanceExists()) {
+    if (landmarker != undefined) {
       mainWindow.webContents.send('restart-landmarker', device);
       return;
     }
@@ -60,7 +74,7 @@ const createWindow = () => {
     spawnArgsCopy.push(`-device=${device}`);
 
     try {
-      landmarkerAPI.start();
+      landmarker = spawn(spawncommand, spawnArgsCopy);
     } catch (error) { 
       console.log(`Encountered an error while connecting: \n${error}`); 
     } finally {
@@ -68,7 +82,7 @@ const createWindow = () => {
     }
 
     // Parse Data to image src string & Signal landmarker-status "SUCCESS" on the first data sent
-    landmarkerAPI.onData((data)=>{
+    landmarker!.stdout!.on('data', (data)=>{
       try {
         strBuffer = data.toString().split("'")[1];
       } catch (err) { console.log("Error Caught:", err); }
@@ -81,56 +95,63 @@ const createWindow = () => {
     });
 
     // Signal landmarker-status on close.
-    landmarkerAPI.onClose(
-      ()=>{
-        mainWindow.webContents.send('landmarker-status', "NORMAL");
-      },
-      () => {
-        mainWindow.webContents.send('landmarker-status', "NOVIDEO");
+    landmarker!.on('close', (code, signal)=>{
+      switch (code) {
+        case null: break;
+        case 0:
+          mainWindow.webContents.send('landmarker-status', "NORMAL");
+          break;
+        case 1:
+          mainWindow.webContents.send('landmarker-status', "NOVIDEO");
+          break;
+        default:
+          console.log("Landmarker closed with code: ", code);
+          break;
       }
-    );
+    });
     
     // Print stderr logs
-    landmarkerAPI.onCommand(
-      (_)=>{
+    landmarker!.stderr!.on('data', (data)=>{
+      let prefix = data.toString().substring(0,5);
+      if (prefix == "NPOSE") {
         mainWindow.webContents.send('next-pose');
-      },
-      (data)=>{
-        console.log(data.toString());  
+      } else {
+        console.log(`${data}`);
+      }
     });
   });
 
   // Kills the landmarker child process
   ipcMain.on("stop-landmarker", ()=>{
-    landmarkerAPI.kill()
-    if (landmarkerAPI.isInstanceExists()) {
-      throw new Error("Error killing landmarkerAPI");
+    if (landmarker) {
+      landmarker.kill();
+      landmarker = null;
     }
   });
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
   ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {
-    landmarkerAPI.kill();
-    if (landmarkerAPI.isInstanceExists()) {
-      throw new Error("Error killing landmarkerAPI");
+    if (landmarker != null) {
+      landmarker.kill();
+      landmarker = null;
     }
-    console.log(`Landmarker is dead. Running a new one...`);
+    console.log(`Landmarker is dead (${landmarker}). Running a new one...`);
     mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device)
   });
 
   ipcMain.on("cmd-start", ()=>{
-    landmarkerAPI.send_command("play");
+    send_ipc("play");
   });
 
   ipcMain.on("cmd-pause", ()=>{
-    landmarkerAPI.send_command("pause");
+    send_ipc("pause");
   });
 
   // kills the landmarker child process and closes the window.
   ipcMain.on("window-close", ()=>{
-    landmarkerAPI.kill();
-    if (landmarkerAPI.isInstanceExists()) {
-      throw new Error("Error killing landmarkerAPI");
+    if (landmarker) {
+      landmarker.kill();
+      landmarker = null;
     }
     mainWindow.close()
   });

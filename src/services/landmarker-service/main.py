@@ -5,20 +5,19 @@ from watchdog.observers import Observer
 from landmarker import Landmarker, LandmarkerOptions, LandmarkerSession
 
 ipcInput =  ''
-willExit = False
 
 def inputHandler():
-    global willExit
     global ipcInput
-    for line in sys.stdin:
+    while True:
+        line = input()
+        print("COMMAND: "+line, file=sys.stderr)
         ipcInput = line.strip().lower()
-        print("Python: Message Recieved", file=sys.stderr)
-        if ipcInput == 'exit': willExit = True
-        if willExit: break
+        if ipcInput == 'novid':
+            print("Exiting inputhandler", file=sys.stderr)
+            break
 
 def main():
     global ipcInput
-    global willExit
     config = open(os.path.join(os.getcwd(), 'resources/landmarker-config.json'), 'r')
     config_options = json.load(config)
     MODEL_PATH      = os.path.join(os.getcwd(), config_options["MODEL_PATH"])
@@ -62,7 +61,7 @@ def main():
     
     # 3b. Threading - Start a new thread for IPC inputs.
     try:
-        input_thread = threading.Thread(target=inputHandler, daemon=True)
+        input_thread = threading.Thread(target=inputHandler)
         input_thread.start()
     except Exception as e:
         print("Error while creating input thread:", e, file=sys.stderr)
@@ -105,14 +104,13 @@ def main():
 
         if not isRunning: break 
 
-    service.stopVideo()
     video_thread.join()
     input_thread.join()
     
-    if service.flagExit or willExit: 
-        return 1
+    if service.flagExit:
+        exit(1)
     else:
-        return 0
+        exit(0)
 
 if __name__ == "__main__":
-    SystemExit(main())
+    main()

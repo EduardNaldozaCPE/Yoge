@@ -30,7 +30,7 @@ class Landmarker:
 
         # State
         self._current_frame_cv = None
-        self._current_frame  = None
+        self._current_frame = None
         self.running        = False
         self.flagExit       = False
         self.isRecording    = False
@@ -39,6 +39,7 @@ class Landmarker:
         self.current_poseStep = 0
         self.poseList = []
         self.current_poseDuration = 1000
+
         self.current_poseTargets = JointFloat('targets')
         self.current_poseTargets.set(Joint.leftElbow,  180.0)
         self.current_poseTargets.set(Joint.rightElbow,  180.0)
@@ -121,7 +122,7 @@ class Landmarker:
         while self.running:
             success, frame = self.feed.read()
             if not success:
-                self.stopVideo()
+                print(f"NOVID", file=sys.stderr)
                 break
 
             frame = cv.resize(frame, (self.landmarker_options.width, self.landmarker_options.height))
