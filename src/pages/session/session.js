@@ -12,7 +12,9 @@ var poseListState   = []; // { step:number, posename:string, score:number, weigh
 var currentStep     = 0;
 var currentScore    = 0.0;
 
-const resetVars = () => {}
+const resetVars = () => {
+    $("#pose-table").scrollTop(0);
+}
 
 
 if (sequenceId == "undefined" || sequenceId == null) {
@@ -35,7 +37,7 @@ landmarkerAPI.onSession((sessionId)=>{
     landmarkerAPI.onPoses((data)=>{
         console.log(data);
         let poseIds = [];
-        $("#pose-table-body").html("");;
+        $("#pose-table-body").html("");
         for (let i = 0; i < data.length; i++) {
             let poseId = "poseScore-".concat(i+1);
             $("#pose-table-body").append(`
@@ -110,7 +112,7 @@ landmarkerAPI.onStatus(
 
 landmarkerAPI.onSessionDone(()=>{
     console.log("SESSION DONE");
-    $("finish-btn").removeAttr('disabled');
+    $("#finish-btn").removeAttr('disabled');
     let finalScore = 0;
     
     for (let i = 0; i < poseListState.length; i++) {
@@ -131,6 +133,7 @@ landmarkerAPI.onNextPose(()=>{
     if (currentStep > 0) {
         poseListState[currentStep-1].score = currentScore;
     }
+    $("#pose-table").scrollTop($("#pose-table").scrollTop()+30);
     currentStep++;
     console.log("currentStep = "+currentStep);
 });
@@ -151,9 +154,9 @@ function switchCamera() {
 /**
  * Stops the landmarker module and move back to dashboard
  */
-function returnToDashboard() {
+function returnToDashboard(page="dashboard") {
     landmarkerAPI.stop();
-    electronWindow.transitionTo('../dashboard/index.html?page=dashboard');
+    electronWindow.transitionTo(`../dashboard/index.html?page=${page}`);
 }
 
 /**

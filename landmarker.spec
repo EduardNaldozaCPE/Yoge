@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['src\\modules\\landmarker-service\\main.py'],
+    ['src\\services\\landmarker-service\\main.py'],
     pathex=[],
     binaries=[],
     datas=[],

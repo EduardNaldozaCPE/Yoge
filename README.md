@@ -26,5 +26,13 @@ Using a microservices architectural pattern of sorts, the appliation will interf
 | Database Middleware | ExpressJS (NodeJS) |  `NodeJS v20.12.2` |
 | Scores Database | SQLite | - |
 
+# Compiling
+
+1. In Command Prompt, make sure you’re in the base directory of the project (ex. `C:\Users\<username>\source\repos\Yoge>`)
+2. Make sure you are running in a python virtual environment [with pip requirements installed](https://www.notion.so/Yoge-c66f695b780848189fe7de07ef7c1bdf?pvs=21). (CMD Shows: `(venv) C:\…\Yoge>`)
+3. In `src/index.js`, make sure that the `DEBUG` variable is set to `false`
+4. `pyinstaller ./src/services/landmarker-service/main.py -n landmarker -i ./appicon.ico --distpath ./resources` → Bundles Landmarker module in to `resources/`
+5. `npm run make` → Creates the app's executable in `out/yoge-electron-win32-x64/`
+
 # Dev Log
 Dumping all my thoughts and stuff in [Notion](https://power-magpie-0b3.notion.site/Yoge-c66f695b780848189fe7de07ef7c1bdf?pvs=4).
