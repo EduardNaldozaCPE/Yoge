@@ -14,12 +14,15 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
 
     getScore: () => ipcRenderer.send('get-score'),
     onScore: (callback: Function) => ipcRenderer.on('on-score', (ev, data)=>{callback(data)}),
-
+    
     getPoses: (sequenceId: number) => ipcRenderer.send('get-poses', sequenceId),
     onPoses: (callback: Function) => ipcRenderer.on('on-poses', (ev, data)=>{callback(data)}),
 
     getSequenceData: (sequenceId: number) => ipcRenderer.send('get-sequence-data', sequenceId),
     onSequenceData: (callback: Function) => ipcRenderer.on('on-sequence-data', (ev, data)=>{callback(data)}),
+
+    onSessionDone: (callback: Function) => {ipcRenderer.on('session-done', ()=> callback())},
+    recordHistory: (sessionId: number, score: number) => {ipcRenderer.send('record-history', sessionId, score)},
 
     // Callbacks 
     onNextPose: (callback: Function) => ipcRenderer.on('next-pose', ()=>{callback()}),

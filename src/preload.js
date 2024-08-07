@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     onPoses: (callback) => ipcRenderer.on('on-poses', (ev, data) => { callback(data); }),
     getSequenceData: (sequenceId) => ipcRenderer.send('get-sequence-data', sequenceId),
     onSequenceData: (callback) => ipcRenderer.on('on-sequence-data', (ev, data) => { callback(data); }),
+    onSessionDone: (callback) => { ipcRenderer.on('session-done', () => callback()); },
+    recordHistory: (sessionId, score) => { ipcRenderer.send('record-history', sessionId, score); },
     // Callbacks 
     onNextPose: (callback) => ipcRenderer.on('next-pose', () => { callback(); }),
     onFrame: (callback) => { ipcRenderer.on('current-frame', (_, imgStr) => callback(imgStr)); },

@@ -3,7 +3,7 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-            "database": "${workspaceFolder:Yoge}/data/yoge.db",
+            "database": "${workspaceFolder:Yoge}/resources/data/yoge.db",
             "name": "yoge"
         }
     ]

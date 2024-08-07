@@ -40,3 +40,11 @@ export interface sessionType {
     sequenceId  : number,
 }
 export type sessionKey = keyof sessionType;
+
+
+export interface HistoryType {
+    historyId   : number;
+    sessionId   : number;
+    datetime    : string;
+    score       : number;
+}

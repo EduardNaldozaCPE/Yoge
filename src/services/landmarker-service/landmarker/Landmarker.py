@@ -1,11 +1,11 @@
 import sys, time
-import mediapipe as mp
 import cv2 as cv
+import mediapipe as mp
+from sqlite_controller import SqliteController as db
 
 from .Joints import *
 from .utils import *
 from .LandmarkerSession import LandmarkerSession
-from sqlite_controller import SqliteController as db
 from .LandmarkerOptions import LandmarkerOptions
 
 class Landmarker:
@@ -31,27 +31,27 @@ class Landmarker:
         # State
         self._current_frame_cv = None
         self._current_frame = None
-        self.running        = False
-        self.flagExit       = False
-        self.isRecording    = False
+        self.isRecording = False
+        self.flagExit = False
+        self.running = False
         self.query = ""
-        self.maxPoseSteps   = 10
-        self.current_poseStep = 0
         self.poseList = []
+        self.maxPoseSteps = 10
+        self.current_poseStep = 0
         self.current_poseDuration = 1000
 
         self.current_poseTargets = JointFloat('targets')
-        self.current_poseTargets.set(Joint.leftElbow,  180.0)
-        self.current_poseTargets.set(Joint.rightElbow,  180.0)
-        self.current_poseTargets.set(Joint.leftShoulder,  90.0)
-        self.current_poseTargets.set(Joint.rightShoulder,  270.0)
-        self.current_poseTargets.set(Joint.leftHip,  180.0)
-        self.current_poseTargets.set(Joint.rightHip,  180.0)
-        self.current_poseTargets.set(Joint.leftKnee,  180.0)
-        self.current_poseTargets.set(Joint.rightKnee,  180.0)
+        self.current_poseTargets.set(Joint.leftElbow, 180.0)
+        self.current_poseTargets.set(Joint.rightElbow, 180.0)
+        self.current_poseTargets.set(Joint.leftShoulder, 90.0)
+        self.current_poseTargets.set(Joint.rightShoulder, 270.0)
+        self.current_poseTargets.set(Joint.leftHip, 180.0)
+        self.current_poseTargets.set(Joint.rightHip, 180.0)
+        self.current_poseTargets.set(Joint.leftKnee, 180.0)
+        self.current_poseTargets.set(Joint.rightKnee, 180.0)
 
         # Result
-        self.__result: mp.tasks.vision.PoseLandmarkerResult
+        self.__result: mp.tasks.vision.PoseLandmarkerResult # type: ignore
         self.__output_image: mp.Image
         self.__timestamp_ms: int
         self.__gotImage:bool = False
@@ -175,10 +175,10 @@ class Landmarker:
             self.__landmarks.set(Joint.rightHip     , self.__result.pose_landmarks[0][24])
             self.__landmarks.set(Joint.leftKnee     , self.__result.pose_landmarks[0][25])
             self.__landmarks.set(Joint.rightKnee    , self.__result.pose_landmarks[0][26])
-            self.__landmarks.set(Joint.leftWrist , self.__result.pose_landmarks[0][15])
-            self.__landmarks.set(Joint.rightWrist, self.__result.pose_landmarks[0][16])
-            self.__landmarks.set(Joint.leftAnkle , self.__result.pose_landmarks[0][27])
-            self.__landmarks.set(Joint.rightAnkle, self.__result.pose_landmarks[0][28])
+            self.__landmarks.set(Joint.leftWrist    , self.__result.pose_landmarks[0][15])
+            self.__landmarks.set(Joint.rightWrist   , self.__result.pose_landmarks[0][16])
+            self.__landmarks.set(Joint.leftAnkle    , self.__result.pose_landmarks[0][27])
+            self.__landmarks.set(Joint.rightAnkle   , self.__result.pose_landmarks[0][28])
             isResultComplete = True
         except IndexError as e:
             isResultComplete = False
@@ -224,7 +224,7 @@ class Landmarker:
         self.__gotImage = False
  
 
-    def __on_detect(self, result: mp.tasks.vision.PoseLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    def __on_detect(self, result, output_image: mp.Image, timestamp_ms: int):
         """Private Method - Handle Async image detect """
         self.__result = result
         self.__output_image = output_image
@@ -263,4 +263,5 @@ class Landmarker:
             if self.current_poseStep < self.maxPoseSteps:
                 self.__setNextPose()
             else:
+                print("STPRC",file=sys.stderr)
                 self.isRecording = False

@@ -136,4 +136,13 @@ export class SessionModel {
         }
         );
     }
+
+    postNewHistory(sessionId:number, score:number) {
+        this.db.serialize(() => {
+            this.db.run(`INSERT INTO history VALUES (${Date.now()}, ${sessionId}, ${Date.now()}, ${score})`, (err)=>{
+                if (err)
+                    throw new Error("Error while posting new History row");
+            });
+        });
+    }
 }

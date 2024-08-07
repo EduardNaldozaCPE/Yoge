@@ -1,22 +1,19 @@
-const liveFeed = document.getElementById('live-feed');
-const camSwitchBtn = document.getElementById('live-camswitch');
-const widgetScore = document.getElementById('widget-score');
-var currentDevice = 0;
-var showFeed = false;
-var isRecording = false;
-var poseListState = []; // {step:number, posename:string, score:number}
-var currentStep = 0;
-var currentScore = 0.0;
+const liveFeed      = document.getElementById('live-feed');
+const camSwitchBtn  = document.getElementById('live-camswitch');
+const widgetScore   = document.getElementById('widget-score');
+const userId        = sessionStorage.getItem('userId');
+const sequenceId    = sessionStorage.getItem('sequenceId');
 
-const resetVars = () => {
-    isRecording = false;
-    poseListState = [];
-    currentStep = 0;
-    currentScore = 0.0;
-}
+var currentDevice   = 0;
+var glob_sessionId  = null;
+var showFeed        = false;
+var isRecording     = false;
+var poseListState   = []; // { step:number, posename:string, score:number, weight:number }
+var currentStep     = 0;
+var currentScore    = 0.0;
 
-const userId = sessionStorage.getItem('userId');
-const sequenceId = sessionStorage.getItem('sequenceId');
+const resetVars = () => {}
+
 
 if (sequenceId == "undefined" || sequenceId == null) {
     alert("Sequence Is undefined. Returning to dashboard...");
@@ -30,6 +27,7 @@ if (sequenceId == "undefined" || sequenceId == null) {
 }
 
 landmarkerAPI.onSession((sessionId)=>{
+    glob_sessionId = sessionId;
     console.log("SESSION ID: "+sessionId);
     
     // Get rows to the pose list and save each ID in poseListState
@@ -43,7 +41,7 @@ landmarkerAPI.onSession((sessionId)=>{
             $("#pose-table-body").append(`
                 <tr id="pose-${i+1}">
                     <td id="poseName-${i+1}">${data[i]["poseName"]}</td>
-                    <td id="${poseId}">-</td>
+                    <td id="${poseId}" class="poseScore">-</td>
                 </tr>
             `);
             poseIds.push(poseId);
@@ -52,7 +50,8 @@ landmarkerAPI.onSession((sessionId)=>{
             poseListState.push({
                 "step":poseIds[i],
                 "poseName":data[i]["poseName"], 
-                "score":-1
+                "score":-1,
+                "weight":data[i]["wght"]
             });
         }
     });
@@ -93,7 +92,7 @@ landmarkerAPI.onScore((data) => {
 landmarkerAPI.onStatus(
     // Landmarker ran successfully. Show the feed.
     successCallback = ()=>{
-        console.log("LANDMARKER RAN SUCCESSFULLY");
+        console.log("onStatus: Success");
         liveFeed.style.opacity = 1;
         showFeed = true;
         camSwitchBtn.disabled = false;
@@ -101,7 +100,7 @@ landmarkerAPI.onStatus(
     },
     // Landmarker failed to run. Reset to DeviceID 0 then re-run.
     failCallback = ()=>{
-        console.log("LANDMARKER FAILED TO RUN");
+        console.log("onStatus: Failed. Restarting...");
         liveFeed.style.opacity = 0.2;
         currentDevice = 0;
         landmarkerAPI.restart(device=currentDevice);
@@ -109,15 +108,33 @@ landmarkerAPI.onStatus(
     }
 );
 
+landmarkerAPI.onSessionDone(()=>{
+    console.log("SESSION DONE");
+    $("finish-btn").removeAttr('disabled');
+    let finalScore = 0;
+    
+    for (let i = 0; i < poseListState.length; i++) {
+        finalScore += (poseListState[i].score * poseListState[i].weight);
+    }
+    finalScore = finalScore / 100;
+    console.log(finalScore);
+    
+    landmarkerAPI.recordHistory(glob_sessionId, finalScore);
+});
+
 landmarkerAPI.onFrame((imgStr)=>{
     if (!showFeed) { return } 
     liveFeed.src = imgStr;
 });
 
 landmarkerAPI.onNextPose(()=>{
+    if (currentStep > 0) {
+        poseListState[currentStep-1].score = currentScore;
+    }
     currentStep++;
     console.log("currentStep = "+currentStep);
 });
+
 
 /**
  * Restart the landmarker process. Wait for new landmarker via OnStatus()  

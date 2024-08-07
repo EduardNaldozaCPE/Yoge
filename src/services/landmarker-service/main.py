@@ -10,7 +10,6 @@ def inputHandler():
     global ipcInput
     while True:
         line = input()
-        print("COMMAND: "+line, file=sys.stderr)
         ipcInput = line.strip().lower()
         if ipcInput == 'novid':
             print("Exiting inputhandler", file=sys.stderr)

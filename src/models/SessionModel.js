@@ -143,5 +143,13 @@ class SessionModel {
             callback(status, sequenceId);
         });
     }
+    postNewHistory(sessionId, score) {
+        this.db.serialize(() => {
+            this.db.run(`INSERT INTO history VALUES (${Date.now()}, ${sessionId}, ${Date.now()}, ${score})`, (err) => {
+                if (err)
+                    throw new Error("Error while posting new History row");
+            });
+        });
+    }
 }
 exports.SessionModel = SessionModel;

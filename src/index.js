@@ -106,6 +106,8 @@ const createWindow = () => {
             mainWindow.webContents.send('next-pose');
         }, (data) => {
             console.log(data.toString());
+        }, () => {
+            mainWindow.webContents.send('session-done');
         });
     });
     // Kills the landmarker child process
@@ -114,6 +116,9 @@ const createWindow = () => {
         if (landmarkerAPI.isInstanceExists()) {
             throw new Error("Error killing landmarkerAPI");
         }
+    });
+    electron_1.ipcMain.on("record-history", (_, sessionId, score) => {
+        session.postNewHistory(sessionId, score);
     });
     // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
     electron_1.ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {

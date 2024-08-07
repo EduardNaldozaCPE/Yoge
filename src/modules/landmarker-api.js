@@ -42,18 +42,21 @@ class LandmarkerAPI {
      * @param on_next_pose Calls upon NPOSE signal
      * @param on_stderr Calls upon stderr
      */
-    onCommand(on_next_pose, on_stderr) {
+    onCommand(on_next_pose = (data) => { }, on_stderr = (data) => { }, on_stop_vid = () => { }) {
         if (!this.isInstanceExists()) {
             console.error("No Landmarker");
         }
         this.landmarker.stderr.on('data', (data) => {
             let prefix = data.toString().substring(0, 5);
-            let suffix = data.toString().substring(data.length-7, data.length-2);
-            if (prefix == "NPOSE") {
+            let suffix = data.toString().substring(data.length - 5, data.length);
+            if (prefix == "NPOSE" || suffix == "NPOSE") {
                 on_next_pose(data);
             }
             else if (prefix == "NOVID" || suffix == "NOVID") {
                 this.send_command("novid");
+            }
+            else if (prefix == "STPRC" || suffix == "STPRC") {
+                on_stop_vid();
             }
             else {
                 on_stderr(data);
