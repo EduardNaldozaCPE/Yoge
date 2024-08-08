@@ -1,3 +1,12 @@
+:root {
+  --dropdown-background: #1a1a1a;
+  --dropdown-text-color: #fff;
+  --dropdown-hover-color: #212121;
+  --dropdown-border-color: #555;
+  --dropdown-border-radius: 0.25em;
+  --dropdown-icon-color: #fff;
+}
+
 body {
   display: grid;
   grid-template-columns: 200px auto;
@@ -275,4 +284,70 @@ body {
 
 #info-startbtn:hover {
   background-color: #1a1a1a;
+}
+
+/* SCORES PAGE */
+#scores-maincontent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#score-content {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+#score-stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+#score-widget {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+}
+
+.score-widget-canvas {
+  background-color: #3333;
+}
+
+#graph-widget {
+  background-color: #3333;
+  height: 100%;
+}
+
+.custom-select select {
+  appearance: none;
+  width: 100%;
+  border: #333 solid 1px;
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 20px;
+  cursor: pointer;
+  background-color: var(--dropdown-background);
+  border-radius: var(--dropdown-border-radius);
+  color: var(--dropdown-text-color);
+  border: 1px solid var(--dropdown-border-color);
+  transition: background-color 0.1s linear;
+}
+
+.custom-select select:hover {
+  background-color: var(--dropdown-hover-color);
+}
+
+.custom-select::before {
+  border-bottom: var(--size) solid var(--dropdown-icon-color)
+}
+
+.custom-select::after {
+  border-top: var(--size) solid var(--dropdown-icon-color);
 }

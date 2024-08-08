@@ -1,1 +1,63 @@
-<p>Scores Page Under Construction...</p>
+<div id="scores-maincontent">
+    <form action="#">
+        <div class="custom-select">
+            <select name="header-dropdown" id="header-dropdown">
+                <option value="sequenceId-1">General Fitness Sequence (Sun Salutation A)</option>
+                <option value="sequenceId-2">Weight Loss Sequence</option>
+                <option value="sequenceId-3">Flexibility Sequence</option>
+                <option value="sequenceId-4">Core Strength Sequence</option>
+            </select>
+        </div>
+    </form>
+    <div id="score-content">
+        <div id="score-stats">
+            <div id="score-widget">
+                <canvas width="118" class="score-widget-canvas" id="score-widget-latest"></canvas>
+                <canvas width="118" class="score-widget-canvas" id="score-widget-best"></canvas>
+                <canvas width="118" class="score-widget-canvas" id="score-widget-average"></canvas>
+            </div>
+            <div id="graph-widget">
+                <canvas width="100%" height="100%"></canvas>
+            </div>
+        </div>
+        <div id="scores-poselist">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pose Name</th>
+                        <th>Latest Score</th>
+                        <th>Best Score</th>
+                        <th>Average Score</th>
+                    </tr>
+                </thead>
+                <tbody id="pose-table-body">
+                    <tr>
+                        <td>Pose Name</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Pose Name</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Pose Name</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Pose Name</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                        <td>0.00</td>
+                    </tr>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
