@@ -12,9 +12,20 @@
     <div id="score-content">
         <div id="score-stats">
             <div id="score-widget">
-                <canvas width="118" class="score-widget-canvas" id="score-widget-latest"></canvas>
-                <canvas width="118" class="score-widget-canvas" id="score-widget-best"></canvas>
-                <canvas width="118" class="score-widget-canvas" id="score-widget-average"></canvas>
+                <div class="score-widget-score">
+                    <canvas width="150" class="score-widget-canvas" id="score-widget-latest"></canvas>
+                    <p>Latest Score</p>
+                </div>
+                
+                <div class="score-widget-score">
+                <canvas width="150" class="score-widget-canvas" id="score-widget-best"></canvas>
+                    <p>Best Score</p>
+                </div>
+                
+                <div class="score-widget-score">
+                <canvas width="150" class="score-widget-canvas" id="score-widget-average"></canvas>
+                    <p>Average Score</p>
+                </div>
             </div>
             <div id="graph-widget">
                 <canvas width="100%" height="100%"></canvas>
@@ -61,3 +72,46 @@
         </div>
     </div>
 </div>
+<script>
+    const latest_canvas = document.getElementById('score-widget-latest');
+    const latest_ctx = latest_canvas.getContext('2d');
+    drawGauge(latest_canvas, latest_ctx, 75, '#ddd');
+    const best_canvas = document.getElementById('score-widget-best');
+    const best_ctx = best_canvas.getContext('2d');
+    drawGauge(best_canvas, best_ctx, 95, '#ddd');
+    const avg_canvas = document.getElementById('score-widget-average');
+    const avg_ctx = avg_canvas.getContext('2d');
+    drawGauge(avg_canvas, avg_ctx, 85, '#ddd');
+
+    // Function to draw the gauge
+    function drawGauge(canvas, context, percentage, colour) {
+        let startAngle = -Math.PI / 2;
+        let endAngle = startAngle + (2 * Math.PI * percentage / 100);
+        let radius = 60;
+        let lineWidth = 20;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        context.beginPath();
+        context.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, 360);
+        context.lineWidth = lineWidth;
+        context.strokeStyle = "#333a";
+        context.lineCap = "round";
+        context.stroke();
+        context.closePath();
+
+        context.beginPath();
+        context.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, endAngle);
+        context.lineWidth = lineWidth;
+        context.strokeStyle = colour;
+        context.lineCap = "round";
+        context.stroke();
+        context.closePath();
+
+        context.font = 'bold 45px WorkSans';
+        context.font
+        context.fillStyle = '#ddd';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(percentage, canvas.width / 2, canvas.height / 2);
+    }
+</script>

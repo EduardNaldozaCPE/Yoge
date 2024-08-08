@@ -316,8 +316,16 @@ body {
   flex-direction: row;
 }
 
+.score-widget-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
 .score-widget-canvas {
-  background-color: #3333;
+  width: 150px;
+  height: 150px;
 }
 
 #graph-widget {
