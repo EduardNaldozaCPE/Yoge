@@ -30,6 +30,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "chart.js": "^4.4.3",
     "csv": "^6.3.10",
     "electron-squirrel-startup": "^1.0.1",
     "net": "^1.0.2",

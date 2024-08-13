@@ -329,8 +329,8 @@ body {
 }
 
 #graph-widget {
-  background-color: #3333;
-  height: 100%;
+  /* background-color: #3333; */
+  /* height: 100%; */
 }
 
 .custom-select select {

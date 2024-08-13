@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div id="graph-widget">
-                <canvas width="100%" height="100%"></canvas>
+                <canvas id="score-graph" width="100%" height="100%"></canvas>
             </div>
         </div>
         <div id="scores-poselist">
@@ -73,6 +73,38 @@
     </div>
 </div>
 <script>
+    const chartData = {
+        labels: [1,2,3,4,5,6,7,8,9,10],
+        datasets: [{
+            label: 'Session Score',
+            data: [100,90,80,70,60,50,40,10],
+            fill: false,
+            borderColor: '#6acb62',
+            tension: 0.1
+        }]
+    }
+    // Charts
+    try {
+        const chart_canvas = document.getElementById('score-graph');
+        const chart_ctx = chart_canvas.getContext('2d');
+        new Chart(chart_ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                aspectRatio: 1.8,
+                scales: {
+                    y: {
+                        label: "oog",
+                        stacked: true
+                    }
+                }
+            }
+        });
+    } catch (e) {
+        console.log(e);
+    }
+
+    // Score Gauges
     const latest_canvas = document.getElementById('score-widget-latest');
     const latest_ctx = latest_canvas.getContext('2d');
     drawGauge(latest_canvas, latest_ctx, 75, '#ddd');
