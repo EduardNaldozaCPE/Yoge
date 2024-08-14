@@ -170,6 +170,15 @@ const createWindow = () => {
     });
   })
 
+  ipcMain.on("get-history", (ev)=>{
+    console.log(`RUNNING GET HISTORY`);
+    session.get_all_history((status, data)=>{
+      if (status == 'success') {
+        ev.sender.send('on-history', data);
+      }
+    });
+  })
+
   ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
     session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {

@@ -73,47 +73,69 @@
     </div>
 </div>
 <script>
-    const chartData = {
-        labels: [1,2,3,4,5,6,7,8,9,10],
-        datasets: [{
-            label: 'Session Score',
-            data: [100,90,80,70,60,50,40,10],
-            fill: false,
-            borderColor: '#6acb62',
-            tension: 0.1
-        }]
-    }
     // Charts
-    try {
+    landmarkerAPI.getHistory();
+    landmarkerAPI.onHistory((data)=>{
+        // Convert datetime int to text
+        const _labels = [];
+        const _scores = [];
+        var bestScore = 0; 
+        var latestScore = 0; 
+        var avgScore = 0; 
+        let scoreSum = 0;
+        for (let i = 0; i < data.length; i++) {
+            _labels.push(`Session ${i+1}`);
+            _scores.push(data[i].score.toFixed(2));
+            if (i == data.length-1)
+                latestScore = data[i].score;
+            if (data[i].score > bestScore)
+                bestScore = data[i].score;
+            scoreSum += data[i].score;
+        }
+        avgScore = scoreSum / data.length;
+
         const chart_canvas = document.getElementById('score-graph');
         const chart_ctx = chart_canvas.getContext('2d');
+        const chartData = {
+            labels: _labels,
+            datasets: [{
+                label: 'Session Score',
+                data: _scores,
+                fill: false,
+                borderColor: '#6acb62',
+                tension: 0.1
+            }]
+        }
+
         new Chart(chart_ctx, {
             type: 'line',
             data: chartData,
             options: {
-                aspectRatio: 1.8,
+                aspectRatio: 2,
                 scales: {
                     y: {
-                        label: "oog",
-                        stacked: true
+                        stacked: true,
+                        beginAtZero: true,
+                        grid: {color:"#444"}
+                    },
+                    x: {
+                        grid: {color:"#444"}
                     }
                 }
             }
         });
-    } catch (e) {
-        console.log(e);
-    }
 
-    // Score Gauges
-    const latest_canvas = document.getElementById('score-widget-latest');
-    const latest_ctx = latest_canvas.getContext('2d');
-    drawGauge(latest_canvas, latest_ctx, 75, '#ddd');
-    const best_canvas = document.getElementById('score-widget-best');
-    const best_ctx = best_canvas.getContext('2d');
-    drawGauge(best_canvas, best_ctx, 95, '#ddd');
-    const avg_canvas = document.getElementById('score-widget-average');
-    const avg_ctx = avg_canvas.getContext('2d');
-    drawGauge(avg_canvas, avg_ctx, 85, '#ddd');
+        // Score Gauges
+        const latest_canvas = document.getElementById('score-widget-latest');
+        const best_canvas = document.getElementById('score-widget-best');
+        const avg_canvas = document.getElementById('score-widget-average');
+        const latest_ctx = latest_canvas.getContext('2d');
+        const best_ctx = best_canvas.getContext('2d');
+        const avg_ctx = avg_canvas.getContext('2d');
+        drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
+        drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
+        drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');
+    });
 
     // Function to draw the gauge
     function drawGauge(canvas, context, percentage, colour) {

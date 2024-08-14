@@ -137,6 +137,19 @@ export class SessionModel {
         );
     }
 
+    get_all_history(callback: (status:string, rows:Array<any>) => (void)): void {
+        this.db.all(`SELECT * FROM history;`, (err, rows)=>{
+            let status;
+            if (err) throw Error("Invalid Session Id in _get_steps_from_session");
+            if (rows !== undefined) {
+                status = 'success';
+            } else {
+                status = 'empty';
+            }
+            callback(status, rows);
+        })
+    }
+
     postNewHistory(sessionId:number, score:number) {
         this.db.serialize(() => {
             this.db.run(`INSERT INTO history VALUES (${Date.now()}, ${sessionId}, ${Date.now()}, ${score})`, (err)=>{

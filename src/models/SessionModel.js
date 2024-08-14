@@ -143,6 +143,20 @@ class SessionModel {
             callback(status, sequenceId);
         });
     }
+    get_all_history(callback) {
+        this.db.all(`SELECT * FROM history;`, (err, rows) => {
+            let status;
+            if (err)
+                throw Error("Invalid Session Id in _get_steps_from_session");
+            if (rows !== undefined) {
+                status = 'success';
+            }
+            else {
+                status = 'empty';
+            }
+            callback(status, rows);
+        });
+    }
     postNewHistory(sessionId, score) {
         this.db.serialize(() => {
             this.db.run(`INSERT INTO history VALUES (${Date.now()}, ${sessionId}, ${Date.now()}, ${score})`, (err) => {
