@@ -29,6 +29,7 @@ const process_1 = require("process");
 const config_1 = require("./config");
 const SessionModel_1 = require("./models/SessionModel");
 const landmarker_api_1 = require("./modules/landmarker-api");
+const utils_1 = require("./modules/utils");
 if (require('electron-squirrel-startup'))
     electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"
@@ -174,6 +175,17 @@ const createWindow = () => {
             if (status == 'success') {
                 ev.sender.send('on-history', data);
             }
+        });
+    });
+    electron_1.ipcMain.on("get-pose-records", (ev, sequenceId) => {
+        console.log(`RUNNING GET POSE RECORDS`);
+        session.get_steps_from_sequenceId(sequenceId, (status, poses) => {
+            if (status != 'success')
+                return;
+            session.get_scores_from_sequenceId(sequenceId, (status, data) => {
+                let poseRecords = (0, utils_1.response2PoseRecord)(status, data, poses);
+                ev.sender.send('on-pose-records', poseRecords);
+            });
         });
     });
     electron_1.ipcMain.on("get-sequence-data", (ev, sequenceId) => {

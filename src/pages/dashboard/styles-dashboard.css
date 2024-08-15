@@ -290,27 +290,30 @@ body {
 #scores-maincontent {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
 }
 
 #score-content {
+  min-height: 0px;
   display: flex;
   flex-direction: row;
-  height: 100%;
   padding: 10px;
-  justify-content: space-between;
 }
 
 #score-stats {
-  width: 100%;
+  justify-content: space-evenly;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   padding: 10px;
 }
 
+#scores-poselist {
+  flex: 1;
+  overflow-y: auto;
+}
+
 #score-widget {
-  width: 100%;
   display: flex;
   justify-content: space-evenly;
   flex-direction: row;
@@ -327,10 +330,6 @@ body {
   width: 150px;
   height: 150px;
 }
-
-/* #graph-widget {
-  background-color: #3333;
-} */
 
 .custom-select select {
   appearance: none;

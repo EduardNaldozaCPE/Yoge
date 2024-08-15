@@ -4,6 +4,7 @@ import { cwd } from 'process';
 import { landmarkerConfig } from './config';
 import { SessionModel } from './models/SessionModel';
 import { LandmarkerAPI } from './modules/landmarker-api';
+import { PoseRecord, response2PoseRecord } from './modules/utils';
 
 
 if ( require('electron-squirrel-startup') ) app.quit;
@@ -168,7 +169,7 @@ const createWindow = () => {
         ev.sender.send('on-poses', data);
       }
     });
-  })
+  });
 
   ipcMain.on("get-history", (ev, sequenceId)=>{
     console.log(`RUNNING GET HISTORY`);
@@ -177,7 +178,18 @@ const createWindow = () => {
         ev.sender.send('on-history', data);
       }
     });
-  })
+  });
+
+  ipcMain.on("get-pose-records", (ev, sequenceId)=>{
+    console.log(`RUNNING GET POSE RECORDS`);
+    session.get_steps_from_sequenceId(sequenceId, (status, poses)=>{
+      if (status != 'success') return;
+      session.get_scores_from_sequenceId(sequenceId, (status,data)=>{
+        let poseRecords:Array<PoseRecord> = response2PoseRecord(status,data,poses);
+        ev.sender.send('on-pose-records', poseRecords);
+      });
+    });
+  });
 
   ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
     session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
@@ -185,7 +197,7 @@ const createWindow = () => {
         ev.sender.send('on-sequence-data', data);
       }
     });
-  })
+  });
 
 };
 

@@ -73,19 +73,43 @@
     </div>
 </div>
 <script>
-    // Charts
-    const latest_canvas = document.getElementById('score-widget-latest');
-    const best_canvas   = document.getElementById('score-widget-best');
-    const avg_canvas    = document.getElementById('score-widget-average');
-    const chart_canvas  = document.getElementById('score-graph');
-    const latest_ctx    = latest_canvas.getContext('2d');
-    const best_ctx      = best_canvas.getContext('2d');
-    const avg_ctx       = avg_canvas.getContext('2d');
-    const chart_ctx     = chart_canvas.getContext('2d');
+    // Reassign variables on reload.
+    if (latest_canvas === undefined)
+        var latest_canvas = document.getElementById('score-widget-latest');
+    else
+        latest_canvas = document.getElementById('score-widget-latest');
+    if (best_canvas === undefined)
+        var best_canvas = document.getElementById('score-widget-best');
+    else
+        best_canvas = document.getElementById('score-widget-best');
+    if (avg_canvas === undefined)
+        var avg_canvas = document.getElementById('score-widget-average');
+    else
+        avg_canvas = document.getElementById('score-widget-average');
+    if (chart_canvas === undefined)
+        var chart_canvas = document.getElementById('score-graph');
+    else
+        chart_canvas = document.getElementById('score-graph');
+    if (latest_ctx === undefined)
+        var latest_ctx = latest_canvas.getContext('2d');
+    else
+        latest_ctx = latest_canvas.getContext('2d');
+    if (best_ctx === undefined)
+        var best_ctx = best_canvas.getContext('2d');
+    else
+        best_ctx = best_canvas.getContext('2d');
+    if (avg_ctx === undefined)
+        var avg_ctx = avg_canvas.getContext('2d');
+    else
+        avg_ctx = avg_canvas.getContext('2d');
+    if (chart_ctx === undefined)
+        var chart_ctx = chart_canvas.getContext('2d');
+    else
+        chart_ctx = chart_canvas.getContext('2d');
     
+    var chart;
     var _labels = [];
     var _scores = [];
-    var chart;
     var selectedSequenceId = 1;
     var bestScore   = 0;
     var latestScore = 0; 
@@ -107,11 +131,10 @@
             console.error("getHistory invalid argument");
             return;
         }
-        console.log(sequenceId);
         selectedSequenceId = sequenceId;
         landmarkerAPI.getHistory(selectedSequenceId);
+        landmarkerAPI.getPoseRecords(selectedSequenceId);
     }
-
     landmarkerAPI.onHistory((data)=>{
         // Convert datetime int to text
         _labels = [];   
@@ -119,7 +142,7 @@
         bestScore   = 0;
         latestScore = 0; 
         avgScore    = 0;
-        
+
         let scoreSum = 0;
         if (data.length != 0) {
             for (let i = 0; i < data.length; i++) {
@@ -145,8 +168,8 @@
             }]
         }
 
-        if(Chart.getChart("score-graph")) {
-            Chart.getChart("score-graph")?.destroy()
+        if(Chart.getChart(chart_ctx)) {
+            Chart.getChart(chart_ctx)?.destroy();
         }
 
         chart = new Chart(chart_ctx, {
@@ -167,43 +190,52 @@
             }
         });
 
-        // Score Gauges
-        console.log();
-        
         drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
         drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
         drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');
     });
 
+    landmarkerAPI.onPoseRecords((data)=>{
+        let newTable = $("#pose-table-body").html("");
+        for (let i = 0; i < data.length; i++) {
+            newTable = newTable.add(`<tr>
+                <td>${data[i].poseName}</td>
+                <td>${data[i].latestScore.toFixed(2)}</td>
+                <td>${data[i].bestScore.toFixed(2)}</td>
+                <td>${data[i].avgScore.toFixed(2)}</td>
+            </tr>`);
+        }
+        $("#pose-table-body").html(newTable);
+    });
+
     // Function to draw the gauge
-    function drawGauge(canvas, context, percentage, colour) {
-        let startAngle = -Math.PI / 2;
-        let endAngle = startAngle + (2 * Math.PI * percentage / 100);
-        let radius = 60;
-        let lineWidth = 20;
-        context.clearRect(0, 0, canvas.width, canvas.height);
+    function drawGauge(canvas, ctx, percentage, colour) {
+        let startAngle  = -Math.PI / 2;
+        let endAngle    = startAngle + (2 * Math.PI * percentage / 100);
+        let radius      = 60;
+        let lineWidth   = 20;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        context.beginPath();
-        context.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, 360);
-        context.lineWidth = lineWidth;
-        context.strokeStyle = "#333a";
-        context.lineCap = "round";
-        context.stroke();
-        context.closePath();
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, 360);
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = "#333a";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
 
-        context.beginPath();
-        context.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, endAngle);
-        context.lineWidth = lineWidth;
-        context.strokeStyle = colour;
-        context.lineCap = "round";
-        context.stroke();
-        context.closePath();
-
-        context.font = 'bold 45px WorkSans';
-        context.font
-        context.fillStyle = '#ddd';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.fillText(percentage, canvas.width / 2, canvas.height / 2);
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, endAngle);
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = colour;
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.font = 'bold 45px WorkSans';
+        ctx.fillStyle = '#ddd';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(percentage, canvas.width / 2, canvas.height / 2);
     }
 </script>

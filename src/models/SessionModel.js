@@ -161,7 +161,21 @@ class SessionModel {
         this.db.all(`SELECT * FROM history where sessionId IN (SELECT sessionId FROM session WHERE sequenceId=${sequenceId});`, (err, rows) => {
             let status;
             if (err)
-                throw Error("Invalid Session Id in _get_steps_from_session");
+                throw Error("Invalid Session Id in get_history_from_sequenceId");
+            if (rows !== undefined) {
+                status = 'success';
+            }
+            else {
+                status = 'empty';
+            }
+            callback(status, rows);
+        });
+    }
+    get_scores_from_sequenceId(sequenceId, callback) {
+        this.db.all(`SELECT * FROM score WHERE sessionId IN (SELECT sessionId FROM session WHERE sequenceId = ${sequenceId});`, (err, rows) => {
+            let status;
+            if (err)
+                throw Error("Invalid Session Id in get_scores_from_sequenceId");
             if (rows !== undefined) {
                 status = 'success';
             }
