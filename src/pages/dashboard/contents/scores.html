@@ -1,11 +1,11 @@
 <div id="scores-maincontent">
     <form action="#">
         <div class="custom-select">
-            <select name="header-dropdown" id="header-dropdown">
-                <option value="sequenceId-1">General Fitness Sequence (Sun Salutation A)</option>
-                <option value="sequenceId-2">Weight Loss Sequence</option>
-                <option value="sequenceId-3">Flexibility Sequence</option>
-                <option value="sequenceId-4">Core Strength Sequence</option>
+            <select name="header-dropdown" id="header-dropdown" onchange="getHistory(parseInt(this.value))">
+                <option value="1">General Fitness Sequence (Sun Salutation A)</option>
+                <option value="2">Weight Loss Sequence</option>
+                <option value="3">Flexibility Sequence</option>
+                <option value="4">Core Strength Sequence</option>
             </select>
         </div>
     </form>
@@ -74,29 +74,67 @@
 </div>
 <script>
     // Charts
-    landmarkerAPI.getHistory();
+    const latest_canvas = document.getElementById('score-widget-latest');
+    const best_canvas   = document.getElementById('score-widget-best');
+    const avg_canvas    = document.getElementById('score-widget-average');
+    const chart_canvas  = document.getElementById('score-graph');
+    const latest_ctx    = latest_canvas.getContext('2d');
+    const best_ctx      = best_canvas.getContext('2d');
+    const avg_ctx       = avg_canvas.getContext('2d');
+    const chart_ctx     = chart_canvas.getContext('2d');
+    
+    var _labels = [];
+    var _scores = [];
+    var chart;
+    var selectedSequenceId = 1;
+    var bestScore   = 0;
+    var latestScore = 0; 
+    var avgScore    = 0; 
+    var chartData = {
+            labels: [],
+            datasets: [{
+                label: 'Session Score',
+                data: [],
+                fill: false,
+                borderColor: '#6acb62',
+                tension: 0.1
+            }]
+        }
+
+    getHistory(selectedSequenceId);
+    function getHistory(sequenceId) {
+        if (typeof(sequenceId) != 'number') {
+            console.error("getHistory invalid argument");
+            return;
+        }
+        console.log(sequenceId);
+        selectedSequenceId = sequenceId;
+        landmarkerAPI.getHistory(selectedSequenceId);
+    }
+
     landmarkerAPI.onHistory((data)=>{
         // Convert datetime int to text
-        const _labels = [];
-        const _scores = [];
-        var bestScore = 0; 
-        var latestScore = 0; 
-        var avgScore = 0; 
+        _labels = [];   
+        _scores = [];
+        bestScore   = 0;
+        latestScore = 0; 
+        avgScore    = 0;
+        
         let scoreSum = 0;
-        for (let i = 0; i < data.length; i++) {
-            _labels.push(`Session ${i+1}`);
-            _scores.push(data[i].score.toFixed(2));
-            if (i == data.length-1)
-                latestScore = data[i].score;
-            if (data[i].score > bestScore)
-                bestScore = data[i].score;
-            scoreSum += data[i].score;
+        if (data.length != 0) {
+            for (let i = 0; i < data.length; i++) {
+                _labels.push(`Session ${i+1}`);
+                _scores.push(data[i].score.toFixed(2));
+                if (i == data.length-1)
+                    latestScore = data[i].score;
+                if (data[i].score > bestScore)
+                    bestScore = data[i].score;
+                scoreSum += data[i].score;
+            }
+            avgScore = scoreSum / data.length;
         }
-        avgScore = scoreSum / data.length;
 
-        const chart_canvas = document.getElementById('score-graph');
-        const chart_ctx = chart_canvas.getContext('2d');
-        const chartData = {
+        chartData = {
             labels: _labels,
             datasets: [{
                 label: 'Session Score',
@@ -107,7 +145,11 @@
             }]
         }
 
-        new Chart(chart_ctx, {
+        if(Chart.getChart("score-graph")) {
+            Chart.getChart("score-graph")?.destroy()
+        }
+
+        chart = new Chart(chart_ctx, {
             type: 'line',
             data: chartData,
             options: {
@@ -126,12 +168,8 @@
         });
 
         // Score Gauges
-        const latest_canvas = document.getElementById('score-widget-latest');
-        const best_canvas = document.getElementById('score-widget-best');
-        const avg_canvas = document.getElementById('score-widget-average');
-        const latest_ctx = latest_canvas.getContext('2d');
-        const best_ctx = best_canvas.getContext('2d');
-        const avg_ctx = avg_canvas.getContext('2d');
+        console.log();
+        
         drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
         drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
         drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');

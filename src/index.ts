@@ -170,9 +170,9 @@ const createWindow = () => {
     });
   })
 
-  ipcMain.on("get-history", (ev)=>{
+  ipcMain.on("get-history", (ev, sequenceId)=>{
     console.log(`RUNNING GET HISTORY`);
-    session.get_all_history((status, data)=>{
+    session.get_history_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {
         ev.sender.send('on-history', data);
       }
