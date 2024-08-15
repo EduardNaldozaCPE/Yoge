@@ -140,7 +140,7 @@ export class SessionModel {
     get_all_history(callback: (status:string, rows:Array<any>) => (void)): void {
         this.db.all(`SELECT * FROM history;`, (err, rows)=>{
             let status;
-            if (err) throw Error("Invalid Session Id in _get_steps_from_session");
+            if (err) throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
             if (rows !== undefined) {
                 status = 'success';
             } else {
@@ -154,7 +154,7 @@ export class SessionModel {
         this.db.all(`SELECT * FROM history where sessionId IN (SELECT sessionId FROM session WHERE sequenceId=${sequenceId});`,
             (err, rows)=>{
                 let status;
-                if (err) throw Error("Invalid Session Id in get_history_from_sequenceId");
+                if (err) throw Error(`Invalid Sequence Id in get_history_from_sequenceId: ${err}`);
                 if (rows !== undefined) {
                     status = 'success';
                 } else {
@@ -169,7 +169,7 @@ export class SessionModel {
         this.db.all(`SELECT * FROM score WHERE sessionId IN (SELECT sessionId FROM session WHERE sequenceId = ${sequenceId});`,
             (err, rows)=>{
                 let status;
-                if (err) throw Error("Invalid Session Id in get_scores_from_sequenceId");
+                if (err) throw Error(`Invalid Sequence Id in get_scores_from_sequenceId: ${err}`);
                 if (rows !== undefined) {
                     status = 'success';
                 } else {
@@ -184,7 +184,7 @@ export class SessionModel {
         this.db.serialize(() => {
             this.db.run(`INSERT INTO history VALUES (${Date.now()}, ${sessionId}, ${Date.now()}, ${score})`, (err)=>{
                 if (err)
-                    throw new Error("Error while posting new History row");
+                    throw new Error(`Error while posting new History row: ${err}`);
             });
         });
     }

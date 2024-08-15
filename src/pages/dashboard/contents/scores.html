@@ -132,11 +132,11 @@
             return;
         }
         selectedSequenceId = sequenceId;
+        
         landmarkerAPI.getHistory(selectedSequenceId);
         landmarkerAPI.getPoseRecords(selectedSequenceId);
     }
     landmarkerAPI.onHistory((data)=>{
-        // Convert datetime int to text
         _labels = [];   
         _scores = [];
         bestScore   = 0;
