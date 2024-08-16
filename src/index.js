@@ -177,6 +177,14 @@ const createWindow = () => {
             }
         });
     });
+    electron_1.ipcMain.on("get-all-history", (ev) => {
+        console.log(`RUNNING GET ALL HISTORY`);
+        session.get_all_history((status, data) => {
+            if (status == 'success') {
+                ev.sender.send('on-all-history', data);
+            }
+        });
+    });
     electron_1.ipcMain.on("get-pose-records", (ev, sequenceId) => {
         console.log(`RUNNING GET POSE RECORDS`);
         session.get_steps_from_sequenceId(sequenceId, (status, poses) => {

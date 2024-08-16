@@ -18,12 +18,12 @@
                 </div>
                 
                 <div class="score-widget-score">
-                <canvas width="150" class="score-widget-canvas" id="score-widget-best"></canvas>
+                    <canvas width="150" class="score-widget-canvas" id="score-widget-best"></canvas>
                     <p>Best Score</p>
                 </div>
                 
                 <div class="score-widget-score">
-                <canvas width="150" class="score-widget-canvas" id="score-widget-average"></canvas>
+                    <canvas width="150" class="score-widget-canvas" id="score-widget-average"></canvas>
                     <p>Average Score</p>
                 </div>
             </div>
@@ -74,38 +74,22 @@
 </div>
 <script>
     // Reassign variables on reload.
-    if (latest_canvas === undefined)
-        var latest_canvas = document.getElementById('score-widget-latest');
-    else
-        latest_canvas = document.getElementById('score-widget-latest');
-    if (best_canvas === undefined)
-        var best_canvas = document.getElementById('score-widget-best');
-    else
-        best_canvas = document.getElementById('score-widget-best');
-    if (avg_canvas === undefined)
-        var avg_canvas = document.getElementById('score-widget-average');
-    else
-        avg_canvas = document.getElementById('score-widget-average');
-    if (chart_canvas === undefined)
-        var chart_canvas = document.getElementById('score-graph');
-    else
-        chart_canvas = document.getElementById('score-graph');
-    if (latest_ctx === undefined)
-        var latest_ctx = latest_canvas.getContext('2d');
-    else
-        latest_ctx = latest_canvas.getContext('2d');
-    if (best_ctx === undefined)
-        var best_ctx = best_canvas.getContext('2d');
-    else
-        best_ctx = best_canvas.getContext('2d');
-    if (avg_ctx === undefined)
-        var avg_ctx = avg_canvas.getContext('2d');
-    else
-        avg_ctx = avg_canvas.getContext('2d');
-    if (chart_ctx === undefined)
-        var chart_ctx = chart_canvas.getContext('2d');
-    else
-        chart_ctx = chart_canvas.getContext('2d');
+    if (latest_canvas === undefined) var latest_canvas;
+    if (best_canvas === undefined) var best_canvas;
+    if (chart_canvas === undefined) var chart_canvas;
+    if (avg_canvas === undefined) var avg_canvas;
+    if (latest_ctx === undefined) var latest_ctx;
+    if (best_ctx === undefined) var best_ctx;
+    if (avg_ctx === undefined) var avg_ctx;
+
+    latest_canvas = document.getElementById('score-widget-latest');
+    best_canvas = document.getElementById('score-widget-best');
+    avg_canvas = document.getElementById('score-widget-average');
+    chart_canvas = document.getElementById('score-graph');
+    latest_ctx = latest_canvas.getContext('2d');
+    best_ctx = best_canvas.getContext('2d');
+    avg_ctx = avg_canvas.getContext('2d');
+    chart_ctx = chart_canvas.getContext('2d');
     
     var chart;
     var _labels = [];
@@ -207,35 +191,4 @@
         }
         $("#pose-table-body").html(newTable);
     });
-
-    // Function to draw the gauge
-    function drawGauge(canvas, ctx, percentage, colour) {
-        let startAngle  = -Math.PI / 2;
-        let endAngle    = startAngle + (2 * Math.PI * percentage / 100);
-        let radius      = 60;
-        let lineWidth   = 20;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, 360);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = "#333a";
-        ctx.lineCap = "round";
-        ctx.stroke();
-        ctx.closePath();
-
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, radius, startAngle, endAngle);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = colour;
-        ctx.lineCap = "round";
-        ctx.stroke();
-        ctx.closePath();
-        
-        ctx.font = 'bold 45px WorkSans';
-        ctx.fillStyle = '#ddd';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(percentage, canvas.width / 2, canvas.height / 2);
-    }
 </script>

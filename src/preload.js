@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     onScore: (callback) => ipcRenderer.on('on-score', (ev, data) => { callback(data); }),
     getPoses: (sequenceId) => ipcRenderer.send('get-poses', sequenceId),
     onPoses: (callback) => ipcRenderer.on('on-poses', (ev, data) => { callback(data); }),
+    getAllHistory: () => ipcRenderer.send('get-all-history'),
+    onAllHistory: (callback) => ipcRenderer.on('on-all-history', (_, data) => { callback(data); }),
     getHistory: (sequenceId) => ipcRenderer.send('get-history', sequenceId),
     onHistory: (callback) => ipcRenderer.on('on-history', (_, data) => { callback(data); }),
     getPoseRecords: (sequenceId) => ipcRenderer.send('get-pose-records', sequenceId),

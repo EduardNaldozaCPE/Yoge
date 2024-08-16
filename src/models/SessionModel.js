@@ -144,7 +144,10 @@ class SessionModel {
         });
     }
     get_all_history(callback) {
-        this.db.all(`SELECT * FROM history;`, (err, rows) => {
+        this.db.all(`
+            SELECT historyId,history.sessionId,datetime,score,session.sequenceId,sequenceName FROM history
+            INNER JOIN session ON history.sessionId=session.sessionId
+            LEFT JOIN sequence ON session.sequenceId = sequence.sequenceId;`, (err, rows) => {
             let status;
             if (err)
                 throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);

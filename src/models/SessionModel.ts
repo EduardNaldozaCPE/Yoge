@@ -138,16 +138,21 @@ export class SessionModel {
     }
 
     get_all_history(callback: (status:string, rows:Array<any>) => (void)): void {
-        this.db.all(`SELECT * FROM history;`, (err, rows)=>{
-            let status;
-            if (err) throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
-            if (rows !== undefined) {
-                status = 'success';
-            } else {
-                status = 'empty';
+        this.db.all(`
+            SELECT historyId,history.sessionId,datetime,score,session.sequenceId,sequenceName FROM history
+            INNER JOIN session ON history.sessionId=session.sessionId
+            LEFT JOIN sequence ON session.sequenceId = sequence.sequenceId;`, 
+            (err, rows)=>{
+                let status;
+                if (err) throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
+                if (rows !== undefined) {
+                    status = 'success';
+                } else {
+                    status = 'empty';
+                }
+                callback(status, rows);
             }
-            callback(status, rows);
-        })
+        );
     }
 
     get_history_from_sequenceId(sequenceId:number, callback: (status:string, rows:Array<any>) => (void)): void {

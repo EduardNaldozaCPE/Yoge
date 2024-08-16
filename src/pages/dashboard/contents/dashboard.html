@@ -12,13 +12,22 @@
         </div>
         <div id="latest-widget" onclick="moveToSession()">
           <div id="widget-header">
-            <h1>General Fitness Sequence (Sun Salutation A)</h1>
+            <h1 id="widget-header-title"></h1>
             <img src="../../media/play.svg" width="20px">
           </div>
           <div id="widget-contents">
-            <canvas width="118" height="146" style="background: #fff2;"></canvas>
-            <canvas width="118" height="146" style="background: #fff2;"></canvas>
-            <canvas width="118" height="146" style="background: #fff2;"></canvas>
+            <div class="score-widget-score">
+              <canvas width="150" class="score-widget-canvas" id="score-widget-latest"></canvas>
+              <p>Latest Score</p>
+            </div>
+            <div class="score-widget-score">
+              <canvas width="150" class="score-widget-canvas" id="score-widget-best"></canvas>
+              <p>Best Score</p>
+            </div>
+            <div class="score-widget-score">
+              <canvas width="150" class="score-widget-canvas" id="score-widget-average"></canvas>
+              <p>Average Score</p>
+            </div>
           </div>
         </div>
       </div>
@@ -36,72 +45,7 @@
                 <th>Date</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>82.23%</td>
-                <td>12-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>93.29%</td>
-                <td>10-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>93.29%</td>
-                <td>10-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>82.23%</td>
-                <td>12-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>93.29%</td>
-                <td>10-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>93.29%</td>
-                <td>10-Jul-2024</td>
-              </tr>
-              <tr >
-                <td>Weight Loss Sequence</td>
-                <td>74.28%</td>
-                <td>11-Jul-2024</td>
-              </tr>
-              <tr>
-                <td>General Fitness Sequence (Sun Salutation A)</td>
-                <td>93.29%</td>
-                <td>10-Jul-2024</td>
-              </tr>
+            <tbody id="history-table-body">
             </tbody>
           </table>
         </div>
@@ -126,3 +70,57 @@
     </div>
   </div>
 </div>
+<script>
+  if (lastSessionId === undefined) var lastSessionId;
+  if (latest_canvas === undefined) var latest_canvas;
+  if (best_canvas === undefined) var best_canvas;
+  if (avg_canvas === undefined) var avg_canvas;
+  if (latest_ctx === undefined) var latest_ctx;
+  if (best_ctx === undefined) var best_ctx;
+  if (avg_ctx === undefined) var avg_ctx;
+  latest_canvas = document.getElementById('score-widget-latest');
+  best_canvas = document.getElementById('score-widget-best');
+  avg_canvas = document.getElementById('score-widget-average');
+  latest_ctx = latest_canvas.getContext('2d');
+  best_ctx = best_canvas.getContext('2d');
+  avg_ctx = avg_canvas.getContext('2d');
+  lastSessionId = localStorage.getItem("lastSessionId");
+
+  if (!lastSessionId) {
+    $("#latest-widget").hide();
+  } else {
+    landmarkerAPI.getAllHistory();
+  }
+
+  landmarkerAPI.onAllHistory((data)=>{    
+    let latestScore = 0;
+    let bestScore = 0;
+    let avgScore  = 0;
+    let scoreSum  = 0;
+    let _scores = [];
+    let rows = $("#history-table-body");
+    if (data.length != 0) {
+      for (let i = 0; i < data.length; i++) {
+        scoreSum += data[i].score;
+        if (i == data.length-1)
+          latestScore = data[i].score;
+        if (data[i].score > bestScore)
+          bestScore = data[i].score;
+    
+        _scores.push(data[i].score.toFixed(2));
+        rows = rows.add(`<tr>
+          <td>${data[i].sequenceName}</td>
+          <td>${data[i].score.toFixed(2)}</td>
+          <td>${new Date(parseInt(data[i].datetime)).toDateString()}</td>
+        </tr>`);
+      }
+      avgScore = scoreSum / data.length;
+    }
+    
+    $("#history-table-body").html(rows);
+    $("#widget-header-title").text(data[data.length-1].sequenceName)
+    drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
+    drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
+    drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');
+  });
+</script>

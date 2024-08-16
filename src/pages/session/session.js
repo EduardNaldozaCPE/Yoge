@@ -121,6 +121,7 @@ landmarkerAPI.onSessionDone(()=>{
     finalScore = finalScore / 100;
     console.log(finalScore);
     
+    localStorage.setItem('lastSequenceId', sequenceId)
     landmarkerAPI.recordHistory(glob_sessionId, finalScore);
 });
 
