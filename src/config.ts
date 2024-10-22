@@ -6,6 +6,5 @@ import { config } from './dataTypes'
 let landmarkerPath = 'resources/landmarker-config.json';
 
 export const landmarkerConfig : config = JSON.parse(
-    fs.readFileSync(
-        path.join( cwd(), landmarkerPath ), 'utf8')
+    fs.readFileSync( path.join( cwd(), landmarkerPath ), 'utf8')
     );

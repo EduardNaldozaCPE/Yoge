@@ -145,7 +145,7 @@ landmarkerAPI.onNextPose(()=>{
  */
 function switchCamera() {
     camSwitchBtn.disabled = true;
-    liveFeed.src = "../../media/loading.png";
+    liveFeed.src = "../..assets/loading.png";
     showFeed = false;
     liveFeed.style.opacity = 0.2;
     currentDevice++;
