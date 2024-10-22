@@ -1,6 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.response2PoseRecord = response2PoseRecord;
+/**
+ * Filters and formats necessary Pose Record data.
+ * @param status Status of the ...
+ * @param data Array of Score data
+ * @param poses Array of Pose Data
+ * @returns Final Array of pose data in PoseRecord format
+ */
 function response2PoseRecord(status, data, poses) {
     if (status != 'success')
         return [];

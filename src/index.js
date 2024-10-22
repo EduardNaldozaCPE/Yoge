@@ -28,8 +28,8 @@ const electron_1 = require("electron");
 const process_1 = require("process");
 const config_1 = require("./config");
 const SessionModel_1 = require("./models/SessionModel");
-const landmarker_api_1 = require("./modules/landmarker-api");
-const utils_1 = require("./modules/utils");
+const landmarker_api_1 = require("./api/landmarker-api");
+const utils_1 = require("./utils/utils");
 if (require('electron-squirrel-startup'))
     electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"

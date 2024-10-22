@@ -3,8 +3,8 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { cwd } from 'process';
 import { landmarkerConfig } from './config';
 import { SessionModel } from './models/SessionModel';
-import { LandmarkerAPI } from './modules/landmarker-api';
-import { PoseRecord, response2PoseRecord } from './modules/utils';
+import { LandmarkerAPI } from './api/landmarker-api';
+import { PoseRecord, response2PoseRecord } from './utils/utils';
 
 
 if ( require('electron-squirrel-startup') ) app.quit;

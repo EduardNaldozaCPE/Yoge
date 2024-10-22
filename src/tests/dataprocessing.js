@@ -1,4 +1,4 @@
-const { response2PoseRecord } = require('../modules/utils');
+const { response2PoseRecord } = require('../utils/utils');
 
 const status = 'success';
 const data = [

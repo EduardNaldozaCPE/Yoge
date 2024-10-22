@@ -4,7 +4,14 @@ export interface PoseRecord {
     bestScore:number,
     avgScore:number,
   }
-  
+
+/**
+ * Filters and formats necessary Pose Record data.  
+ * @param status Status of the ...
+ * @param data Array of Score data
+ * @param poses Array of Pose Data
+ * @returns Final Array of pose data in PoseRecord format
+ */
 export function response2PoseRecord(status:string, data:Array<any>, poses:Array<any>):Array<PoseRecord> {
     if (status != 'success') return [];
     const finalData : Array<PoseRecord> = [];
