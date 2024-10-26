@@ -1,0 +1,137 @@
+@font-face {
+  font-family: WorkSans;
+  src: url('../assets/WorkSans.ttf');
+}
+
+:root {
+  --main-padding: 5px;
+  --main-colour: #ddd;
+  --main-bg-colour: #161616ff;
+  --container-colour: radial-gradient(circle at 0% 100%, #311E3603 0%, #311E3602 13%, rgba(22, 22, 22, 1) 75%);;
+  --container-border: #444 1px solid;
+  --accent-colour: #888;
+  color: #e5e5e5;
+  background: var(--main-bg-colour);
+  font-family: 'WorkSans', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;;
+  user-select: none;
+}
+
+::-webkit-scrollbar { width: 10px; }
+
+::-webkit-scrollbar-track { background: #1a1a1a; }
+
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+::-webkit-scrollbar-thumb {
+  background: #8884;
+  border-radius: 5px;
+}
+
+
+h1 { margin: 0px; }
+
+hr { border: var(--container-border); }
+
+p {
+  font-size: 12px;
+  margin: 0;
+}
+
+.colour-main {
+  color: #ddd;
+}
+
+.colour-accent {
+  color: #888888;
+}
+
+/* ----- TABLES ----- */
+.tableFixHead          { overflow: auto; height: 180px }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; text-align: left; color: var(--accent-colour);}
+table  { border-collapse: collapse; width: 100%; }
+th, td { padding: 8px 16px; }
+th     { background: var(--main-bg-colour); }
+tbody tr:nth-child(odd) {
+  background-color: #4441;
+  color: #fff;
+}
+
+/* ----- Global Styles ----- */
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover { border-color: #646cff; }
+
+#app {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+
+  margin: 0px;
+  padding: var(--main-padding);
+  background: var(--main-bg-colour);
+  position: fixed;
+  top: 21px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+
+.container {
+  background: var(--container-colour);
+  border: var(--container-border);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: rgba(49, 32, 54, 0.15) 0em 0em 3em inset;
+}
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* MAIN CONTENT */
+#menu-seq-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

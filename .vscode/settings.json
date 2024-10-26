@@ -6,5 +6,6 @@
             "database": "${workspaceFolder:Yoge}/resources/data/yoge.db",
             "name": "yoge"
         }
-    ]
+    ],
+    "liveServer.settings.multiRootWorkspaceName": "Yoge"
 }

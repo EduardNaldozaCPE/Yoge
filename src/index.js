@@ -60,8 +60,8 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
-    // mainWindow.loadFile(path.join(__dirname, 'index.html'));
-    mainWindow.loadFile(path.join(__dirname, './app/index.html'));
+    mainWindow.loadURL("http://localhost:5173/"); // Use this in dev 
+    // mainWindow.loadFile(path.join(__dirname,"app/dist/index.html")); // Use this when building
     mainWindow.setMenu(null);
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
