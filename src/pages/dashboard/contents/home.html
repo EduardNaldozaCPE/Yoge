@@ -70,7 +70,12 @@
     </div>
   </div>
 </div>
-<script>
+<script type="module">
+  import { drawGauge } from './../../shared/Gauge.js';
+  var allHistory = await landmarkerAPI.getAllHistory();
+  console.log(allHistory);
+  
+  
   if (lastSessionId === undefined) var lastSessionId;
   if (latest_canvas === undefined) var latest_canvas;
   if (best_canvas === undefined) var best_canvas;
@@ -79,48 +84,45 @@
   if (best_ctx === undefined) var best_ctx;
   if (avg_ctx === undefined) var avg_ctx;
   latest_canvas = document.getElementById('score-widget-latest');
-  best_canvas = document.getElementById('score-widget-best');
-  avg_canvas = document.getElementById('score-widget-average');
   latest_ctx = latest_canvas.getContext('2d');
+  best_canvas = document.getElementById('score-widget-best');
   best_ctx = best_canvas.getContext('2d');
+  avg_canvas = document.getElementById('score-widget-average');
   avg_ctx = avg_canvas.getContext('2d');
   lastSessionId = localStorage.getItem("lastSessionId");
 
   if (!lastSessionId) {
     $("#latest-widget").hide();
   } else {
-    landmarkerAPI.getAllHistory();
-  }
-
-  landmarkerAPI.onAllHistory((data)=>{    
+    let rows = $("#history-table-body");
     let latestScore = 0;
     let bestScore = 0;
     let avgScore  = 0;
     let scoreSum  = 0;
     let _scores = [];
-    let rows = $("#history-table-body");
-    if (data.length != 0) {
-      for (let i = 0; i < data.length; i++) {
-        scoreSum += data[i].score;
-        if (i == data.length-1)
-          latestScore = data[i].score;
-        if (data[i].score > bestScore)
-          bestScore = data[i].score;
+
+    if (allHistory.length != 0) {
+      for (let i = 0; i < allHistory.length; i++) {
+        scoreSum += allHistory[i].score;
+        if (i == allHistory.length-1)
+          latestScore = allHistory[i].score;
+        if (allHistory[i].score > bestScore)
+          bestScore = allHistory[i].score;
     
-        _scores.push(data[i].score.toFixed(2));
+        _scores.push(allHistory[i].score.toFixed(2));
         rows = rows.add(`<tr>
-          <td>${data[i].sequenceName}</td>
-          <td>${data[i].score.toFixed(2)}</td>
-          <td>${new Date(parseInt(data[i].datetime)).toDateString()}</td>
+          <td>${allHistory[i].sequenceName}</td>
+          <td>${allHistory[i].score.toFixed(2)}</td>
+          <td>${new Date(parseInt(allHistory[i].datetime)).toDateString()}</td>
         </tr>`);
       }
-      avgScore = scoreSum / data.length;
+      avgScore = scoreSum / allHistory.length;
     }
     
     $("#history-table-body").html(rows);
-    $("#widget-header-title").text(data[data.length-1].sequenceName)
+    $("#widget-header-title").text(allHistory[allHistory.length-1].sequenceName)
     drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
     drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
     drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');
-  });
+  };
 </script>

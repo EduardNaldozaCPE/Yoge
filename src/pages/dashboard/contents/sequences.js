@@ -13,25 +13,25 @@ if (seqInfo !== undefined) var seqInfo;
 seqInfo = JSON.parse( sessionStorage.getItem('sequence-info') );
 if (seqInfo != null && seqInfo != "") {
     _updateInfoSection(seqInfo);
-    landmarkerAPI.getHistory(parseInt(seqInfo.sequenceId));
-    landmarkerAPI.getPoseRecords(parseInt(seqInfo.sequenceId));
+    onHistory(await landmarkerAPI.getHistory(parseInt(seqInfo.sequenceId)));
+    onPoseRecords(await landmarkerAPI.getPoseRecords(parseInt(seqInfo.sequenceId)));
 }
 
 // Handle getSequenceData callback.
-landmarkerAPI.onSequenceData((_data)=>{ 
-    _updateInfoSection(_data)
-    landmarkerAPI.getHistory(parseInt(_data.sequenceId));
-    landmarkerAPI.getPoseRecords(parseInt(_data.sequenceId));
-});
+async function onSequenceData(data){ 
+    _updateInfoSection(data)
+    onHistory(await landmarkerAPI.getHistory(parseInt(data.sequenceId)));
+    onPoseRecords(await landmarkerAPI.getPoseRecords(parseInt(data.sequenceId)));
+};
 
 
 /** 
  * Update the "sequence" parameter, then calls _updateSequenceCards
 */
-function updateSelect(elem) {
+async function updateSelect(elem) {
     params.set("sequence", $(elem).attr("sequence"));
     selectedSequence = params.get("sequence");
-    landmarkerAPI.getSequenceData($(elem).attr("sequenceId"));
+    await landmarkerAPI.getSequenceData($(elem).attr("sequenceId"));
     _updateSequenceCards();
 }
 
@@ -63,7 +63,7 @@ function _updateInfoSection(data) {
     $("info-recommendations-text").text(data.tags);
 }
 
-landmarkerAPI.onHistory((data)=>{
+function onHistory(data) {
     let bestScore   = 0;
     let latestScore = 0;
     if (data.length != 0) {
@@ -76,8 +76,9 @@ landmarkerAPI.onHistory((data)=>{
     }
     $("#info-latest-score").text(latestScore.toFixed(2));
     $("#info-best-score").text(bestScore.toFixed(2));
-})
-landmarkerAPI.onPoseRecords((data)=>{
+}
+
+function onPoseRecords(data) {
     let newTable = $("#info-scores-table-body").html("");
     for (let i = 0; i < data.length; i++) {
         newTable = newTable.add(`<tr>
@@ -86,7 +87,7 @@ landmarkerAPI.onPoseRecords((data)=>{
         </tr>`);
     }
     $("#info-scores-table-body").html(newTable);
-})
+}
 
 /**
  * Takes the necessary info from sessionStorage before running moveToSession() in dashboard/index.html 

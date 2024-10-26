@@ -1,7 +1,7 @@
 <div id="scores-maincontent">
     <form action="#">
         <div class="custom-select">
-            <select name="header-dropdown" id="header-dropdown" onchange="getHistory(parseInt(this.value))">
+            <select name="header-dropdown" id="header-dropdown" onchange="await _getHistory(parseInt(this.value))">
                 <option value="1">General Fitness Sequence (Sun Salutation A)</option>
                 <option value="2">Weight Loss Sequence</option>
                 <option value="3">Flexibility Sequence</option>
@@ -109,18 +109,16 @@
             }]
         }
 
-    getHistory(selectedSequenceId);
-    function getHistory(sequenceId) {
+    _getHistory(selectedSequenceId);
+    async function _getHistory(sequenceId) {
         if (typeof(sequenceId) != 'number') {
             console.error("getHistory invalid argument");
             return;
         }
         selectedSequenceId = sequenceId;
         
-        landmarkerAPI.getHistory(selectedSequenceId);
-        landmarkerAPI.getPoseRecords(selectedSequenceId);
-    }
-    landmarkerAPI.onHistory((data)=>{
+        // Draw gauges from history data.
+        let history = await landmarkerAPI.getHistory(selectedSequenceId);
         _labels = [];   
         _scores = [];
         bestScore   = 0;
@@ -128,17 +126,17 @@
         avgScore    = 0;
 
         let scoreSum = 0;
-        if (data.length != 0) {
-            for (let i = 0; i < data.length; i++) {
+        if (history.length != 0) {
+            for (let i = 0; i < history.length; i++) {
                 _labels.push(`Session ${i+1}`);
-                _scores.push(data[i].score.toFixed(2));
-                if (i == data.length-1)
-                    latestScore = data[i].score;
-                if (data[i].score > bestScore)
+                _scores.push(history[i].score.toFixed(2));
+                if (i == history.length-1)
+                    latestScore = history[i].score;
+                if (history[i].score > bestScore)
                     bestScore = data[i].score;
-                scoreSum += data[i].score;
+                scoreSum += history[i].score;
             }
-            avgScore = scoreSum / data.length;
+            avgScore = scoreSum / history.length;
         }
 
         chartData = {
@@ -177,18 +175,18 @@
         drawGauge(latest_canvas, latest_ctx, latestScore.toFixed(2), '#ddd');
         drawGauge(best_canvas, best_ctx, bestScore.toFixed(2), '#ddd');
         drawGauge(avg_canvas, avg_ctx, avgScore.toFixed(2), '#ddd');
-    });
 
-    landmarkerAPI.onPoseRecords((data)=>{
+
+        let poseRecords = await landmarkerAPI.getPoseRecords(selectedSequenceId);
         let newTable = $("#pose-table-body").html("");
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i < poseRecords.length; i++) {
             newTable = newTable.add(`<tr>
-                <td>${data[i].poseName}</td>
-                <td>${data[i].latestScore.toFixed(2)}</td>
-                <td>${data[i].bestScore.toFixed(2)}</td>
-                <td>${data[i].avgScore.toFixed(2)}</td>
+                <td>${poseRecords[i].poseName}</td>
+                <td>${poseRecords[i].latestScore.toFixed(2)}</td>
+                <td>${poseRecords[i].bestScore.toFixed(2)}</td>
+                <td>${poseRecords[i].avgScore.toFixed(2)}</td>
             </tr>`);
         }
         $("#pose-table-body").html(newTable);
-    });
+    }
 </script>

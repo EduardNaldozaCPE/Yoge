@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("node:path"));
 const electron_1 = require("electron");
@@ -33,10 +42,7 @@ const utils_1 = require("./utils/utils");
 if (require('electron-squirrel-startup'))
     electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"
-// 
-const DEBUG = true;
-// 
-// - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+const DEBUG = true; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const spawncommand = DEBUG ? "python" : path.join((0, process_1.cwd)(), config_1.landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG ? ['src/services/landmarker-service/main.py'] : [];
 const session = new SessionModel_1.SessionModel();
@@ -54,12 +60,13 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    // mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, './app/index.html'));
     mainWindow.setMenu(null);
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
     // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-    electron_1.ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
+    electron_1.ipcMain.handle("run-landmarker", (_, userId, sequenceId, device) => {
         // Restart landmarker if it is already running.
         if (landmarkerAPI.isInstanceExists()) {
             mainWindow.webContents.send('restart-landmarker', device);
@@ -112,17 +119,17 @@ const createWindow = () => {
         });
     });
     // Kills the landmarker child process
-    electron_1.ipcMain.on("stop-landmarker", () => {
+    electron_1.ipcMain.handle("stop-landmarker", () => {
         landmarkerAPI.kill();
         if (landmarkerAPI.isInstanceExists()) {
             throw new Error("Error killing landmarkerAPI");
         }
     });
-    electron_1.ipcMain.on("record-history", (_, sessionId, score) => {
+    electron_1.ipcMain.handle("record-history", (_, sessionId, score) => {
         session.postNewHistory(sessionId, score);
     });
     // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-    electron_1.ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {
+    electron_1.ipcMain.handle("restart-landmarker", (_, userId, sequenceId, device) => {
         landmarkerAPI.kill();
         if (landmarkerAPI.isInstanceExists()) {
             throw new Error("Error killing landmarkerAPI");
@@ -130,14 +137,14 @@ const createWindow = () => {
         console.log(`Landmarker is dead. Running a new one...`);
         mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device);
     });
-    electron_1.ipcMain.on("cmd-start", () => {
+    electron_1.ipcMain.handle("cmd-start", () => {
         landmarkerAPI.send_command("play");
     });
-    electron_1.ipcMain.on("cmd-pause", () => {
+    electron_1.ipcMain.handle("cmd-pause", () => {
         landmarkerAPI.send_command("pause");
     });
     // kills the landmarker child process and closes the window.
-    electron_1.ipcMain.on("window-close", () => {
+    electron_1.ipcMain.handle("window-close", () => {
         landmarkerAPI.kill();
         if (landmarkerAPI.isInstanceExists()) {
             throw new Error("Error killing landmarkerAPI");
@@ -145,61 +152,66 @@ const createWindow = () => {
         mainWindow.close();
     });
     // Toggles between maximize() and unmaximize().
-    electron_1.ipcMain.on("window-maximize", () => {
+    electron_1.ipcMain.handle("window-maximize", () => {
         if (mainWindow.isMaximized())
             mainWindow.unmaximize();
         else
             mainWindow.maximize();
     });
     // Minimizes the window.
-    electron_1.ipcMain.on("window-minimize", () => mainWindow.minimize());
+    electron_1.ipcMain.handle("window-minimize", () => mainWindow.minimize());
     // Query
-    electron_1.ipcMain.on("get-score", (ev) => {
+    electron_1.ipcMain.handle("get-score", (ev) => {
         session.get_latest_score((status, data) => {
-            if (status == 'success') {
-                ev.sender.send('on-score', data);
-            }
+            if (status == 'success')
+                return data;
         });
     });
-    electron_1.ipcMain.on("get-poses", (ev, sequenceId) => {
+    electron_1.ipcMain.handle("get-poses", (ev, sequenceId) => {
         console.log(`RUNNING GET POSES (${sequenceId})`);
         session.get_steps_from_sequenceId(sequenceId, (status, data) => {
             if (status == 'success') {
-                ev.sender.send('on-poses', data);
+                console.log(`GET POSES (${sequenceId}) SUCCESS`);
+                return data;
             }
         });
     });
-    electron_1.ipcMain.on("get-history", (ev, sequenceId) => {
+    electron_1.ipcMain.handle("get-history", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
+        var d;
         console.log(`RUNNING GET HISTORY`);
         session.get_history_from_sequenceId(sequenceId, (status, data) => {
             if (status == 'success') {
-                ev.sender.send('on-history', data);
+                console.log(`GET HISTORY SUCCESS`);
+                d = data;
             }
         });
-    });
-    electron_1.ipcMain.on("get-all-history", (ev) => {
+        console.log(d);
+        return d;
+    }));
+    electron_1.ipcMain.handle("get-all-history", (_) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`RUNNING GET ALL HISTORY`);
-        session.get_all_history((status, data) => {
-            if (status == 'success') {
-                ev.sender.send('on-all-history', data);
-            }
-        });
-    });
-    electron_1.ipcMain.on("get-pose-records", (ev, sequenceId) => {
+        let response = yield session.get_all_history();
+        if (response.status == 'success') {
+            console.log(`GET ALL HISTORY SUCCESS`, response.data);
+        }
+        return response.data;
+    }));
+    electron_1.ipcMain.handle("get-pose-records", (ev, sequenceId) => {
         console.log(`RUNNING GET POSE RECORDS`);
         session.get_steps_from_sequenceId(sequenceId, (status, poses) => {
             if (status != 'success')
                 return;
             session.get_scores_from_sequenceId(sequenceId, (status, data) => {
                 let poseRecords = (0, utils_1.response2PoseRecord)(status, data, poses);
-                ev.sender.send('on-pose-records', poseRecords);
+                console.log(`GET POSE RECORDS SUCCESS`);
+                return poseRecords;
             });
         });
     });
-    electron_1.ipcMain.on("get-sequence-data", (ev, sequenceId) => {
+    electron_1.ipcMain.handle("get-sequence-data", (ev, sequenceId) => {
         session.get_sequence_from_sequenceId(sequenceId, (status, data) => {
             if (status == 'success') {
-                ev.sender.send('on-sequence-data', data);
+                return data;
             }
         });
     });

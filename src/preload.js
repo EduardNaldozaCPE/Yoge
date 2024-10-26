@@ -1,28 +1,24 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const { contextBridge, ipcRenderer } = require('electron/renderer');
-contextBridge.exposeInMainWorld('landmarkerAPI', {
-    // Functions
-    run: (userId, sequenceId, device = 0) => ipcRenderer.send('run-landmarker', userId, sequenceId, device),
-    onSession: (callback) => ipcRenderer.on('on-session', (ev, sessionId) => { callback(sessionId); }),
-    restart: (userId, sequenceId, device = 0) => ipcRenderer.send('restart-landmarker', userId, sequenceId, device),
-    stop: () => ipcRenderer.send('stop-landmarker'),
-    play: () => ipcRenderer.send('cmd-start'),
-    pause: () => ipcRenderer.send('cmd-pause'),
-    getScore: () => ipcRenderer.send('get-score'),
-    onScore: (callback) => ipcRenderer.on('on-score', (ev, data) => { callback(data); }),
-    getPoses: (sequenceId) => ipcRenderer.send('get-poses', sequenceId),
-    onPoses: (callback) => ipcRenderer.on('on-poses', (ev, data) => { callback(data); }),
-    getAllHistory: () => ipcRenderer.send('get-all-history'),
-    onAllHistory: (callback) => ipcRenderer.on('on-all-history', (_, data) => { callback(data); }),
-    getHistory: (sequenceId) => ipcRenderer.send('get-history', sequenceId),
-    onHistory: (callback) => ipcRenderer.on('on-history', (_, data) => { callback(data); }),
-    getPoseRecords: (sequenceId) => ipcRenderer.send('get-pose-records', sequenceId),
-    onPoseRecords: (callback) => ipcRenderer.on('on-pose-records', (_, data) => { callback(data); }),
-    getSequenceData: (sequenceId) => ipcRenderer.send('get-sequence-data', sequenceId),
-    onSequenceData: (callback) => ipcRenderer.on('on-sequence-data', (ev, data) => { callback(data); }),
-    onSessionDone: (callback) => { ipcRenderer.on('session-done', () => callback()); },
-    recordHistory: (sessionId, score) => { ipcRenderer.send('record-history', sessionId, score); },
+const landmarkerAPI = {
+    // Feed Control
+    run: (userId, sequenceId, device = 0) => ipcRenderer.invoke('run-landmarker', userId, sequenceId, device),
+    restart: (userId, sequenceId, device = 0) => ipcRenderer.invoke('restart-landmarker', userId, sequenceId, device),
+    stop: () => ipcRenderer.invoke('stop-landmarker'),
+    play: () => ipcRenderer.invoke('cmd-start'),
+    pause: () => ipcRenderer.invoke('cmd-pause'),
+    // Database Operations
+    getScore: () => ipcRenderer.invoke('get-score'),
+    getPoses: (sequenceId) => ipcRenderer.invoke('get-poses', sequenceId),
+    getAllHistory: () => ipcRenderer.invoke('get-all-history'),
+    getHistory: (sequenceId) => ipcRenderer.invoke('get-history', sequenceId),
+    getPoseRecords: (sequenceId) => ipcRenderer.invoke('get-pose-records', sequenceId),
+    getSequenceData: (sequenceId) => ipcRenderer.invoke('get-sequence-data', sequenceId),
+    recordHistory: (sessionId, score) => ipcRenderer.invoke('record-history', sessionId, score),
     // Callbacks 
+    onSession: (callback) => ipcRenderer.on('on-session', (ev, sessionId) => { callback(sessionId); }),
+    onSessionDone: (callback) => { ipcRenderer.on('session-done', () => callback()); },
     onNextPose: (callback) => ipcRenderer.on('next-pose', () => { callback(); }),
     onFrame: (callback) => { ipcRenderer.on('current-frame', (_, imgStr) => callback(imgStr)); },
     onStatus: (successCallback, failCallback) => {
@@ -42,18 +38,20 @@ contextBridge.exposeInMainWorld('landmarkerAPI', {
     enableRestart: (userId, sequenceId, restartListener = () => { }) => {
         ipcRenderer.on('recall-landmarker', (_, device) => {
             restartListener();
-            ipcRenderer.send('run-landmarker', userId, sequenceId, device);
+            ipcRenderer.invoke('run-landmarker', userId, sequenceId, device);
         });
     },
-});
-contextBridge.exposeInMainWorld('electronWindow', {
-    windowClose: () => ipcRenderer.send('window-close'),
-    windowMinimize: () => ipcRenderer.send('window-minimize'),
-    windowMaximize: () => ipcRenderer.send('window-maximize'),
+};
+const electronWindow = {
+    windowClose: () => ipcRenderer.invoke('window-close'),
+    windowMinimize: () => ipcRenderer.invoke('window-minimize'),
+    windowMaximize: () => ipcRenderer.invoke('window-maximize'),
     transitionTo: (loc) => {
         const appContent = document.getElementById("app-content").style;
         appContent.animation = "opentransition 0.2s linear backwards";
         setTimeout(() => { appContent.opacity = "0"; }, 10);
         setTimeout(() => { location.href = loc; }, 200);
     }
-});
+};
+contextBridge.exposeInMainWorld('landmarkerAPI', landmarkerAPI);
+contextBridge.exposeInMainWorld('electronWindow', electronWindow);

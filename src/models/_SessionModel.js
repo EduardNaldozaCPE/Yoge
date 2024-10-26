@@ -152,24 +152,22 @@ class SessionModel {
             callback(status, sequenceId);
         });
     }
-    get_all_history() {
+    get_all_history(callback) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                this.db.all(`
-                SELECT historyId,history.sessionId,datetime,score,session.sequenceId,sequenceName FROM history
-                INNER JOIN session ON history.sessionId=session.sessionId
-                LEFT JOIN sequence ON session.sequenceId = sequence.sequenceId;`, (err, rows) => {
-                    let status;
-                    if (err)
-                        throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
-                    if (rows !== undefined) {
-                        status = 'success';
-                    }
-                    else {
-                        status = 'empty';
-                    }
-                    resolve({ status, data: rows });
-                });
+            this.db.all(`
+            SELECT historyId,history.sessionId,datetime,score,session.sequenceId,sequenceName FROM history
+            INNER JOIN session ON history.sessionId=session.sessionId
+            LEFT JOIN sequence ON session.sequenceId = sequence.sequenceId;`, (err, rows) => {
+                let status;
+                if (err)
+                    throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
+                if (rows !== undefined) {
+                    status = 'success';
+                }
+                else {
+                    status = 'empty';
+                }
+                callback(status, rows);
             });
         });
     }

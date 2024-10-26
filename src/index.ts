@@ -10,10 +10,7 @@ import { PoseRecord, response2PoseRecord } from './utils/utils';
 if ( require('electron-squirrel-startup') ) app.quit;
 
 // NOTE: Turn OFF when running "npm run make"
-// 
-const DEBUG = true;
-// 
-// - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+const DEBUG = true; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const spawncommand: string = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs: Array<string> = DEBUG? ['src/services/landmarker-service/main.py'] : [];
 const session = new SessionModel();
@@ -35,14 +32,15 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  // mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, './app/index.html'));
   mainWindow.setMenu(null);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
-  ipcMain.on("run-landmarker", (_, userId, sequenceId, device) => {
+  ipcMain.handle("run-landmarker", (_, userId, sequenceId, device) => {
 
     // Restart landmarker if it is already running.
     if (landmarkerAPI.isInstanceExists()) {
@@ -106,19 +104,19 @@ const createWindow = () => {
   });
 
   // Kills the landmarker child process
-  ipcMain.on("stop-landmarker", ()=>{
+  ipcMain.handle("stop-landmarker", ()=>{
     landmarkerAPI.kill()
     if (landmarkerAPI.isInstanceExists()) {
       throw new Error("Error killing landmarkerAPI");
     }
   });
 
-  ipcMain.on("record-history", (_, sessionId, score)=>{
+  ipcMain.handle("record-history", (_, sessionId, score)=>{
     session.postNewHistory(sessionId, score);
   });
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
-  ipcMain.on("restart-landmarker", (_, userId, sequenceId, device) => {
+  ipcMain.handle("restart-landmarker", (_, userId, sequenceId, device) => {
     landmarkerAPI.kill();
     if (landmarkerAPI.isInstanceExists()) {
       throw new Error("Error killing landmarkerAPI");
@@ -127,16 +125,16 @@ const createWindow = () => {
     mainWindow.webContents.send('recall-landmarker', userId, sequenceId, device)
   });
 
-  ipcMain.on("cmd-start", ()=>{
+  ipcMain.handle("cmd-start", ()=>{ 
     landmarkerAPI.send_command("play");
   });
 
-  ipcMain.on("cmd-pause", ()=>{
+  ipcMain.handle("cmd-pause", ()=>{
     landmarkerAPI.send_command("pause");
   });
 
   // kills the landmarker child process and closes the window.
-  ipcMain.on("window-close", ()=>{
+  ipcMain.handle("window-close", ()=>{
     landmarkerAPI.kill();
     if (landmarkerAPI.isInstanceExists()) {
       throw new Error("Error killing landmarkerAPI");
@@ -145,65 +143,70 @@ const createWindow = () => {
   });
 
   // Toggles between maximize() and unmaximize().
-  ipcMain.on("window-maximize", ()=>{
+  ipcMain.handle("window-maximize", ()=>{
     if (mainWindow.isMaximized()) mainWindow.unmaximize();
     else mainWindow.maximize();
   });
 
   // Minimizes the window.
-  ipcMain.on("window-minimize", ()=>mainWindow.minimize());
+  ipcMain.handle("window-minimize", ()=>mainWindow.minimize());
 
   // Query
-  ipcMain.on("get-score", (ev)=>{
+  ipcMain.handle("get-score", (ev)=>{
     session.get_latest_score((status, data)=>{
-      if (status == 'success') {
-        ev.sender.send('on-score', data);
-      }
+      if (status == 'success') 
+        return data;
     });
   });
 
-  ipcMain.on("get-poses", (ev, sequenceId)=>{
+  ipcMain.handle("get-poses", (ev, sequenceId)=>{
     console.log(`RUNNING GET POSES (${sequenceId})`);
     session.get_steps_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {
-        ev.sender.send('on-poses', data);
+        console.log(`GET POSES (${sequenceId}) SUCCESS`);
+        return data;
       }
     });
   });
 
-  ipcMain.on("get-history", (ev, sequenceId)=>{
+  ipcMain.handle("get-history", async (ev, sequenceId)=>{
+    var d;
     console.log(`RUNNING GET HISTORY`);
     session.get_history_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {
-        ev.sender.send('on-history', data);
+        console.log(`GET HISTORY SUCCESS`);
+        d = data;
       }
     });
+    console.log(d);
+    return d;
   });
 
-  ipcMain.on("get-all-history", (ev)=>{
+  ipcMain.handle("get-all-history", async (_)=>{
     console.log(`RUNNING GET ALL HISTORY`);
-    session.get_all_history((status, data)=>{
-      if (status == 'success') {
-        ev.sender.send('on-all-history', data);
-      }
-    });
+    let response = await session.get_all_history();
+    if (response.status == 'success'){
+      console.log(`GET ALL HISTORY SUCCESS`, response.data);
+    }
+    return response.data;
   });
 
-  ipcMain.on("get-pose-records", (ev, sequenceId)=>{
+  ipcMain.handle("get-pose-records", (ev, sequenceId)=>{
     console.log(`RUNNING GET POSE RECORDS`);
     session.get_steps_from_sequenceId(sequenceId, (status, poses)=>{
       if (status != 'success') return;
       session.get_scores_from_sequenceId(sequenceId, (status,data)=>{
         let poseRecords:Array<PoseRecord> = response2PoseRecord(status,data,poses);
-        ev.sender.send('on-pose-records', poseRecords);
+        console.log(`GET POSE RECORDS SUCCESS`);
+        return poseRecords;
       });
     });
   });
 
-  ipcMain.on("get-sequence-data", (ev, sequenceId)=>{
+  ipcMain.handle("get-sequence-data", (ev, sequenceId)=>{
     session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {
-        ev.sender.send('on-sequence-data', data);
+        return data;
       }
     });
   });
