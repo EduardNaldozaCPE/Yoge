@@ -13,13 +13,13 @@
     }
 
     const name = ref("John Doe");
-    const allHistory : Ref< Array<any> > = ref([]);
     const isFirstTime = ref(false)
+    const allHistory : Ref< Array<any> > = ref([]);
     const recents : Ref< Array<RecentsRow> >= ref([]);
     
     onMounted(async ()=>{
         allHistory.value = await window.landmarkerAPI.getAllHistory();
-        console.log(allHistory.value);
+        // console.log(allHistory.value);
         populateUI();
     });
 
@@ -99,7 +99,7 @@
         ctx.stroke();
         ctx.closePath();
         
-        ctx.font = 'bold 45px WorkSans';
+        ctx.font = 'bold 45px Worksans';
         ctx.fillStyle = colour;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

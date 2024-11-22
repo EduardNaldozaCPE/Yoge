@@ -70,7 +70,7 @@ export class SessionModel {
      * @param sequenceId Sequence ID used to query pose data from.
      * @param callback Run upon succesful query.
      */
-    get_steps_from_sequenceId(sequenceId: number ,callback: (status:string, rows:Array<any>) => (void)): void {
+    get_steps_from_sequenceId(sequenceId: number, callback: (status:string, rows:Array<any>) => (void)): void {
         this.db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
             let status;
             if (err) throw Error("Invalid Session Id in _get_steps_from_session");
@@ -89,7 +89,7 @@ export class SessionModel {
      * @param sequenceId Sequence ID to query.
      * @param callback Run upon successful query.
      */
-    get_sequence_from_sequenceId(sequenceId: number ,callback: (status:string, rows:sequenceType) => (void)): void {
+    get_sequence_from_sequenceId(sequenceId: number , callback: (status:string, rows:sequenceType) => (void)): void {
         this.db.get(
         `SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`,
         (err, row: sequenceType)=>{

@@ -209,11 +209,14 @@ const createWindow = () => {
         });
     });
     electron_1.ipcMain.handle("get-sequence-data", (ev, sequenceId) => {
+        var d = {};
         session.get_sequence_from_sequenceId(sequenceId, (status, data) => {
             if (status == 'success') {
-                return data;
+                d = Object.assign({}, data);
             }
         });
+        console.log(d);
+        return d;
     });
 };
 electron_1.app.whenReady().then(() => {

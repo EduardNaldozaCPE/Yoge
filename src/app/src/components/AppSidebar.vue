@@ -1,5 +1,7 @@
 <script setup lang="ts">
     import pfpPNG from '../../assets/pfp.png' ;
+
+    const props = defineProps(['content']);
 </script>
 
 <template>
@@ -7,9 +9,9 @@
         <h1 id="logo">Yoge</h1>
         <div class="sidenav-spacer"></div>
         <div id="sidenav-btns">
-            <button type="submit" class="sidenav-btn" id="sidenav-btn-dashboard">Home</button>
-            <button type="submit" class="sidenav-btn" id="sidenav-btn-sequences">Sequences</button>
-            <button type="submit" class="sidenav-btn" id="sidenav-btn-scores">Scores</button>
+            <button :class="{ sidenavHighlight: props.content == 'home' }" class="sidenav-btn" id="sidenav-btn-dashboard" @click="$emit('changeContent', 'home')">Home</button>
+            <button :class="{ sidenavHighlight: props.content == 'sequences' }" class="sidenav-btn" id="sidenav-btn-sequences" @click="$emit('changeContent', 'sequences')">Sequences</button>
+            <button :class="{ sidenavHighlight: props.content == 'scores' }" class="sidenav-btn" id="sidenav-btn-scores" @click="$emit('changeContent', 'scores')">Scores</button>
         </div>
         <div class="sidenav-spacer"></div>
         <div id="sidenav-bottom">
@@ -102,7 +104,7 @@
   background: rgba(122, 62, 135, var(--bg-opacity));
   background: linear-gradient(90deg, rgba(122,62,135,var(--bg-opacity)) 6%, rgba(138,35,56,var(--bg-opacity)) 100%);
 }
-.sidenav-btn[highlight="true"] {
+.sidenavHighlight {
 	position:   relative;
   font-weight: 700;
 

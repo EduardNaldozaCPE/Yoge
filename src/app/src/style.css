@@ -129,7 +129,7 @@ button:hover { border-color: #646cff; }
   }
 }
 
-/* MAIN CONTENT */
+/* ----- Main Content ----- */
 #menu-seq-left {
   display: flex;
   flex-direction: column;

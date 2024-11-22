@@ -205,11 +205,15 @@ const createWindow = () => {
   });
 
   ipcMain.handle("get-sequence-data", (ev, sequenceId)=>{
+    var d = {};
     session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
       if (status == 'success') {
-        return data;
+        d = {...data};
       }
     });
+    console.log(d);
+    
+    return d;
   });
 
 };

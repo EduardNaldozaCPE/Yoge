@@ -2,20 +2,27 @@
   import { ref, Ref } from 'vue';
   import AppTitlebar from './components/AppTitlebar.vue';
   import AppSidebar from './components/AppSidebar.vue';
-  import Home from './components/Home/Home.vue';
+  import Home from './components/Dashboard/Home.vue';
+  import Sequences from './components/Dashboard/Sequences.vue';
 
-  type Page = "home" | "session" | "sequenes" | "scores";
+  type Page = "dashboard" | "session";
+  type Content = "home" | "sequences" | "scores";
 
-  const currentPage : Ref<Page, Page> = ref('home');
-  
+  const currentPage : Ref<Page> = ref('dashboard');
+  const currentContent : Ref<Content> = ref('home');
+
+  function startSession() { currentPage.value = "session"; }
+  function stopSession()  { currentPage.value = "dashboard"; }
 </script>
 
 <template>
   <AppTitlebar />
-  <AppSidebar />
-  <div id="main-content">
-    <Home v-if="currentPage=='home'"></Home>
+  <AppSidebar v-if="currentPage=='dashboard'" :content="currentContent" @changeContent="(p) => currentContent = p"/>
+  <div v-if="currentPage == 'dashboard'" id="main-content">
+    <Home v-if="currentContent=='home'" @startSession="startSession" />
+    <Sequences v-if="currentContent=='sequences'" @startSession="startSession" />
   </div>
+
 </template>
 
 <style scoped>
