@@ -153,69 +153,60 @@ const createWindow = () => {
   ipcMain.handle("window-minimize", ()=>mainWindow.minimize());
 
   // Query
-  ipcMain.handle("get-score", (ev)=>{
-    session.get_latest_score((status, data)=>{
-      if (status == 'success') 
-        return data;
-    });
+  ipcMain.handle("get-score", async ()=>{
+    try {
+      return await session.get_latest_score();
+    } catch (e) {
+      console.error(e);
+    }
   });
 
-  ipcMain.handle("get-poses", (ev, sequenceId)=>{
-    console.log(`RUNNING GET POSES (${sequenceId})`);
-    session.get_steps_from_sequenceId(sequenceId, (status, data)=>{
-      if (status == 'success') {
-        console.log(`GET POSES (${sequenceId}) SUCCESS`);
-        return data;
-      }
-    });
+  ipcMain.handle("get-poses", async (ev, sequenceId)=>{
+    try { 
+      return await session.get_steps_from_sequenceId(sequenceId);
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   ipcMain.handle("get-history", async (ev, sequenceId)=>{
-    var d;
-    console.log(`RUNNING GET HISTORY`);
-    session.get_history_from_sequenceId(sequenceId, (status, data)=>{
-      if (status == 'success') {
-        console.log(`GET HISTORY SUCCESS`);
-        d = data;
-      }
-    });
-    console.log(d);
-    return d;
+    try {
+      return await session.get_history_from_sequenceId(sequenceId);
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   ipcMain.handle("get-all-history", async (_)=>{
-    console.log(`RUNNING GET ALL HISTORY`);
-    let response = await session.get_all_history();
-    if (response.status == 'success'){
-      console.log(`GET ALL HISTORY SUCCESS`, response.data);
+    try {
+      return await session.get_all_history();
+    } catch (e) {
+      console.error(e);
     }
-    return response.data;
   });
-
-  ipcMain.handle("get-pose-records", (ev, sequenceId)=>{
-    console.log(`RUNNING GET POSE RECORDS`);
-    session.get_steps_from_sequenceId(sequenceId, (status, poses)=>{
-      if (status != 'success') return;
-      session.get_scores_from_sequenceId(sequenceId, (status,data)=>{
-        let poseRecords:Array<PoseRecord> = response2PoseRecord(status,data,poses);
-        console.log(`GET POSE RECORDS SUCCESS`);
-        return poseRecords;
-      });
-    });
-  });
-
-  ipcMain.handle("get-sequence-data", (ev, sequenceId)=>{
-    var d = {};
-    session.get_sequence_from_sequenceId(sequenceId, (status, data)=>{
-      if (status == 'success') {
-        d = {...data};
+  
+    ipcMain.handle("get-sequence-data", async (ev, sequenceId)=>{
+      try {
+        return await session.get_sequence_from_sequenceId(sequenceId);
+      } catch (e) {
+        console.error(e);
       }
     });
-    console.log(d);
-    
-    return d;
-  });
 
+  ipcMain.handle("get-pose-records", async (ev, sequenceId)=>{
+    let poses = [];
+    let scores = [];
+    let poseRecords : Array<PoseRecord> = [];
+    try {
+      poses = await session.get_steps_from_sequenceId(sequenceId);
+      scores = await session.get_scores_from_sequenceId(sequenceId);
+      poseRecords = response2PoseRecord(scores,poses);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      return poseRecords;
+    }
+  });
 };
 
 

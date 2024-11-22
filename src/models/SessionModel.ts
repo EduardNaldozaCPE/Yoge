@@ -4,6 +4,10 @@ import { landmarkerConfig } from '../config';
 
 const sqlite3 = sqlite.verbose();
 
+// function validateData(err, row) {
+
+// }
+
 export class SessionModel {
     db: sqlite.Database;
     _lastScore: Score;
@@ -29,39 +33,39 @@ export class SessionModel {
      * Get the latest score entry from the 'score' table
      * @param callback Run upon successful query.
      */
-    get_latest_score (callback: (status:string, data: Score)=>(void)): void {
-        this.db.get<Score>(
-        "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
-        (err, row)=>{
-            let status;
-            // Check for query errors 
-            if (err) {
-                throw Error("Error while querying _get_latest_score: "+err);
-            }
-            // Validate Data
-            if (row !== undefined) {
-                let rows2check: Array<scoreKey>= [
-                    "scoreId", "sessionId","step",
-                    "leftElbow", "rightElbow", "leftKnee", 
-                    "rightKnee", "leftShoulder", "rightShoulder", 
-                    "leftHip", "rightHip"
-                ];
-                for (let i=0; i<rows2check.length; i++) {
-                    try {
-                        if (row[rows2check[i]] !== undefined) continue;
-                    } catch (e) {
-                        throw Error("Error while validating _get_latest_score: "+e);
+    get_latest_score(): Promise<Score> {
+        return new Promise((resolve, reject)=>{
+            this.db.get<Score>(
+            "SELECT * FROM score WHERE scoreId=(SELECT MAX(scoreId) FROM score);",
+            (err, row)=>{
+                // Check for query errors 
+                if (err) return reject(err)
+
+                // Validate Data
+                if (row !== undefined) {
+                    let rows2check: Array<scoreKey>= [
+                        "scoreId", "sessionId","step",
+                        "leftElbow", "rightElbow", "leftKnee", 
+                        "rightKnee", "leftShoulder", "rightShoulder", 
+                        "leftHip", "rightHip"
+                    ];
+                    for (let i=0; i<rows2check.length; i++) {
+                        try {
+                            if (row[rows2check[i]] !== undefined) continue;
+                        } catch (e) {
+                            throw Error("Error while validating _get_latest_score: "+e);
+                        }
                     }
+                    this._lastScore = row;
+                } else {
+                    return reject("Empty"); 
                 }
-                status = 'success';
-                this._lastScore = row;
-            } else {
-                status = "empty"; 
+
+                // Call callback and set the backup
+                resolve(row);
             }
-            // Call callback and set the backup
-            callback(status, row);
-        }
-        );
+            );
+        });
     }
     
     
@@ -70,16 +74,12 @@ export class SessionModel {
      * @param sequenceId Sequence ID used to query pose data from.
      * @param callback Run upon succesful query.
      */
-    get_steps_from_sequenceId(sequenceId: number, callback: (status:string, rows:Array<any>) => (void)): void {
-        this.db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
-            let status;
-            if (err) throw Error("Invalid Session Id in _get_steps_from_session");
-            if (rows !== undefined) {
-                status = 'success';
-            } else {
-                status = 'empty';
-            }
-            callback(status, rows);
+    get_steps_from_sequenceId(sequenceId: number): Promise<Array<any>> {
+        return new Promise((resolve, reject)=>{
+            this.db.all(`SELECT * FROM pose WHERE sequenceId = ${sequenceId};`, (err, rows)=>{
+                if (err) reject("Invalid Session Id in _get_steps_from_session");
+                resolve(rows);
+            });
         });
     }
     
@@ -89,21 +89,16 @@ export class SessionModel {
      * @param sequenceId Sequence ID to query.
      * @param callback Run upon successful query.
      */
-    get_sequence_from_sequenceId(sequenceId: number , callback: (status:string, rows:sequenceType) => (void)): void {
-        this.db.get(
-        `SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`,
-        (err, row: sequenceType)=>{
-            let status;
-            if (err) throw Error("Invalid Sequence Id in _get_sequence_from_sequenceId");
-            
-            if (row !== undefined) {
-                status = 'success';
-            } else {
-                status = 'empty';
-            }
-            callback(status, row);
-        }
-        );
+    get_sequence_from_sequenceId(sequenceId: number): Promise<sequenceType> {
+        return new Promise((resolve, reject)=>{
+            this.db.get(
+                `SELECT * FROM sequence WHERE sequenceId = ${sequenceId};`,
+                (err, row: sequenceType)=>{
+                    if (err) return reject(err);
+                    resolve(row);
+                }
+            );
+        })
     }
     
     
@@ -137,54 +132,40 @@ export class SessionModel {
         );
     }
 
-    async get_all_history(): Promise<DBAllResponse> {
+    async get_all_history(): Promise< Array<any> > {
         return new Promise((resolve, reject) => {
             this.db.all(`
                 SELECT historyId,history.sessionId,datetime,score,session.sequenceId,sequenceName FROM history
                 INNER JOIN session ON history.sessionId=session.sessionId
                 LEFT JOIN sequence ON session.sequenceId = sequence.sequenceId;`, 
                 (err, rows)=>{
-                    let status: StatusType;
-                    if (err) throw Error(`Invalid Session Id in _get_steps_from_session: ${err}`);
-                    if (rows !== undefined) {
-                        status = 'success'
-                    } else {
-                        status = 'empty';
-                    }
-                    resolve({status, data:rows});
+                    if (err) return reject(`Invalid Session Id in _get_steps_from_session: ${err}`);
+                    resolve(rows);
                 }
             );
         });
     }
 
-    get_history_from_sequenceId(sequenceId:number, callback: (status:string, rows:Array<any>) => (void)): void {
-        this.db.all(`SELECT * FROM history where sessionId IN (SELECT sessionId FROM session WHERE sequenceId=${sequenceId});`,
-            (err, rows)=>{
-                let status;
-                if (err) throw Error(`Invalid Sequence Id in get_history_from_sequenceId: ${err}`);
-                if (rows !== undefined) {
-                    status = 'success';
-                } else {
-                    status = 'empty';
+    get_history_from_sequenceId(sequenceId:number): Promise<Array<any>> {
+        return new Promise((resolve, reject)=>{
+            this.db.all(`SELECT * FROM history where sessionId IN (SELECT sessionId FROM session WHERE sequenceId=${sequenceId});`,
+                (err, rows)=>{
+                    if (err) reject(`Invalid Sequence Id in get_history_from_sequenceId: ${err}`);
+                    resolve(rows);
                 }
-                callback(status, rows);
-            }
-        )
+            )
+        });
     }
     
-    get_scores_from_sequenceId(sequenceId:number, callback: (status:string, rows:Array<any>) => (void)): void {
-        this.db.all(`SELECT * FROM score WHERE sessionId IN (SELECT sessionId FROM session WHERE sequenceId = ${sequenceId});`,
-            (err, rows)=>{
-                let status;
-                if (err) throw Error(`Invalid Sequence Id in get_scores_from_sequenceId: ${err}`);
-                if (rows !== undefined) {
-                    status = 'success';
-                } else {
-                    status = 'empty';
+    get_scores_from_sequenceId(sequenceId:number): Promise<Array<any>> {
+        return new Promise((resolve, reject)=>{
+            this.db.all(`SELECT * FROM score WHERE sessionId IN (SELECT sessionId FROM session WHERE sequenceId = ${sequenceId});`,
+                (err, rows)=>{
+                    if (err) reject(`Invalid Sequence Id in get_scores_from_sequenceId: ${err}`);
+                    resolve(rows);
                 }
-                callback(status, rows);
-            }
-        )
+            )
+        })
     }
 
     postNewHistory(sessionId:number, score:number) {

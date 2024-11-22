@@ -8,9 +8,7 @@ exports.response2PoseRecord = response2PoseRecord;
  * @param poses Array of Pose Data
  * @returns Final Array of pose data in PoseRecord format
  */
-function response2PoseRecord(status, data, poses) {
-    if (status != 'success')
-        return [];
+function response2PoseRecord(data, poses) {
     const finalData = [];
     // Set the template for the final data.
     for (let i = 0; i < poses.length; i++) {

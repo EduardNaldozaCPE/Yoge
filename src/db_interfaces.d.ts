@@ -30,5 +30,3 @@ declare interface Score {
 }
 
 declare type StatusType = "success"|"fail"|"empty"
-declare interface DBAllResponse { status: StatusType, data: Array<any>}
-declare interface DBOneResponse { status: StatusType, data: Object<any>}

@@ -12,8 +12,7 @@ export interface PoseRecord {
  * @param poses Array of Pose Data
  * @returns Final Array of pose data in PoseRecord format
  */
-export function response2PoseRecord(status:string, data:Array<any>, poses:Array<any>):Array<PoseRecord> {
-    if (status != 'success') return [];
+export function response2PoseRecord(data:Array<any>, poses:Array<any>):Array<PoseRecord> {
     const finalData : Array<PoseRecord> = [];
 
     // Set the template for the final data.

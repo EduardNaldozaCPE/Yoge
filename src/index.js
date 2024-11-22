@@ -161,63 +161,62 @@ const createWindow = () => {
     // Minimizes the window.
     electron_1.ipcMain.handle("window-minimize", () => mainWindow.minimize());
     // Query
-    electron_1.ipcMain.handle("get-score", (ev) => {
-        session.get_latest_score((status, data) => {
-            if (status == 'success')
-                return data;
-        });
-    });
-    electron_1.ipcMain.handle("get-poses", (ev, sequenceId) => {
-        console.log(`RUNNING GET POSES (${sequenceId})`);
-        session.get_steps_from_sequenceId(sequenceId, (status, data) => {
-            if (status == 'success') {
-                console.log(`GET POSES (${sequenceId}) SUCCESS`);
-                return data;
-            }
-        });
-    });
+    electron_1.ipcMain.handle("get-score", () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            return yield session.get_latest_score();
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }));
+    electron_1.ipcMain.handle("get-poses", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            return yield session.get_steps_from_sequenceId(sequenceId);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }));
     electron_1.ipcMain.handle("get-history", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
-        var d;
-        console.log(`RUNNING GET HISTORY`);
-        session.get_history_from_sequenceId(sequenceId, (status, data) => {
-            if (status == 'success') {
-                console.log(`GET HISTORY SUCCESS`);
-                d = data;
-            }
-        });
-        console.log(d);
-        return d;
+        try {
+            return yield session.get_history_from_sequenceId(sequenceId);
+        }
+        catch (e) {
+            console.error(e);
+        }
     }));
     electron_1.ipcMain.handle("get-all-history", (_) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(`RUNNING GET ALL HISTORY`);
-        let response = yield session.get_all_history();
-        if (response.status == 'success') {
-            console.log(`GET ALL HISTORY SUCCESS`, response.data);
+        try {
+            return yield session.get_all_history();
         }
-        return response.data;
+        catch (e) {
+            console.error(e);
+        }
     }));
-    electron_1.ipcMain.handle("get-pose-records", (ev, sequenceId) => {
-        console.log(`RUNNING GET POSE RECORDS`);
-        session.get_steps_from_sequenceId(sequenceId, (status, poses) => {
-            if (status != 'success')
-                return;
-            session.get_scores_from_sequenceId(sequenceId, (status, data) => {
-                let poseRecords = (0, utils_1.response2PoseRecord)(status, data, poses);
-                console.log(`GET POSE RECORDS SUCCESS`);
-                return poseRecords;
-            });
-        });
-    });
-    electron_1.ipcMain.handle("get-sequence-data", (ev, sequenceId) => {
-        var d = {};
-        session.get_sequence_from_sequenceId(sequenceId, (status, data) => {
-            if (status == 'success') {
-                d = Object.assign({}, data);
-            }
-        });
-        console.log(d);
-        return d;
-    });
+    electron_1.ipcMain.handle("get-sequence-data", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            return yield session.get_sequence_from_sequenceId(sequenceId);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }));
+    electron_1.ipcMain.handle("get-pose-records", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
+        let poses = [];
+        let scores = [];
+        let poseRecords = [];
+        try {
+            poses = yield session.get_steps_from_sequenceId(sequenceId);
+            scores = yield session.get_scores_from_sequenceId(sequenceId);
+            poseRecords = (0, utils_1.response2PoseRecord)(scores, poses);
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            return poseRecords;
+        }
+    }));
 };
 electron_1.app.whenReady().then(() => {
     createWindow();

@@ -34,10 +34,12 @@
       if (!sequenceElement ) return;
 
       // Select the parent 'Button' element instead of contents
-      if (sequenceElement.parentElement instanceof HTMLButtonElement)
+      if (sequenceElement.parentElement instanceof HTMLButtonElement) {
         sequenceElement = sequenceElement.parentElement!;
-      else if (sequenceElement.parentElement?.parentElement instanceof HTMLButtonElement)
+      }
+      else if (sequenceElement.parentElement?.parentElement instanceof HTMLButtonElement) {
         sequenceElement = sequenceElement.parentElement?.parentElement!;      
+      } 
       if ( !(sequenceElement instanceof HTMLButtonElement) ) return;
 
       unselectAll();
