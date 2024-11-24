@@ -18,7 +18,7 @@ export interface ILandmarkerAPI {
     getAllHistory: () => (Promise<Array<any>>),
     getHistory: (sequenceId:number) => (Promise<Array<any>>),
     getPoseRecords: (sequenceId:number) => (Promise<Array<any>>),
-    getSequenceData: (sequenceId: number) => (Promise<Array<any>>),
+    getSequenceData: (sequenceId: number) => (Promise<sequenceType>),
     recordHistory: (sessionId: number, score: number) => (Promise<Array<any>>),
 
     onSession: (callback: Function) => (void),

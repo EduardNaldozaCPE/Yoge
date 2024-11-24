@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { onMounted, Ref, ref } from 'vue';
+    import { sequenceType } from '../../interface';
     // SVGs
     import titleblockSVG from '../../../assets/titleblock.svg';
     // Thumbs
@@ -10,12 +11,10 @@
     
 
     const allHistory : Ref< Array<any> > = ref([]);
-    const allSequences : Ref< Object > = ref({});
     const selectedSequence : Ref< number > = ref(-1);
     
     onMounted(async ()=>{
         allHistory.value = await window.landmarkerAPI.getAllHistory();
-        console.log(allSequences);
     });
 
     function unselectAll() {
@@ -29,7 +28,7 @@
       }
     }
 
-    function selectSequence(ev:Event) {
+    async function selectSequence(ev:Event) {
       let sequenceElement: HTMLElement = (<HTMLElement>ev.target);
       if (!sequenceElement ) return;
 
@@ -47,17 +46,84 @@
       sequenceElement.className += " seq-selected";
       selectedSequence.value = parseInt(sequenceElement.getAttribute('sequenceId')!);
 
-      // Get the sequence data via API
-      console.log(selectedSequence.value);
-      window.landmarkerAPI.getSequenceData(selectedSequence.value).then(
-        (data)=>{
-          console.log(data);
+      // Get the sequence data via API & Update the sequence info
+      try {
+        const sequenceData = await window.landmarkerAPI.getSequenceData(selectedSequence.value);
+        const infoHeaderTitle = document.getElementById("info-header-title");
+        const infoRecoms = document.getElementById("info-recommendations-text");
+        infoHeaderTitle!.textContent = sequenceData.sequenceName;
+        infoRecoms!.textContent = sequenceData.tags;
+      } catch (err) { console.log(err); }
+
+      await fillSequenceData(selectedSequence.value);
+      await fillSequenceScores(selectedSequence.value);
+      await fillSequencePoseScores(selectedSequence.value);
+
+      let sequenceInfo = document.getElementById("menu-seq-info")
+      sequenceInfo!.style.width = "300px"
+      sequenceInfo!.style.opacity = "1";
+    }
+
+    // Get the sequence data via API & Update the sequence info
+    async function fillSequenceData(sequenceId: number) {
+      try {
+        const sequenceData = await window.landmarkerAPI.getSequenceData(sequenceId);
+        const infoHeaderTitle = document.getElementById("info-header-title");
+        const infoRecoms = document.getElementById("info-recommendations-text");
+        infoHeaderTitle!.textContent = sequenceData.sequenceName;
+        infoRecoms!.textContent = sequenceData.tags;
+      } catch (err) { console.log(err); }
+    } 
+
+    // Go through each history and get the best, and latest scores
+    async function fillSequenceScores(sequenceId: number)  {
+      try {
+        let maxScore = 0;
+        let latestScore = 0;
+        const infoLatestScore = document.getElementById("info-latest-score");
+        const infoBestScore = document.getElementById("info-best-score");
+        const sequenceHistory = await window.landmarkerAPI.getHistory(sequenceId);
+        if (sequenceHistory.length == 0) {
+          infoLatestScore!.textContent = "--";
+          infoBestScore!.textContent = "--";
+          return;
         }
-      ).catch(
-        (err)=>{ 
-          console.log(err);
+        
+        for (let i = 0; i < sequenceHistory.length; i++) {
+          const record = sequenceHistory[i];
+          if (i == sequenceHistory.length-1)
+            latestScore = record.score
+          if (record.score > maxScore)
+            maxScore = record.score;
+        
+          console.log(latestScore, maxScore);
+          infoLatestScore!.textContent = latestScore.toFixed(2).toString();
+          infoBestScore!.textContent = maxScore.toFixed(2).toString();
         }
-      );
+      } catch (err) { console.log(err); }
+    }
+
+    async function fillSequencePoseScores(sequenceId: number) {
+      const poseRecords = await window.landmarkerAPI.getPoseRecords(sequenceId);
+      const infoPoseScores = document.getElementById("info-scores-table-body");
+      // Clear Contents
+      infoPoseScores!.innerHTML = "";
+      // Fill Contents
+      for (let i = 0; i < poseRecords.length; i++) {
+        const pose = poseRecords[i];
+        
+        let row = document.createElement('tr');
+        let seqName = document.createElement('td')
+        let seqScore = document.createElement('td')
+        seqName.textContent = pose.poseName;
+        seqScore.textContent = pose.latestScore;
+        row.appendChild(seqName);
+        row.appendChild(seqScore);
+
+        infoPoseScores?.appendChild(row);
+      }
+      console.log(poseRecords);
+      
     }
 </script>
 
@@ -114,7 +180,7 @@
                 <img :src="titleblockSVG">
                 <p>Recommendations</p>
             </div>
-            <p id="info-recommendations-text">Tag 1, Tag 2, Tag 3</p>
+            <p id="info-recommendations-text">-</p>
         </div>
         <div id="info-latest-best">
             <div id="latest-score">
@@ -203,12 +269,13 @@
 }
 
 #menu-seq-info {
-  width: 300px;
+  width: 0px;
+  opacity: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease, width ease 0.3s;
 }
 
 #info-header {
