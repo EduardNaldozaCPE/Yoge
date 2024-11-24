@@ -1,11 +1,18 @@
 import * as path from 'node:path';
+import * as sqlite from 'sqlite3';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { cwd } from 'process';
 import { landmarkerConfig } from './config';
-import { SessionModel } from './models/SessionModel';
 import { LandmarkerAPI } from './api/landmarker-api';
 import { PoseRecord, response2PoseRecord } from './utils/utils';
 
+import { SequenceModel } from './models/SequenceModel';
+import { HistoryModel } from './models/HistoryModel';
+import { SessionModel } from './models/SessionModel';
+import { ScoreModel } from './models/ScoreModel';
+import { PoseModel } from './models/PoseModel';
+
+const sqlite3 = sqlite.verbose();
 
 if ( require('electron-squirrel-startup') ) app.quit;
 
@@ -13,7 +20,14 @@ if ( require('electron-squirrel-startup') ) app.quit;
 const DEBUG = true; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const spawncommand: string = DEBUG? "python" : path.join(cwd(), landmarkerConfig.LANDMARKER_PATH);
 const spawnargs: Array<string> = DEBUG? ['src/services/landmarker-service/main.py'] : [];
-const session = new SessionModel();
+const db = new sqlite3.Database(landmarkerConfig.DB_PATH);
+
+// Models
+const sequence = new SequenceModel(db);
+const history = new HistoryModel(db);
+const session = new SessionModel(db);
+const score = new ScoreModel(db);
+const pose = new PoseModel(db);
 
 const landmarkerAPI = new LandmarkerAPI(spawncommand, spawnargs)
 
@@ -113,7 +127,7 @@ const createWindow = () => {
   });
 
   ipcMain.handle("record-history", (_, sessionId, score)=>{
-    session.postNewHistory(sessionId, score);
+    history.postNewHistory(sessionId, score);
   });
 
   // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
@@ -155,7 +169,7 @@ const createWindow = () => {
   // Query
   ipcMain.handle("get-score", async ()=>{
     try {
-      return await session.get_latest_score();
+      return await score.get_latest_score();
     } catch (e) {
       console.error(e);
     }
@@ -163,7 +177,7 @@ const createWindow = () => {
 
   ipcMain.handle("get-poses", async (ev, sequenceId)=>{
     try { 
-      return await session.get_steps_from_sequenceId(sequenceId);
+      return await pose.get_steps_from_sequenceId(sequenceId);
     } catch (e) {
       console.error(e);
     }
@@ -171,7 +185,7 @@ const createWindow = () => {
 
   ipcMain.handle("get-history", async (ev, sequenceId)=>{
     try {
-      return await session.get_history_from_sequenceId(sequenceId);
+      return await history.get_history_from_sequenceId(sequenceId);
     } catch (e) {
       console.error(e);
     }
@@ -179,7 +193,7 @@ const createWindow = () => {
 
   ipcMain.handle("get-all-history", async (_)=>{
     try {
-      return await session.get_all_history();
+      return await history.get_all_history();
     } catch (e) {
       console.error(e);
     }
@@ -187,7 +201,7 @@ const createWindow = () => {
   
     ipcMain.handle("get-sequence-data", async (ev, sequenceId)=>{
       try {
-        return await session.get_sequence_from_sequenceId(sequenceId);
+        return await sequence.get_sequence_from_sequenceId(sequenceId);
       } catch (e) {
         console.error(e);
       }
@@ -198,8 +212,8 @@ const createWindow = () => {
     let scores = [];
     let poseRecords : Array<PoseRecord> = [];
     try {
-      poses = await session.get_steps_from_sequenceId(sequenceId);
-      scores = await session.get_scores_from_sequenceId(sequenceId);
+      poses = await pose.get_steps_from_sequenceId(sequenceId);
+      scores = await score.get_scores_from_sequenceId(sequenceId);
       poseRecords = response2PoseRecord(scores,poses);
     } catch (e) {
       console.error(e);

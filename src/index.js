@@ -33,19 +33,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("node:path"));
+const sqlite = __importStar(require("sqlite3"));
 const electron_1 = require("electron");
 const process_1 = require("process");
 const config_1 = require("./config");
-const SessionModel_1 = require("./models/SessionModel");
 const landmarker_api_1 = require("./api/landmarker-api");
 const utils_1 = require("./utils/utils");
+const SequenceModel_1 = require("./models/SequenceModel");
+const HistoryModel_1 = require("./models/HistoryModel");
+const SessionModel_1 = require("./models/SessionModel");
+const ScoreModel_1 = require("./models/ScoreModel");
+const PoseModel_1 = require("./models/PoseModel");
+const sqlite3 = sqlite.verbose();
 if (require('electron-squirrel-startup'))
     electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"
 const DEBUG = true; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const spawncommand = DEBUG ? "python" : path.join((0, process_1.cwd)(), config_1.landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG ? ['src/services/landmarker-service/main.py'] : [];
-const session = new SessionModel_1.SessionModel();
+const db = new sqlite3.Database(config_1.landmarkerConfig.DB_PATH);
+// Models
+const sequence = new SequenceModel_1.SequenceModel(db);
+const history = new HistoryModel_1.HistoryModel(db);
+const session = new SessionModel_1.SessionModel(db);
+const score = new ScoreModel_1.ScoreModel(db);
+const pose = new PoseModel_1.PoseModel(db);
 const landmarkerAPI = new landmarker_api_1.LandmarkerAPI(spawncommand, spawnargs);
 // Create the browser window and start the landmarker script.
 const createWindow = () => {
@@ -126,7 +138,7 @@ const createWindow = () => {
         }
     });
     electron_1.ipcMain.handle("record-history", (_, sessionId, score) => {
-        session.postNewHistory(sessionId, score);
+        history.postNewHistory(sessionId, score);
     });
     // kills the landmarker child process, then signals 'recall-landmarker' which calls 'run-landmarker'
     electron_1.ipcMain.handle("restart-landmarker", (_, userId, sequenceId, device) => {
@@ -163,7 +175,7 @@ const createWindow = () => {
     // Query
     electron_1.ipcMain.handle("get-score", () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return yield session.get_latest_score();
+            return yield score.get_latest_score();
         }
         catch (e) {
             console.error(e);
@@ -171,7 +183,7 @@ const createWindow = () => {
     }));
     electron_1.ipcMain.handle("get-poses", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return yield session.get_steps_from_sequenceId(sequenceId);
+            return yield pose.get_steps_from_sequenceId(sequenceId);
         }
         catch (e) {
             console.error(e);
@@ -179,7 +191,7 @@ const createWindow = () => {
     }));
     electron_1.ipcMain.handle("get-history", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return yield session.get_history_from_sequenceId(sequenceId);
+            return yield history.get_history_from_sequenceId(sequenceId);
         }
         catch (e) {
             console.error(e);
@@ -187,7 +199,7 @@ const createWindow = () => {
     }));
     electron_1.ipcMain.handle("get-all-history", (_) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return yield session.get_all_history();
+            return yield history.get_all_history();
         }
         catch (e) {
             console.error(e);
@@ -195,7 +207,7 @@ const createWindow = () => {
     }));
     electron_1.ipcMain.handle("get-sequence-data", (ev, sequenceId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            return yield session.get_sequence_from_sequenceId(sequenceId);
+            return yield sequence.get_sequence_from_sequenceId(sequenceId);
         }
         catch (e) {
             console.error(e);
@@ -206,8 +218,8 @@ const createWindow = () => {
         let scores = [];
         let poseRecords = [];
         try {
-            poses = yield session.get_steps_from_sequenceId(sequenceId);
-            scores = yield session.get_scores_from_sequenceId(sequenceId);
+            poses = yield pose.get_steps_from_sequenceId(sequenceId);
+            scores = yield score.get_scores_from_sequenceId(sequenceId);
             poseRecords = (0, utils_1.response2PoseRecord)(scores, poses);
         }
         catch (e) {
