@@ -19,7 +19,6 @@
     
     onMounted(async ()=>{
         allHistory.value = await window.landmarkerAPI.getAllHistory();
-        // console.log(allHistory.value);
         populateUI();
     });
 

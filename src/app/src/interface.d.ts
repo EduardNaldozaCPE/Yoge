@@ -48,6 +48,45 @@ export interface HistoryType {
     score       : number;
 }
 
+// Types in Sequence Page
+interface PoseListState { 
+  step:string, 
+  poseName:string, 
+  score:number, 
+  weight:number 
+}
+
+declare interface Pose {
+  poseId: number,
+  sequenceId: number,
+  stepNum: number,
+  poseName: string,
+  targetLeftElbow: number,
+  targetRightElbow: number,
+  targetLeftKnee: number,
+  targetRightKnee: number,
+  targetLeftShoulder: number,
+  targetRightShoulder: number,
+  targetLeftHip: number,
+  targetRightHip: number,
+  duration: number,
+  wght: number
+}
+
+export interface Score {
+  scoreId       : number,
+  sessionId     : number,
+  step          : number,
+  leftElbow     : number, 
+  rightElbow    : number, 
+  leftKnee      : number, 
+  rightKnee     : number, 
+  leftShoulder  : number, 
+  rightShoulder : number, 
+  leftHip       : number, 
+  rightHip      : number
+}
+
 export interface IElectronWindow {
   loadPreferences?: () => Promise<void>,
   windowClose: () => (void),

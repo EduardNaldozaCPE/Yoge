@@ -48,7 +48,7 @@ const sqlite3 = sqlite.verbose();
 if (require('electron-squirrel-startup'))
     electron_1.app.quit;
 // NOTE: Turn OFF when running "npm run make"
-const DEBUG = true; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
+const DEBUG = false; // - To run with DEBUG=false, make sure the landmarker module is compiled and is located in "Yoge/resources/landmarker/landmarker.exe"
 const spawncommand = DEBUG ? "python" : path.join((0, process_1.cwd)(), config_1.landmarkerConfig.LANDMARKER_PATH);
 const spawnargs = DEBUG ? ['src/services/landmarker-service/main.py'] : [];
 const db = new sqlite3.Database(config_1.landmarkerConfig.DB_PATH);

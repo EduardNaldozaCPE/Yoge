@@ -35,7 +35,7 @@ const landmarkerAPI = {
             }
         });
     },
-    enableRestart: (userId, sequenceId, restartListener = () => { }) => {
+    enableRestart: (userId, sequenceId, restartListener) => {
         ipcRenderer.on('recall-landmarker', (_, device) => {
             restartListener();
             ipcRenderer.invoke('run-landmarker', userId, sequenceId, device);

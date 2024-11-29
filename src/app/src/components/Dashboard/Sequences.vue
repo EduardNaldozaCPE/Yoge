@@ -1,6 +1,5 @@
 <script setup lang="ts">
     import { onMounted, Ref, ref } from 'vue';
-    import { sequenceType } from '../../interface';
     // SVGs
     import titleblockSVG from '../../../assets/titleblock.svg';
     // Thumbs
@@ -95,8 +94,6 @@
             latestScore = record.score
           if (record.score > maxScore)
             maxScore = record.score;
-        
-          console.log(latestScore, maxScore);
           infoLatestScore!.textContent = latestScore.toFixed(2).toString();
           infoBestScore!.textContent = maxScore.toFixed(2).toString();
         }
@@ -121,9 +118,7 @@
         row.appendChild(seqScore);
 
         infoPoseScores?.appendChild(row);
-      }
-      console.log(poseRecords);
-      
+      } 
     }
 </script>
 
@@ -210,7 +205,7 @@
                 </table>
             </div>
         </div>
-        <button id="info-startbtn" onclick="_moveToSession()">Start</button>
+        <button id="info-startbtn" @click="$emit('startSession', selectedSequence)">Start</button>
     </div>
 </template>
 
