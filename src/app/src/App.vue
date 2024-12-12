@@ -2,8 +2,9 @@
   import { ref, Ref } from 'vue';
   import AppTitlebar from './components/AppTitlebar.vue';
   import AppSidebar from './components/AppSidebar.vue';
-  import Home from './components/Dashboard/Home.vue';
   import Sequences from './components/Dashboard/Sequences.vue';
+  import Scores from './components/Dashboard/Scores.vue';
+  import Home from './components/Dashboard/Home.vue';
   import Session from './components/Session/Session.vue';
 
   type Page = "dashboard" | "session";
@@ -50,6 +51,11 @@
     window.landmarkerAPI.stop();
     currentPage.value = "dashboard"; 
   }
+
+  function finishSession() {
+    stopSession();
+    currentContent.value = "scores";
+  }
 </script>
 
 <template>
@@ -58,8 +64,9 @@
   <div v-if="currentPage == 'dashboard'" id="main-content">
     <Home v-if="currentContent=='home'" @startSession="startSession" />
     <Sequences v-if="currentContent=='sequences'" @startSession="startSession" />
+    <Scores v-if="currentContent=='scores'" />
   </div>
-  <Session v-if="currentPage == 'session'" id="main-content" @stopSession="stopSession" :sessionDetails="sessionDetails"/>
+  <Session v-if="currentPage == 'session'" id="main-content" @stopSession="stopSession" @finish="finishSession()" :sessionDetails="sessionDetails"/>
 
 </template>
 

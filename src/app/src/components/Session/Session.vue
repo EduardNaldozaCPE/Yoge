@@ -1,6 +1,7 @@
 <script setup lang="ts">
+    import DoneModal from './DoneModal.vue';
     import { Pose, PoseListState, Score } from '../../interface';
-    import { onMounted, Ref, ref } from 'vue';
+    import { onMounted, ref, Ref } from 'vue';
     // Icons
     import loadingPng from '../../../assets/loading.png';
     // SVGs
@@ -15,8 +16,10 @@
     let currentDevice : number = props.sessionDetails.currentDevice;
     let isRecording = false;
     let showFeed = false;
+    let isSessionDone : Ref<boolean> = ref(false);
+    let finalScore : Ref<number> = ref(0);
     let currentStep = 0;
-    var currentScore : string   = "0.0";
+    var currentScore : string = "0.0";
     var poseListState : Array<PoseListState> = [];
 
     // landmarkerAPI Flow:
@@ -67,8 +70,6 @@
             console.log("onStatus: Success");
             let camSwitchBtn  = document.getElementById('live-camswitch')!;
             let liveFeed = document.getElementById('live-feed')!;
-            console.log(liveFeed);
-            
             liveFeed.style.opacity = "1";
             showFeed = true;
             camSwitchBtn.removeAttribute("disabled");
@@ -100,7 +101,7 @@
     );
     
     window.landmarkerAPI.onFrame((imgStr:string)=>{
-        if (!showFeed) return 
+        if (!showFeed) return;
         let liveFeed  = document.getElementById('live-feed')!;
         liveFeed.setAttribute("src", imgStr);
     });
@@ -116,6 +117,16 @@
         console.log("currentStep = "+currentStep);
     });
 
+    window.landmarkerAPI.onSessionDone(()=>{
+        isRecording = false;
+        let fScore = 0;
+        for (let i = 0; i < poseListState.length; i++) {
+            fScore += poseListState[i].score * (poseListState[i].weight * 0.01);
+        }
+        finalScore.value = fScore;
+        isSessionDone.value = true;
+    });
+
     // Scoring
     let ooga = setInterval(async () => {
         if (!isRecording)
@@ -123,7 +134,6 @@
 
         const widgetScore = document.getElementById('widget-score')!;
         let score: Score = await window.landmarkerAPI.getScore();
-        console.log(score);
         
         let joints = ["leftElbow", "rightElbow", "leftKnee", "rightKnee", "leftShoulder", "rightShoulder", "leftHip", "rightHip"];
         let totalScore = 0.0;
@@ -154,7 +164,6 @@
 
     // Functions
     function switchCamera() {
-    
         const liveFeed      = document.getElementById('live-feed')!;
         const camSwitchBtn  = document.getElementById('live-camswitch')!;
         camSwitchBtn.setAttribute("disabled", "true");
@@ -177,7 +186,6 @@
         isRecording = !isRecording;
     }
 
-    
     function resetVars() {
         document.getElementById("pose-table")!.scrollTop = 0;
     }
@@ -224,9 +232,10 @@
                     </tbody>
                 </table>
             </div>
-            <button id="finish-btn" class="menu-btn" @click="$emit('stopSession')" onclick="clearInterval('ooga');" disabled>Finish</button>
+            <!-- <button id="finish-btn" class="menu-btn" @click="$emit('stopSession')" onclick="clearInterval('ooga');" disabled>Finish</button> -->
         </section>
     </section>
+    <DoneModal :score="finalScore.toFixed(2)" v-if="isSessionDone" @finish="$emit('finish')"/>
 </template>
 
 <style scoped>

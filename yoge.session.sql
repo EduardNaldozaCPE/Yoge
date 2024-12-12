@@ -1,1 +1,1 @@
-SELECT * FROM sequence;
+SELECT * FROM history where sessionId IN (SELECT sessionId FROM session WHERE sequenceId=2);
