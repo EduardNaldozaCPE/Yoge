@@ -194,17 +194,17 @@ class Landmarker:
             self.__landmarks, scores
             )
 
-        debug_isRecStr = "RECORDING: TRUE" if self.isRecording else "RECORDING: FALSE"  
+        debug_isRecStr = "" if self.isRecording else "PAUSED"  
         cvimg = cv.putText(
             cvimg, debug_isRecStr,
-            ( 10, 140 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
-            ( 150, 50, 0 ), 1, cv.LINE_AA, False)
+            ( 10, 20 ), cv.FONT_HERSHEY_PLAIN, 1,
+            ( 255, 255, 255 ), 1, cv.LINE_AA, False)
         
-        debug_isRecStr = "RESULT: COMPLETE" if isResultComplete else "RESULT: INCOMPLETE"  
-        cvimg = cv.putText(
-            cvimg, debug_isRecStr,
-            ( 10, 120 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
-            ( 150, 50, 0 ), 1, cv.LINE_AA, False)
+        # debug_isRecStr = "RESULT: COMPLETE" if isResultComplete else "RESULT: INCOMPLETE"  
+        # cvimg = cv.putText(
+        #     cvimg, debug_isRecStr,
+        #     ( 10, 120 ), cv.FONT_HERSHEY_COMPLEX_SMALL, 0.8,
+        #     ( 150, 50, 0 ), 1, cv.LINE_AA, False)
         
         # Encode the frame data to jpeg numpy array, then convert to bytes, then put final frame in queue
         try:

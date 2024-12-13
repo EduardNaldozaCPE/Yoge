@@ -8,7 +8,6 @@ import { PoseRecord, response2PoseRecord } from './utils/utils';
 
 import { SequenceModel } from './models/SequenceModel';
 import { HistoryModel } from './models/HistoryModel';
-import { SessionModel } from './models/SessionModel';
 import { ScoreModel } from './models/ScoreModel';
 import { PoseModel } from './models/PoseModel';
 
@@ -25,7 +24,6 @@ const db = new sqlite3.Database(landmarkerConfig.DB_PATH);
 // Models
 const sequence = new SequenceModel(db);
 const history = new HistoryModel(db);
-const session = new SessionModel(db);
 const score = new ScoreModel(db);
 const pose = new PoseModel(db);
 
@@ -46,13 +44,13 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.loadURL("http://localhost:5173/"); // Use this in dev 
-  // mainWindow.loadFile(path.join(__dirname,"app/dist/index.html")); // Use this when building
+  // mainWindow.loadURL("http://localhost:5173/"); // Use this in dev 
+  mainWindow.loadFile(path.join(__dirname,"app/dist/index.html")); // Use this when building
 
   mainWindow.setMenu(null);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
   ipcMain.handle("run-landmarker", (_, userId, sequenceId, device) => {

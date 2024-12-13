@@ -41,7 +41,6 @@ const landmarker_api_1 = require("./api/landmarker-api");
 const utils_1 = require("./utils/utils");
 const SequenceModel_1 = require("./models/SequenceModel");
 const HistoryModel_1 = require("./models/HistoryModel");
-const SessionModel_1 = require("./models/SessionModel");
 const ScoreModel_1 = require("./models/ScoreModel");
 const PoseModel_1 = require("./models/PoseModel");
 const sqlite3 = sqlite.verbose();
@@ -55,7 +54,6 @@ const db = new sqlite3.Database(config_1.landmarkerConfig.DB_PATH);
 // Models
 const sequence = new SequenceModel_1.SequenceModel(db);
 const history = new HistoryModel_1.HistoryModel(db);
-const session = new SessionModel_1.SessionModel(db);
 const score = new ScoreModel_1.ScoreModel(db);
 const pose = new PoseModel_1.PoseModel(db);
 const landmarkerAPI = new landmarker_api_1.LandmarkerAPI(spawncommand, spawnargs);
@@ -72,11 +70,11 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
-    mainWindow.loadURL("http://localhost:5173/"); // Use this in dev 
-    // mainWindow.loadFile(path.join(__dirname,"app/dist/index.html")); // Use this when building
+    // mainWindow.loadURL("http://localhost:5173/"); // Use this in dev 
+    mainWindow.loadFile(path.join(__dirname, "app/dist/index.html")); // Use this when building
     mainWindow.setMenu(null);
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
     // Connects to the named pipe containing the frames in bytes. Uses `node:net` to update the frame via events.  
     electron_1.ipcMain.handle("run-landmarker", (_, userId, sequenceId, device) => {
         // Restart landmarker if it is already running.

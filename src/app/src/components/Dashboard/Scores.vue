@@ -2,7 +2,6 @@
     import { onMounted, Ref, ref } from 'vue';
 
     const seqHistory : Ref< Array<any> > = ref([]);
-    const scoreList : Ref< Array<any> > = ref([]);
     
     onMounted(async ()=>{
       updateGauges({target:{value:1}});

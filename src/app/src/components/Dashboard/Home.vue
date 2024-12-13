@@ -15,59 +15,59 @@
     const name = ref("John Doe");
     const isFirstTime = ref(false)
     const allHistory : Ref< Array<any> > = ref([]);
+    const sequenceHistory : Ref< Array<any> > = ref([]);
     const recents : Ref< Array<RecentsRow> >= ref([]);
     
     onMounted(async ()=>{
         allHistory.value = await window.landmarkerAPI.getAllHistory();
+        sequenceHistory.value = await window.landmarkerAPI.getHistory(allHistory.value[allHistory.value.length - 1].sequenceId);
         populateUI();
     });
 
   
     function populateUI() {
-        // let lastSessionId = localStorage.getItem("lastSessionId");
+        var widgetTitle = document.getElementById('widget-header-title')!;
         var latest_canvas = document.getElementById('score-widget-latest');
-        var avg_canvas = document.getElementById('score-widget-average');
         var best_canvas = document.getElementById('score-widget-best');
+        var avg_canvas = document.getElementById('score-widget-average');
         var latest_ctx = (latest_canvas as HTMLCanvasElement).getContext('2d');
         var best_ctx = (best_canvas as HTMLCanvasElement).getContext('2d');
         var avg_ctx = (avg_canvas as HTMLCanvasElement).getContext('2d');
 
-        if (isFirstTime.value) {
-            
-        } else {
-            let latestScore = 0;
-            let bestScore = 0;
-            let avgScore  = 0;
-            let scoreSum  = 0;
-            let _scores = [];
+        if (isFirstTime.value) return;
 
-            console.log(allHistory.value.length);
-            
-            if (allHistory.value.length != 0) {
-                for (let i = 0; i < allHistory.value.length; i++) {
-                    scoreSum += allHistory.value[i].score;
-                    if (i == allHistory.value.length-1)
-                    latestScore = allHistory.value[i].score;
-                    if (allHistory.value[i].score > bestScore)
-                    bestScore = allHistory.value[i].score;
-                    _scores.push(allHistory.value[i].score.toFixed(2));
-                    
-                    recents.value.push({
-                        sequenceName: allHistory.value[i].sequenceName,
-                        score: allHistory.value[i].score.toFixed(2),
-                        date: new Date(parseInt(allHistory.value[i].datetime)).toDateString()
-                    })
-                }
-            avgScore = scoreSum / allHistory.value.length;
+        let latestScore = 0;
+        let bestScore = 0;
+        let avgScore  = 0;
+        let scoreSum  = 0;
+        let _scores = [];
+        
+        if (sequenceHistory.value.length != 0) {
+            // Push History to recents array for recents table
+            for (let i = 0; i < allHistory.value.length; i++) {
+                recents.value.push({
+                    sequenceName: allHistory.value[i].sequenceName,
+                    score: allHistory.value[i].score.toFixed(2),
+                    date: new Date(parseInt(allHistory.value[i].datetime)).toDateString()
+                });
             }
-            
 
-            // Show Sequence Name
-            
-            drawGauge(latest_canvas as HTMLCanvasElement, latest_ctx!, parseFloat(latestScore.toFixed(2)), '#ddd');
-            drawGauge(best_canvas as HTMLCanvasElement, best_ctx!, parseFloat(bestScore.toFixed(2)), '#ddd');
-            drawGauge(avg_canvas as HTMLCanvasElement, avg_ctx!, parseFloat(avgScore.toFixed(2)), '#ddd');
+            // Calculate Latest Sequence's Stats
+            for (let i = 0; i < sequenceHistory.value.length; i++) {
+                scoreSum += sequenceHistory.value[i].score;
+                if (i == sequenceHistory.value.length-1) latestScore = sequenceHistory.value[i].score;
+                if (sequenceHistory.value[i].score > bestScore) bestScore = sequenceHistory.value[i].score;
+                _scores.push(sequenceHistory.value[i].score.toFixed(2));
+            }
+            avgScore = scoreSum / sequenceHistory.value.length;
         }
+        
+
+        // Show Sequence Name
+        widgetTitle.innerText = allHistory.value[allHistory.value.length-1].sequenceName;
+        drawGauge(latest_canvas as HTMLCanvasElement, latest_ctx!, parseFloat(latestScore.toFixed(2)), '#ddd');
+        drawGauge(best_canvas as HTMLCanvasElement, best_ctx!, parseFloat(bestScore.toFixed(2)), '#ddd');
+        drawGauge(avg_canvas as HTMLCanvasElement, avg_ctx!, parseFloat(avgScore.toFixed(2)), '#ddd');
     }
 
     function drawGauge(
@@ -120,7 +120,7 @@
                         <img :src="titleblockSVG">
                         <p>Latest Session</p>
                     </div>
-                    <div id="latest-widget">
+                    <div id="latest-widget" @click="$emit('startSession', allHistory[allHistory.length - 1].sequenceId)">
                         <div id="widget-header">
                             <h1 id="widget-header-title"></h1>
                             <img :src="playSVG" width="20px">
@@ -237,9 +237,12 @@
 }
 
 #widget-header {
-    position: absolute;
+    display: flex;
+    width: -webkit-fill-available;
+    justify-content: space-between;
     h1 {
         font-weight: normal;
+        font-size: 15px;
     }
 }
 
